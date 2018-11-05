@@ -1145,7 +1145,7 @@ class TranslatorPHP extends CommonTranslator{
 				}
 				$this->levelDec();
 				$res .= $this->s("}");
-				$res .= $this->s("parser::assign(\$obj);");
+				$res .= $this->s("parent::assignObject(\$obj);");
 				$this->levelDec();
 				$res .= $this->s("}");
 			}

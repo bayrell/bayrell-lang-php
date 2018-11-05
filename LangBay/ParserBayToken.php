@@ -110,7 +110,7 @@ class ParserBayToken extends ParserToken{
 			$this->moveChar($match_char);
 		}
 		else {
-			throw new EndOfStringExpected($this->context(), $start_line, $start_col);
+			throw new EndOfStringExpected($start_line, $start_col, $this->context());
 		}
 		return $res_str;
 	}

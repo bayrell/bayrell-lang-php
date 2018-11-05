@@ -86,6 +86,7 @@ use BayrellLang\OpCodes\OpTryCatchChilds;
 use BayrellLang\OpCodes\OpUse;
 use BayrellLang\OpCodes\OpVector;
 use BayrellLang\OpCodes\OpWhile;
+use BayrellLang\LangES6\FunctionStack;
 class TranslatorES6 extends CommonTranslator{
 	public function getClassName(){return "BayrellLang.LangES6.TranslatorES6";}
 	public static function getParentClassName(){return "BayrellLang.CommonTranslator";}
@@ -94,9 +95,181 @@ class TranslatorES6 extends CommonTranslator{
 		$this->modules = null;
 		$this->current_namespace = "";
 		$this->current_class_name = "";
-		$this->current_function_name = null;
+		$this->function_stack = null;
 		$this->current_module_name = "";
 		$this->is_interface = false;
+		$this->is_return = false;
+		$this->is_async_opcode = false;
+		$this->is_async_await_op_call = false;
+	}
+	/**
+	 * Returns true if function is async
+	 * @return bool
+	 */
+	function checkAwaitOpCode($op_code){
+		if ($this->detectIsAwait($op_code)){
+			$this->is_async_opcode = true;
+		}
+		else {
+			$this->is_async_opcode = false;
+		}
+	}
+	/**
+	 * Returns true if function is async
+	 * @return bool
+	 */
+	function isAsyncF(){
+		if ($this->function_stack->count() == 0){
+			return false;
+		}
+		return $this->function_stack->last()->is_async;
+	}
+	/**
+	 * Returns true if function is async
+	 * @return bool
+	 */
+	function isAsync(){
+		if (!$this->isAsyncF()){
+			return false;
+		}
+		return $this->is_async_opcode;
+	}
+	/**
+	 * Returns async ctx name
+	 * @return string
+	 */
+	function asyncContextName(){
+		if (!$this->isAsyncF()){
+			return "";
+		}
+		return $this->function_stack->last()->async_ctx;
+	}
+	/**
+	 * Returns async jump name
+	 * @return string
+	 */
+	function asyncJumpName(){
+		if (!$this->isAsyncF()){
+			return "";
+		}
+		return $this->function_stack->last()->async_jump;
+	}
+	/**
+	 * Returns async jump position
+	 * @return string
+	 */
+	function asyncJumpCurrent(){
+		if (!$this->isAsyncF()){
+			return "";
+		}
+		$obj = $this->function_stack->last();
+		return $obj->getJumpPos();
+	}
+	/**
+	 * Returns async jump position
+	 * @return string
+	 */
+	function asyncJumpAdd($force = false){
+		if (!$this->isAsync() && !$force){
+			return "";
+		}
+		$obj = $this->function_stack->last();
+		$obj->jumpAdd();
+		return $obj->getJumpPos();
+	}
+	/**
+	 * Returns next jump position
+	 * @return string
+	 */
+	function asyncJumpNext($force = false){
+		if (!$this->isAsync() && !$force){
+			return "";
+		}
+		$obj = $this->function_stack->last();
+		return $this->function_stack->last()->getJumpNext();
+	}
+	/**
+	 * Increment jump position's level 
+	 */
+	function asyncJumpPush($force = false){
+		if (!$this->isAsync() && !$force){
+			return ;
+		}
+		$obj = $this->function_stack->last();
+		$this->function_stack->last()->jumpPush();
+	}
+	/**
+	 * Decrement jump position's level
+	 */
+	function asyncJumpPop($force = false){
+		if (!$this->isAsync() && !$force){
+			return ;
+		}
+		$obj = $this->function_stack->last();
+		$this->function_stack->last()->jumpPop();
+	}
+	/**
+	 * Push stop jump positions for break and continue
+	 */
+	function asyncPushStop($start_pos, $end_pos){
+		if (!$this->isAsync()){
+			return ;
+		}
+		$obj = $this->function_stack->last();
+		$obj->stopPush($start_pos, $end_pos);
+	}
+	/**
+	 * Pop stop jump positions
+	 */
+	function asyncPopStop(){
+		if (!$this->isAsync()){
+			return ;
+		}
+		$obj = $this->function_stack->last();
+		$obj->stopPop();
+	}
+	/**
+	 * Returns begin async position
+	 * @return string
+	 */
+	function asyncBeginPos(){
+		if (!$this->isAsync()){
+			return ;
+		}
+		$obj = $this->function_stack->last();
+		return $obj->getAsyncBeginPos();
+	}
+	/**
+	 * Returns end async position
+	 * @return string
+	 */
+	function asyncEndPos(){
+		if (!$this->isAsync()){
+			return ;
+		}
+		$obj = $this->function_stack->last();
+		return $obj->getAsyncEndPos();
+	}
+	/**
+	 * Push function
+	 * @string name - Function name
+	 */
+	function functionPush($name, $is_async){
+		$obj = new FunctionStack();
+		$obj->name = $name;
+		$obj->is_async = $is_async;
+		if ($is_async){
+			$obj->async_ctx = "async_ctx_" . rtl::toString($this->function_stack->count());
+			$obj->async_jump = "async_jump_" . rtl::toString($this->function_stack->count());
+			$obj->async_jump_pos->push(0);
+		}
+		$this->function_stack->push($obj);
+	}
+	/**
+	 * Pop function
+	 */
+	function functionPop(){
+		$this->function_stack->pop();
 	}
 	/**
 	 * Get name
@@ -332,7 +505,7 @@ class TranslatorES6 extends CommonTranslator{
 	 */
 	function OpPostDec($op_code){
 		$semicolon = ($this->is_operation) ? ("") : (";");
-		$res = rtl::toString($this->o($this->translateRun($op_code->value), 17)) . "--";
+		$res = rtl::toString($this->o($this->translateRun($op_code->value), 17)) . "--" . rtl::toString($semicolon);
 		$this->current_opcode_level = 17;
 		return $res;
 	}
@@ -341,7 +514,7 @@ class TranslatorES6 extends CommonTranslator{
 	 */
 	function OpPostInc($op_code){
 		$semicolon = ($this->is_operation) ? ("") : (";");
-		$res = rtl::toString($this->o($this->translateRun($op_code->value), 17)) . "++";
+		$res = rtl::toString($this->o($this->translateRun($op_code->value), 17)) . "++" . rtl::toString($semicolon);
 		$this->current_opcode_level = 17;
 		return $res;
 	}
@@ -356,7 +529,7 @@ class TranslatorES6 extends CommonTranslator{
 	 */
 	function OpPreDec($op_code){
 		$semicolon = ($this->is_operation) ? ("") : (";");
-		$res = "--" . rtl::toString($this->o($this->translateRun($op_code->value), 16));
+		$res = "--" . rtl::toString($this->o($this->translateRun($op_code->value), 16)) . rtl::toString($semicolon);
 		$this->current_opcode_level = 16;
 		return $res;
 	}
@@ -365,7 +538,7 @@ class TranslatorES6 extends CommonTranslator{
 	 */
 	function OpPreInc($op_code){
 		$semicolon = ($this->is_operation) ? ("") : (";");
-		$res = "++" . rtl::toString($this->o($this->translateRun($op_code->value), 16));
+		$res = "++" . rtl::toString($this->o($this->translateRun($op_code->value), 16)) . rtl::toString($semicolon);
 		$this->current_opcode_level = 16;
 		return $res;
 	}
@@ -396,8 +569,8 @@ class TranslatorES6 extends CommonTranslator{
 		/* Function name */
 		$f = true;
 		if ($op_code->value instanceof OpIdentifier){
-			if ($op_code->value->value == "parent" && $this->current_function_name->get(0) != "constructor"){
-				$s .= "super." . rtl::toString($this->current_function_name->get(0));
+			if ($op_code->value->value == "parent" && $this->function_stack->get(0)->name != "constructor"){
+				$s .= "super." . rtl::toString($this->function_stack->get(0)->name);
 				$f = false;
 			}
 		}
@@ -427,6 +600,21 @@ class TranslatorES6 extends CommonTranslator{
 			$s .= ";";
 		}
 		$this->current_opcode_level = $this->max_opcode_level;
+		if ($this->isAsyncF() && !$this->is_async_await_op_call && $op_code->is_await){
+			$old_async_opcode = $this->is_async_opcode;
+			$this->is_async_opcode = true;
+			$res = "";
+			$jump_pos_next = $this->asyncJumpNext();
+			$res .= rtl::toString($this->asyncContextName()) . ".jump(" . rtl::toString($this->convertString($jump_pos_next)) . ");";
+			$res .= $this->s("return " . rtl::toString($s));
+			$this->levelDec();
+			$res .= $this->s("}");
+			$res .= $this->s("else if (" . rtl::toString($this->asyncJumpName()) . " == " . rtl::toString($this->convertString($jump_pos_next)) . "){");
+			$this->levelInc();
+			$this->asyncJumpAdd();
+			$this->is_async_opcode = $old_async_opcode;
+			return $res;
+		}
 		return $s;
 	}
 	/**
@@ -503,7 +691,67 @@ class TranslatorES6 extends CommonTranslator{
 	/**
 	 * Assign
 	 */
+	function OpAssignAwait($op_code){
+		$res = "";
+		$s = "";
+		$this->is_async_await_op_call = true;
+		$old_is_operation = $this->beginOperation();
+		$this->current_opcode_level = 0;
+		$this->levelInc();
+		$s = $this->s($this->translateRun($op_code->value));
+		$this->levelDec();
+		$this->endOperation($old_is_operation);
+		$jump_pos_next = $this->asyncJumpNext(true);
+		$res .= rtl::toString($this->asyncContextName()) . ".jump(" . rtl::toString($this->convertString($jump_pos_next)) . ");";
+		$res .= $this->s("return " . rtl::toString($s) . ";");
+		$this->levelDec();
+		$res .= $this->s("}");
+		$res .= $this->s("else if (" . rtl::toString($this->asyncJumpName()) . " == " . rtl::toString($this->convertString($jump_pos_next)) . "){");
+		$this->levelInc();
+		$old_is_operation = $this->beginOperation();
+		$this->pushOneLine(true);
+		if ($op_code instanceof OpAssign){
+			$s = $this->translateRun($op_code->ident);
+			if ($op_code->op_name == "="){
+				$s .= " = ";
+			}
+			else if ($op_code->op_name == "~="){
+				$s .= " += ";
+			}
+			else if ($op_code->op_name == "+="){
+				$s .= " += ";
+			}
+			else if ($op_code->op_name == "-="){
+				$s .= " -= ";
+			}
+		}
+		else if ($op_code instanceof OpAssignDeclare){
+			$s = rtl::toString($op_code->name) . " = ";
+		}
+		$s .= rtl::toString($this->asyncContextName()) . ".result();";
+		$this->popOneLine();
+		$this->endOperation($old_is_operation);
+		$this->asyncJumpAdd(true);
+		$res .= $this->s($s);
+		$this->is_async_await_op_call = false;
+		return $res;
+	}
+	/**
+	 * Assign
+	 */
 	function OpAssign($op_code){
+		$is_async_f = $this->isAsyncF();
+		$is_async = false;
+		if ($is_async_f){
+			if ($op_code->value instanceof OpCall){
+				if ($op_code->value->is_await){
+					$is_async = true;
+				}
+			}
+		}
+		if ($is_async){
+			return $this->OpAssignAwait($op_code);
+		}
 		$old_is_operation = $this->beginOperation();
 		/* one line */
 		$this->pushOneLine(true);
@@ -535,16 +783,32 @@ class TranslatorES6 extends CommonTranslator{
 	 * Assign declare
 	 */
 	function OpAssignDeclare($op_code){
+		$is_async_f = $this->isAsyncF();
+		$is_async = false;
+		if ($is_async_f){
+			if ($op_code->value != null && $op_code->value instanceof OpCall){
+				if ($op_code->value->is_await){
+					$is_async = true;
+				}
+			}
+		}
+		if ($is_async){
+			return $this->OpAssignAwait($op_code);
+		}
 		$res = "";
 		$old_is_operation = $this->beginOperation();
 		if ($op_code->value == null){
+			if ($is_async_f){
+				$this->endOperation($old_is_operation);
+				return "";
+			}
 			$this->pushOneLine(true);
 			$res = "var " . rtl::toString($op_code->name);
 			$this->popOneLine();
 		}
 		else {
 			$this->pushOneLine(true);
-			$res = "var " . rtl::toString($op_code->name) . " = ";
+			$res = rtl::toString((!$is_async_f) ? ("var ") : ("")) . rtl::toString($op_code->name) . " = ";
 			$this->popOneLine();
 			$this->current_opcode_level = 0;
 			$this->levelInc();
@@ -561,6 +825,11 @@ class TranslatorES6 extends CommonTranslator{
 	 * Break
 	 */
 	function OpBreak($op_code){
+		if ($this->isAsync()){
+			$this->is_return = true;
+			$pos = $this->asyncEndPos();
+			return "return " . rtl::toString($this->asyncContextName()) . ".jump(" . rtl::toString($this->convertString($pos)) . ");";
+		}
 		return "break;";
 	}
 	/**
@@ -583,6 +852,11 @@ class TranslatorES6 extends CommonTranslator{
 	 * Continue
 	 */
 	function OpContinue($op_code){
+		if ($this->isAsync()){
+			$this->is_return = true;
+			$pos = $this->asyncBeginPos();
+			return "return " . rtl::toString($this->asyncContextName()) . ".jump(" . rtl::toString($this->convertString($pos)) . ");";
+		}
 		return "continue;";
 	}
 	/**
@@ -596,17 +870,79 @@ class TranslatorES6 extends CommonTranslator{
 	 */
 	function OpFor($op_code){
 		$s = "";
+		$jump_pos_begin = "";
+		$jump_pos_end = "";
+		$jump_pos_childs = "";
+		/* Check await op_code*/
+		$this->checkAwaitOpCode($op_code);
+		/* Async start */
+		$jump_pos_begin = $this->asyncJumpCurrent();
+		$jump_pos_end = $this->asyncJumpNext();
+		$this->asyncJumpPush();
+		$jump_pos_childs = $this->asyncJumpCurrent();
+		/* Push stop jump positions for break and continue */
+		$this->asyncPushStop($jump_pos_begin, $jump_pos_end);
 		/* Header */
-		$this->beginOperation();
-		$s .= "for (" . rtl::toString($this->translateRun($op_code->loop_init)) . "; " . rtl::toString($this->translateRun($op_code->loop_condition)) . "; " . rtl::toString($this->translateRun($op_code->loop_inc)) . "){";
-		$this->endOperation();
-		/* Childs */
-		$this->levelInc();
-		for ($i = 0; $i < $op_code->childs->count(); $i++){
-			$s .= $this->s($this->translateRun($op_code->childs->item($i)));
+		if ($this->isAsync()){
+			$s .= $this->translateRun($op_code->loop_init);
+			$this->asyncJumpAdd();
+			$jump_pos_begin = $this->asyncJumpCurrent();
+			$s .= $this->s("return " . rtl::toString($this->asyncContextName()) . ".jump(" . rtl::toString($this->convertString($jump_pos_begin)) . ");");
+			$this->levelDec();
+			$s .= $this->s("}");
+			$s .= $this->s("else if (" . rtl::toString($this->asyncJumpName()) . " == " . rtl::toString($this->convertString($jump_pos_begin)) . "){");
+			$this->levelInc();
+			$this->beginOperation();
+			$s1 = "if (" . rtl::toString($this->translateRun($op_code->loop_condition)) . "){";
+			$this->endOperation();
+			$s .= $this->s($s1);
 		}
-		$this->levelDec();
+		else {
+			$this->beginOperation();
+			$s .= "for (" . rtl::toString($this->translateRun($op_code->loop_init)) . "; " . rtl::toString($this->translateRun($op_code->loop_condition)) . "; " . rtl::toString($this->translateRun($op_code->loop_inc)) . "){";
+			$this->endOperation();
+		}
+		$op_code_childs = "";
+		if (!$this->isAsync()){
+			$this->levelInc();
+		}
+		for ($i = 0; $i < $op_code->childs->count(); $i++){
+			$op_code_childs .= $this->s($this->translateRun($op_code->childs->item($i)));
+		}
+		if ($this->isAsync()){
+			$op_code_childs .= $this->s($this->translateRun($op_code->loop_inc));
+		}
+		if (!$this->isAsync()){
+			$this->levelDec();
+		}
+		if ($this->isAsync()){
+			$this->levelInc();
+			$s .= $this->s("return " . rtl::toString($this->asyncContextName()) . ".jump(" . rtl::toString($this->convertString($jump_pos_childs)) . ");");
+			$this->levelDec();
+		}
+		else {
+			$s .= $op_code_childs;
+		}
 		$s .= $this->s("}");
+		/* Async jump code */
+		if ($this->isAsync()){
+			$s .= $this->s("return " . rtl::toString($this->asyncContextName()) . ".jump(" . rtl::toString($this->convertString($jump_pos_end)) . ");");
+			if ($jump_pos_childs != ""){
+				$this->levelDec();
+				$s .= $this->s("}");
+				$s .= $this->s("else if (" . rtl::toString($this->asyncJumpName()) . " == " . rtl::toString($this->convertString($jump_pos_childs)) . "){");
+				$this->levelInc();
+				$s .= $op_code_childs;
+				$s .= $this->s("return " . rtl::toString($this->asyncContextName()) . ".jump(" . rtl::toString($this->convertString($jump_pos_begin)) . ");");
+			}
+			$this->levelDec();
+			$s .= $this->s("}");
+			$s .= $this->s("else if (" . rtl::toString($this->asyncJumpName()) . " == " . rtl::toString($this->convertString($jump_pos_end)) . "){");
+			$this->levelInc();
+		}
+		$this->asyncPopStop();
+		$this->asyncJumpPop();
+		$this->asyncJumpAdd();
 		return $s;
 	}
 	/**
@@ -614,16 +950,47 @@ class TranslatorES6 extends CommonTranslator{
 	 */
 	function OpIf($op_code){
 		$s = "";
+		$old_is_return = $this->is_return;
+		$jump_pos_true = "";
+		$jump_pos_false = "";
+		$jump_pos_begin = "";
+		$jump_pos_end = "";
+		$is_return_true = false;
+		$is_return_false = false;
+		$op_code_true = "";
+		$op_code_false = "";
+		$op_code_else = new Vector();
+		/* Check await op_code*/
+		$this->checkAwaitOpCode($op_code);
 		/* Condition */
 		$this->beginOperation();
 		$s .= "if (" . rtl::toString($this->translateRun($op_code->condition)) . "){";
 		$this->endOperation();
+		/* Increase level */
+		$jump_pos_end = $this->asyncJumpNext();
+		$this->asyncJumpPush();
+		$jump_pos_begin = $this->asyncJumpCurrent();
 		/* If true */
-		$this->levelInc();
-		for ($i = 0; $i < $op_code->if_true->count(); $i++){
-			$s .= $this->s($this->translateRun($op_code->if_true->item($i)));
+		$this->is_return = false;
+		$jump_pos_true = $this->asyncJumpAdd();
+		if (!$this->isAsync()){
+			$this->levelInc();
 		}
-		$this->levelDec();
+		for ($i = 0; $i < $op_code->if_true->count(); $i++){
+			$op_code_true .= $this->s($this->translateRun($op_code->if_true->item($i)));
+		}
+		if (!$this->isAsync()){
+			$this->levelDec();
+		}
+		if ($this->isAsync()){
+			$is_return_true = $this->is_return;
+			$this->levelInc();
+			$s .= $this->s("return " . rtl::toString($this->asyncContextName()) . ".jump(" . rtl::toString($this->convertString($jump_pos_true)) . ");");
+			$this->levelDec();
+		}
+		else {
+			$s .= $op_code_true;
+		}
 		$s .= $this->s("}");
 		/* If else */
 		for ($i = 0; $i < $op_code->if_else->count(); $i++){
@@ -632,23 +999,102 @@ class TranslatorES6 extends CommonTranslator{
 			$res = "else if (" . rtl::toString($this->translateRun($if_else->condition)) . "){";
 			$this->endOperation();
 			$s .= $this->s($res);
-			$this->levelInc();
-			for ($j = 0; $j < $if_else->if_true->count(); $j++){
-				$s .= $this->s($this->translateRun($if_else->if_true->item($j)));
+			$this->is_return = false;
+			$jump_pos = $this->asyncJumpAdd();
+			$code_else = "";
+			if (!$this->isAsync()){
+				$this->levelInc();
 			}
-			$this->levelDec();
+			for ($j = 0; $j < $if_else->if_true->count(); $j++){
+				$code_else .= $this->s($this->translateRun($if_else->if_true->item($j)));
+			}
+			if (!$this->isAsync()){
+				$this->levelDec();
+			}
+			if ($this->isAsync()){
+				$is_return = $this->is_return;
+				$op_code_else->push((new Map())->set("jump_pos", $jump_pos)->set("is_return", $is_return)->set("op_code", $code_else));
+				$this->levelInc();
+				$s .= $this->s("return " . rtl::toString($this->asyncContextName()) . ".jump(" . rtl::toString($this->convertString($jump_pos)) . ");");
+				$this->levelDec();
+			}
+			else {
+				$s .= $code_else;
+			}
 			$s .= $this->s("}");
 		}
 		/* If false */
 		if ($op_code->if_false != null){
+			$this->is_return = false;
+			$jump_pos_false = $this->asyncJumpAdd();
 			$s .= $this->s("else {");
-			$this->levelInc();
+			if (!$this->isAsync()){
+				$this->levelInc();
+			}
 			for ($i = 0; $i < $op_code->if_false->count(); $i++){
-				$s .= $this->s($this->translateRun($op_code->if_false->item($i)));
+				$op_code_false .= $this->s($this->translateRun($op_code->if_false->item($i)));
+			}
+			if (!$this->isAsync()){
+				$this->levelDec();
+			}
+			if ($this->isAsync()){
+				$is_return_false = $this->is_return;
+				$this->levelInc();
+				$s .= $this->s("return " . rtl::toString($this->asyncContextName()) . ".jump(" . rtl::toString($this->convertString($jump_pos_false)) . ");");
+				$this->levelDec();
+			}
+			else {
+				$s .= $op_code_false;
+			}
+			$s .= $this->s("}");
+		}
+		if ($this->isAsync()){
+			$s .= $this->s("return " . rtl::toString($this->asyncContextName()) . ".jump(" . rtl::toString($this->convertString($jump_pos_end)) . ");");
+			if ($jump_pos_true != ""){
+				$this->levelDec();
+				$s .= $this->s("}");
+				$s .= $this->s("else if (" . rtl::toString($this->asyncJumpName()) . " == " . rtl::toString($this->convertString($jump_pos_true)) . "){");
+				$this->levelInc();
+				$s .= $op_code_true;
+				if (!$is_return_true){
+					$s .= $this->s("return " . rtl::toString($this->asyncContextName()) . ".jump(" . rtl::toString($this->convertString($jump_pos_end)) . ");");
+				}
+			}
+			if ($op_code_else->count() > 0){
+				$op_code_else_sz = $op_code_else->count();
+				for ($i = 0; $i < $op_code_else_sz; $i++){
+					$item = $op_code_else->item($i);
+					$jump_pos = $item->get("jump_pos", -1, "int");
+					$is_return = $item->get("is_return", false, "bool");
+					$op_code = $item->get("op_code", "", "string");
+					$this->levelDec();
+					$s .= $this->s("}");
+					$s .= $this->s("else if (" . rtl::toString($this->asyncJumpName()) . " == " . rtl::toString($this->convertString($jump_pos)) . "){");
+					$this->levelInc();
+					$s .= $op_code;
+					if (!$is_return){
+						$s .= $this->s("return " . rtl::toString($this->asyncContextName()) . ".jump(" . rtl::toString($this->convertString($jump_pos_end)) . ");");
+					}
+				}
+			}
+			if ($jump_pos_false != ""){
+				$this->levelDec();
+				$s .= $this->s("}");
+				$s .= $this->s("else if (" . rtl::toString($this->asyncJumpName()) . " == " . rtl::toString($this->convertString($jump_pos_false)) . "){");
+				$this->levelInc();
+				$s .= $op_code_false;
+				if (!$is_return_false){
+					$s .= $this->s("return " . rtl::toString($this->asyncContextName()) . ".jump(" . rtl::toString($this->convertString($jump_pos_end)) . ");");
+				}
 			}
 			$this->levelDec();
 			$s .= $this->s("}");
+			$s .= $this->s("else if (" . rtl::toString($this->asyncJumpName()) . " == " . rtl::toString($this->convertString($jump_pos_end)) . "){");
+			$this->levelInc();
 		}
+		$this->asyncJumpPop();
+		$this->asyncJumpAdd();
+		$this->is_return = $old_is_return;
 		return $s;
 	}
 	/**
@@ -657,12 +1103,17 @@ class TranslatorES6 extends CommonTranslator{
 	function OpReturn($op_code){
 		$this->beginOperation();
 		/* result */
-		$s = "return ";
 		$this->current_opcode_level = 0;
 		$this->levelInc();
-		$s .= $this->s($this->translateRun($op_code->value));
+		$s = $this->s($this->translateRun($op_code->value));
 		$this->levelDec();
-		$s .= $this->s(";");
+		if ($this->isAsyncF()){
+			$s = "return " . rtl::toString($this->asyncContextName()) . ".resolve(" . rtl::toString($s) . ");";
+			$this->is_return = true;
+		}
+		else {
+			$s = "return " . rtl::toString($s) . ";";
+		}
 		$this->endOperation();
 		return $s;
 	}
@@ -684,16 +1135,47 @@ class TranslatorES6 extends CommonTranslator{
 	 */
 	function OpTryCatch($op_code){
 		$s = "";
-		$s .= "try{";
-		$this->levelInc();
-		for ($i = 0; $i < $op_code->op_try->count(); $i++){
-			$s .= $this->s($this->translateRun($op_code->op_try->item($i)));
+		/* Check await op_code*/
+		$this->checkAwaitOpCode($op_code);
+		$jump_pos_catch = "";
+		$jump_pos_end = "";
+		if ($this->isAsync()){
 		}
-		$this->levelDec();
-		$s .= $this->s("}");
+		else {
+			$s .= "try{";
+			$this->levelInc();
+		}
+		$op_code_try = "";
+		for ($i = 0; $i < $op_code->op_try->count(); $i++){
+			$op_code_try .= $this->s($this->translateRun($op_code->op_try->item($i)));
+		}
+		$jump_pos_catch = $this->asyncJumpNext();
+		$this->asyncJumpAdd();
+		$jump_pos_end = $this->asyncJumpNext();
+		if ($this->isAsync()){
+			$s .= rtl::toString($this->asyncContextName()) . ".catchPush(" . rtl::toString($this->convertString($jump_pos_catch)) . ");";
+			$s .= $op_code_try;
+			$s .= $this->s("return " . rtl::toString($this->asyncContextName()) . ".jump(" . rtl::toString($this->convertString($jump_pos_end)) . ");");
+			$this->levelDec();
+			$s .= $this->s("}");
+			$s .= $this->s("else if (" . rtl::toString($this->asyncJumpName()) . " == " . rtl::toString($this->convertString($jump_pos_catch)) . "){");
+			$this->levelInc();
+			$this->asyncJumpAdd();
+		}
+		else {
+			$s .= $op_code_try;
+			$this->levelDec();
+			$s .= $this->s("}");
+		}
 		$is_else = "";
 		$try_catch_childs_sz = $op_code->childs->count();
-		$s .= "catch(_the_exception){";
+		if (!$this->isAsync()){
+			$s .= "catch(_the_exception){";
+		}
+		else {
+			$s .= $this->s(rtl::toString($this->asyncContextName()) . ".catchPop();");
+			$s .= $this->s("var _the_exception = " . rtl::toString($this->asyncContextName()) . ".getError();");
+		}
 		for ($i = 0; $i < $try_catch_childs_sz; $i++){
 			$try_catch = $op_code->childs->item($i);
 			$this->beginOperation();
@@ -703,7 +1185,9 @@ class TranslatorES6 extends CommonTranslator{
 			if ($tp == "var"){
 				$tp = "Error";
 			}
-			$this->levelInc();
+			if (!$this->isAsync()){
+				$this->levelInc();
+			}
 			$s .= $this->s(rtl::toString($is_else) . "if (_the_exception instanceof " . rtl::toString($tp) . "){");
 			$this->levelInc();
 			$s .= $this->s("var " . rtl::toString($name) . " = _the_exception;");
@@ -712,15 +1196,33 @@ class TranslatorES6 extends CommonTranslator{
 			}
 			$this->levelDec();
 			$s .= $this->s("}");
-			$this->levelDec();
+			if (!$this->isAsync()){
+				$this->levelDec();
+			}
 			$is_else = "else";
 		}
 		if ($try_catch_childs_sz > 0){
-			$this->levelInc();
-			$s .= $this->s("else { throw _the_exception; }");
-			$this->levelDec();
+			if ($this->isAsync()){
+				$s .= $this->s("else {  return " . rtl::toString($this->asyncContextName()) . ".error( _the_exception );  }");
+			}
+			else {
+				$this->levelInc();
+				$s .= $this->s("else { throw _the_exception; }");
+				$this->levelDec();
+			}
 		}
-		$s .= $this->s("}");
+		if ($this->isAsync()){
+			$s .= $this->s(rtl::toString($this->asyncContextName()) . ".clearError();");
+			$s .= $this->s("return " . rtl::toString($this->asyncContextName()) . ".jump(" . rtl::toString($this->convertString($jump_pos_end)) . ");");
+			$this->levelDec();
+			$s .= $this->s("}");
+			$s .= $this->s("else if (" . rtl::toString($this->asyncJumpName()) . " == " . rtl::toString($this->convertString($jump_pos_end)) . "){");
+			$this->levelInc();
+			$this->asyncJumpAdd();
+		}
+		else {
+			$s .= $this->s("}");
+		}
 		return $s;
 	}
 	/**
@@ -728,17 +1230,65 @@ class TranslatorES6 extends CommonTranslator{
 	 */
 	function OpWhile($op_code){
 		$s = "";
+		$jump_pos_begin = "";
+		$jump_pos_end = "";
+		$jump_pos_childs = "";
+		/* Check await op_code*/
+		$this->checkAwaitOpCode($op_code);
+		$jump_pos_begin = $this->asyncJumpCurrent();
+		$jump_pos_end = $this->asyncJumpNext();
+		$this->asyncJumpPush();
+		$jump_pos_childs = $this->asyncJumpCurrent();
+		/* Push stop jump positions for break and continue */
+		$this->asyncPushStop($jump_pos_begin, $jump_pos_end);
 		/* Condition */
 		$this->beginOperation();
-		$s .= "while (" . rtl::toString($this->translateRun($op_code->condition)) . "){";
+		if ($this->isAsync()){
+			$s .= "if (" . rtl::toString($this->translateRun($op_code->condition)) . "){";
+		}
+		else {
+			$s .= "while (" . rtl::toString($this->translateRun($op_code->condition)) . "){";
+		}
 		$this->endOperation();
 		/* Childs */
-		$this->levelInc();
-		for ($i = 0; $i < $op_code->childs->count(); $i++){
-			$s .= $this->s($this->translateRun($op_code->childs->item($i)));
+		$op_code_childs = "";
+		if (!$this->isAsync()){
+			$this->levelInc();
 		}
-		$this->levelDec();
+		for ($i = 0; $i < $op_code->childs->count(); $i++){
+			$op_code_childs .= $this->s($this->translateRun($op_code->childs->item($i)));
+		}
+		if (!$this->isAsync()){
+			$this->levelDec();
+		}
+		if ($this->isAsync()){
+			$this->levelInc();
+			$s .= $this->s("return " . rtl::toString($this->asyncContextName()) . ".jump(" . rtl::toString($this->convertString($jump_pos_childs)) . ");");
+			$this->levelDec();
+		}
+		else {
+			$s .= $op_code_childs;
+		}
 		$s .= $this->s("}");
+		/* Async jump code */
+		if ($this->isAsync()){
+			$s .= $this->s("return " . rtl::toString($this->asyncContextName()) . ".jump(" . rtl::toString($this->convertString($jump_pos_end)) . ");");
+			if ($jump_pos_childs != ""){
+				$this->levelDec();
+				$s .= $this->s("}");
+				$s .= $this->s("else if (" . rtl::toString($this->asyncJumpName()) . " == " . rtl::toString($this->convertString($jump_pos_childs)) . "){");
+				$this->levelInc();
+				$s .= $op_code_childs;
+				$s .= $this->s("return " . rtl::toString($this->asyncContextName()) . ".jump(" . rtl::toString($this->convertString($jump_pos_begin)) . ");");
+			}
+			$this->levelDec();
+			$s .= $this->s("}");
+			$s .= $this->s("else if (" . rtl::toString($this->asyncJumpName()) . " == " . rtl::toString($this->convertString($jump_pos_end)) . "){");
+			$this->levelInc();
+		}
+		$this->asyncPopStop();
+		$this->asyncJumpPop();
+		$this->asyncJumpAdd();
 		return $s;
 	}
 	/** ======================== Namespace and use ======================== */
@@ -774,6 +1324,132 @@ class TranslatorES6 extends CommonTranslator{
 	}
 	/** ============================= Classes ============================= */
 	/**
+	 * Returns all declare variables for async function
+	 * @param BaseOpCode op_code
+	 * @param Vector<string> variables
+	 */
+	function detectAsyncDeclareVariables($op_code, $variables){
+		if ($op_code instanceof OpAssignDeclare){
+			$variables->push($op_code->name);
+		}
+		else if ($op_code instanceof OpFunctionDeclare){
+			for ($i = 0; $i < $op_code->childs->count(); $i++){
+				$this->detectAsyncDeclareVariables($op_code->childs->item($i), $variables);
+			}
+		}
+		else if ($op_code instanceof OpFor){
+			for ($i = 0; $i < $op_code->childs->count(); $i++){
+				$this->detectAsyncDeclareVariables($op_code->childs->item($i), $variables);
+			}
+		}
+		else if ($op_code instanceof OpIf){
+			for ($i = 0; $i < $op_code->if_true->count(); $i++){
+				$this->detectAsyncDeclareVariables($op_code->if_true->item($i), $variables);
+			}
+			for ($i = 0; $i < $op_code->if_else->count(); $i++){
+				$item = $op_code->if_else->item($i);
+				for ($j = 0; $j < $item->if_true->count(); $j++){
+					$this->detectAsyncDeclareVariables($item->if_true->item($j), $variables);
+				}
+			}
+			if ($op_code->if_false != null){
+				for ($i = 0; $i < $op_code->if_false->count(); $i++){
+					$this->detectAsyncDeclareVariables($op_code->if_true->item($i), $variables);
+				}
+			}
+		}
+		else if ($op_code instanceof OpTryCatch){
+			for ($i = 0; $i < $op_code->op_try->count(); $i++){
+				$this->detectAsyncDeclareVariables($op_code->op_try->item($i), $variables);
+			}
+		}
+		else if ($op_code instanceof OpWhile){
+			for ($i = 0; $i < $op_code->childs->count(); $i++){
+				$this->detectAsyncDeclareVariables($op_code->childs->item($i), $variables);
+			}
+		}
+	}
+	/**
+	 * Returns true if op_code contains await opCall
+	 * @param BaseOpCode op_code
+	 * @return bool
+	 */
+	function detectIsAwait($op_code){
+		if ($op_code instanceof OpAssign){
+			if ($op_code->value != null && $op_code->value instanceof OpCall){
+				if ($op_code->value->is_await){
+					return true;
+				}
+			}
+			return false;
+		}
+		else if ($op_code instanceof OpAssignDeclare){
+			if ($op_code->value != null && $op_code->value instanceof OpCall){
+				if ($op_code->value->is_await){
+					return true;
+				}
+			}
+			return false;
+		}
+		else if ($op_code instanceof OpCall){
+			if ($op_code->is_await){
+				return true;
+			}
+			return false;
+		}
+		else if ($op_code instanceof OpFunctionDeclare){
+			for ($i = 0; $i < $op_code->childs->count(); $i++){
+				if ($this->detectIsAwait($op_code->childs->item($i))){
+					return true;
+				}
+			}
+		}
+		else if ($op_code instanceof OpFor){
+			for ($i = 0; $i < $op_code->childs->count(); $i++){
+				if ($this->detectIsAwait($op_code->childs->item($i))){
+					return true;
+				}
+			}
+		}
+		else if ($op_code instanceof OpIf){
+			for ($i = 0; $i < $op_code->if_true->count(); $i++){
+				if ($this->detectIsAwait($op_code->if_true->item($i))){
+					return true;
+				}
+			}
+			for ($i = 0; $i < $op_code->if_else->count(); $i++){
+				$item = $op_code->if_else->item($i);
+				for ($j = 0; $j < $item->if_true->count(); $j++){
+					if ($this->detectIsAwait($item->if_true->item($j))){
+						return true;
+					}
+				}
+			}
+			if ($op_code->if_false != null){
+				for ($i = 0; $i < $op_code->if_false->count(); $i++){
+					if ($this->detectIsAwait($op_code->if_false->item($i))){
+						return true;
+					}
+				}
+			}
+		}
+		else if ($op_code instanceof OpTryCatch){
+			for ($i = 0; $i < $op_code->op_try->count(); $i++){
+				if ($this->detectIsAwait($op_code->op_try->item($i))){
+					return true;
+				}
+			}
+		}
+		else if ($op_code instanceof OpWhile){
+			for ($i = 0; $i < $op_code->childs->count(); $i++){
+				if ($this->detectIsAwait($op_code->childs->item($i))){
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	/**
 	 * Function header
 	 */
 	function OpFunctionDeclareHeader($op_code){
@@ -793,7 +1469,7 @@ class TranslatorES6 extends CommonTranslator{
 			$ch = ", ";
 		}
 		$res .= ")";
-		if ($this->current_function_name->count() > 1){
+		if ($this->function_stack->count() > 1){
 			$res .= " => ";
 		}
 		return $res;
@@ -807,7 +1483,7 @@ class TranslatorES6 extends CommonTranslator{
 		if ($op_code->isFlag("declare")){
 			return "";
 		}
-		$this->current_function_name->push($op_code->name);
+		$this->functionPush($op_code->name, false);
 		$this->beginOperation();
 		$res .= $this->OpFunctionDeclareHeader($op_code);
 		$res .= "{";
@@ -819,7 +1495,7 @@ class TranslatorES6 extends CommonTranslator{
 		$this->popOneLine(false);
 		$this->levelDec();
 		$res .= $this->s("}");
-		$this->current_function_name->pop();
+		$this->functionPop();
 		return $res;
 	}
 	/**
@@ -832,13 +1508,25 @@ class TranslatorES6 extends CommonTranslator{
 		if ($op_code->isFlag("declare")){
 			return "";
 		}
-		$this->current_function_name->push($op_code->name);
+		$this->functionPush($op_code->name, $op_code->isFlag("async"));
 		$res .= $this->OpFunctionDeclareHeader($op_code);
 		$res .= "{";
 		$this->setOperation(false);
 		$this->pushOneLine(false);
 		$this->levelInc();
-		/* Default variables */
+		/* Async function */
+		if ($op_code->isFlag("async")){
+			$variables = new Vector();
+			$this->detectAsyncDeclareVariables($op_code, $variables);
+			if ($variables->count() > 0){
+				$res .= $this->s("var " . rtl::toString(rs::implode(", ", $variables)) . ";");
+			}
+			$res .= $this->s("return (" . rtl::toString($this->asyncContextName()) . ") => {");
+			$this->levelInc();
+			$res .= $this->s("var " . rtl::toString($this->asyncJumpName()) . " = " . rtl::toString($this->asyncContextName()) . ".current();");
+			$res .= $this->s("if (" . rtl::toString($this->asyncJumpName()) . " == " . rtl::toString($this->convertString($this->asyncJumpCurrent())) . "){");
+			$this->levelInc();
+		}
 		for ($i = 0; $i < $op_code->args->count(); $i++){
 			$variable = $op_code->args->item($i);
 			if ($variable->value == null){
@@ -855,10 +1543,27 @@ class TranslatorES6 extends CommonTranslator{
 				$res .= $this->s($this->translateRun($op_code->childs->item($i)));
 			}
 		}
+		if ($op_code->isFlag("async")){
+			$this->levelDec();
+			$res .= $this->s("}");
+			$res .= $this->s("else if (" . rtl::toString($this->asyncJumpName()) . " == " . rtl::toString($this->convertString("-1")) . "){");
+			$this->levelInc();
+			$res .= $this->s("return " . rtl::toString($this->asyncContextName()) . ".error( " . rtl::toString($this->asyncContextName()) . ".getError() )");
+			$this->levelDec();
+			$res .= $this->s("}");
+			$res .= $this->s("else{");
+			$this->levelInc();
+			$res .= $this->s("return " . rtl::toString($this->asyncContextName()) . ".next();");
+			$this->levelDec();
+			$res .= $this->s("}");
+			$res .= $this->s("return " . rtl::toString($this->asyncContextName()) . ".end();");
+			$this->levelDec();
+			$res .= $this->s("}");
+		}
 		$this->levelDec();
 		$res .= $this->s("}");
 		$this->popOneLine();
-		$this->current_function_name->pop();
+		$this->functionPop();
 		return $res;
 	}
 	/**
@@ -1045,7 +1750,7 @@ class TranslatorES6 extends CommonTranslator{
 				}
 				$this->levelDec();
 				$res .= $this->s("}");
-				$res .= $this->s("super.assign(obj);");
+				$res .= $this->s("super.assignObject(obj);");
 				$this->levelDec();
 				$res .= $this->s("}");
 			}
@@ -1205,7 +1910,7 @@ class TranslatorES6 extends CommonTranslator{
 	 */
 	function resetTranslator(){
 		parent::resetTranslator();
-		$this->current_function_name = new Vector();
+		$this->function_stack = new Vector();
 	}
 	/**
 	 * Translate to language

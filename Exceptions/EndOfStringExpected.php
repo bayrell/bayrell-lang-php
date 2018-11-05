@@ -20,17 +20,17 @@ namespace BayrellLang\Exceptions;
 use Runtime\rtl;
 use Runtime\Map;
 use Runtime\Vector;
-use Runtime\Utils;
+use Runtime\RuntimeUtils;
 use BayrellParser\Exceptions\ParserError;
 use BayrellLang\LangConstant;
 class EndOfStringExpected extends ParserError{
 	public function getClassName(){return "BayrellLang.Exceptions.EndOfStringExpected";}
 	public static function getParentClassName(){return "BayrellParser.Exceptions.ParserError";}
-	function __construct($context, $line, $col, $prev = null){
+	function __construct($line, $col, $context, $prev = null){
 		if ($context == null){
-			$context = Utils::globalContext();
+			$context = RuntimeUtils::globalContext();
 		}
-		parent::__construct($context, $context->translate("ERROR_END_OF_THE_STRING_EXPECTED"), LangConstant::ERROR_END_OF_THE_STRING_EXPECTED, $prev);
+		parent::__construct($context->translate("ERROR_END_OF_THE_STRING_EXPECTED"), LangConstant::ERROR_END_OF_THE_STRING_EXPECTED, $context, $prev);
 		$this->line = $line;
 		$this->pos = $col;
 		$this->buildMessage();

@@ -203,7 +203,7 @@ class CommonParser extends CoreParser{
 			if ($this->lookNextTokenType() == ParserToken::TOKEN_BASE && $this->isHexStringBegin($this->lookNextToken())){
 				$start_line = $this->next_token->start_line;
 				$start_col = $this->next_token->start_col;
-				throw new HexNumberExpected($this->context(), $start_line, $start_col);
+				throw new HexNumberExpected($start_line, $start_col, $this->context());
 			}
 			else {
 				throw $this->nextTokenExpected($this->translate("ERROR_PARSER_HEX_NUMBER_EXPECTED"));

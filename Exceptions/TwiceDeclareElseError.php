@@ -20,17 +20,17 @@ namespace BayrellLang\Exceptions;
 use Runtime\rtl;
 use Runtime\Map;
 use Runtime\Vector;
-use Runtime\Utils;
+use Runtime\RuntimeUtils;
 use BayrellParser\Exceptions\ParserError;
 use BayrellLang\LangConstant;
 class TwiceDeclareElseError extends ParserError{
 	public function getClassName(){return "BayrellLang.Exceptions.TwiceDeclareElseError";}
 	public static function getParentClassName(){return "BayrellParser.Exceptions.ParserError";}
-	function __construct($context, $line, $col, $prev = null){
+	function __construct($line, $col, $context, $prev = null){
 		if ($context == null){
-			$context = Utils::globalContext();
+			$context = RuntimeUtils::globalContext();
 		}
-		parent::__construct($context, $context->translate("ERROR_TWICE_DECLARE_ERROR"), LangConstant::ERROR_TWICE_DECLARE_ERROR, $prev);
+		parent::__construct($context->translate("ERROR_TWICE_DECLARE_ERROR"), LangConstant::ERROR_TWICE_DECLARE_ERROR, $context, $prev);
 		$this->line = $line;
 		$this->pos = $col;
 		$this->buildMessage();
