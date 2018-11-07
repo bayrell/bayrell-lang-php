@@ -1354,7 +1354,7 @@ class TranslatorES6 extends CommonTranslator{
 			}
 			if ($op_code->if_false != null){
 				for ($i = 0; $i < $op_code->if_false->count(); $i++){
-					$this->detectAsyncDeclareVariables($op_code->if_true->item($i), $variables);
+					$this->detectAsyncDeclareVariables($op_code->if_false->item($i), $variables);
 				}
 			}
 		}
