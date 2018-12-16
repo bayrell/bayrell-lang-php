@@ -20,12 +20,29 @@ namespace BayrellLang\OpCodes;
 use Runtime\rtl;
 use Runtime\Map;
 use Runtime\Vector;
+use Runtime\IntrospectionInfo;
 use BayrellLang\OpCodes\BaseOpCode;
 class OpCompare extends BaseOpCode{
 	public $op;
 	public $condition;
 	public $value1;
 	public $value2;
+	/**
+	 * Constructor
+	 */
+	function __construct($condition = "", $value1 = null, $value2 = null){
+		parent::__construct();
+		$this->condition = $condition;
+		$this->value1 = $value1;
+		$this->value2 = $value2;
+	}
+	/**
+	 * Destructor
+	 */
+	function __destruct(){
+		parent::__destruct();
+	}
+	/* ======================= Class Init Functions ======================= */
 	public function getClassName(){return "BayrellLang.OpCodes.OpCompare";}
 	public static function getParentClassName(){return "BayrellLang.OpCodes.BaseOpCode";}
 	protected function _init(){
@@ -34,6 +51,15 @@ class OpCompare extends BaseOpCode{
 		$this->condition = "";
 		$this->value1 = null;
 		$this->value2 = null;
+	}
+	public function assignObject($obj){
+		if ($obj instanceof OpCompare){
+			$this->op = rtl::_clone($obj->op);
+			$this->condition = rtl::_clone($obj->condition);
+			$this->value1 = rtl::_clone($obj->value1);
+			$this->value2 = rtl::_clone($obj->value2);
+		}
+		parent::assignObject($obj);
 	}
 	public function assignValue($variable_name, $value){
 		if ($variable_name == "op") $this->op = rtl::correct($value, "string", "op_compare", "");
@@ -49,33 +75,13 @@ class OpCompare extends BaseOpCode{
 		else if ($variable_name == "value2") return $this->value2;
 		return parent::takeValue($variable_name, $default_value);
 	}
-	public function getVariablesNames($names){
-		parent::getVariablesNames($names);
+	public static function getFieldsList($names){
 		$names->push("op");
 		$names->push("condition");
 		$names->push("value1");
 		$names->push("value2");
 	}
-	/**
-	 * Returns classname of the object
-	 * @return string
-	 */
-	function getClassName(){
-		return "BayrellLang.OpCodes.OpCompare";
-	}
-	/**
-	 * Constructor
-	 */
-	function __construct($condition = "", $value1 = null, $value2 = null){
-		parent::__construct();
-		$this->condition = $condition;
-		$this->value1 = $value1;
-		$this->value2 = $value2;
-	}
-	/**
-	 * Destructor
-	 */
-	function __destruct(){
-		parent::__destruct();
+	public static function getFieldInfoByName($field_name){
+		return null;
 	}
 }

@@ -20,6 +20,7 @@ namespace BayrellLang;
 use Runtime\rtl;
 use Runtime\Map;
 use Runtime\Vector;
+use Runtime\IntrospectionInfo;
 use Runtime\CoreObject;
 use Runtime\ContextObject;
 use Runtime\Interfaces\FactoryInterface;
@@ -29,8 +30,6 @@ use BayrellLang\LangES6\TranslatorES6;
 use BayrellLang\CommonParser;
 use BayrellLang\CommonTranslator;
 class Utils extends ContextObject{
-	public function getClassName(){return "BayrellLang.Utils";}
-	public static function getParentClassName(){return "Runtime.ContextObject";}
 	/**
 	 * Transcompile one language to other
 	 * @string string parser_factory_name
@@ -117,4 +116,7 @@ class Utils extends ContextObject{
 		#endswitch
 		*/
 	}
+	/* ======================= Class Init Functions ======================= */
+	public function getClassName(){return "BayrellLang.Utils";}
+	public static function getParentClassName(){return "Runtime.ContextObject";}
 }

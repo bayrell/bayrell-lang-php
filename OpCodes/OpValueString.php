@@ -20,39 +20,11 @@ namespace BayrellLang\OpCodes;
 use Runtime\rtl;
 use Runtime\Map;
 use Runtime\Vector;
+use Runtime\IntrospectionInfo;
 use BayrellLang\OpCodes\BaseOpCode;
 class OpValueString extends BaseOpCode{
 	public $op;
 	public $value;
-	public function getClassName(){return "BayrellLang.OpCodes.OpValueString";}
-	public static function getParentClassName(){return "BayrellLang.OpCodes.BaseOpCode";}
-	protected function _init(){
-		parent::_init();
-		$this->op = "op_value";
-		$this->value = "";
-	}
-	public function assignValue($variable_name, $value){
-		if ($variable_name == "op") $this->op = rtl::correct($value, "string", "op_value", "");
-		else if ($variable_name == "value") $this->value = rtl::correct($value, "string", "", "");
-		else parent::assignValue($variable_name, $value);
-	}
-	public function takeValue($variable_name, $default_value = null){
-		if ($variable_name == "op") return $this->op;
-		else if ($variable_name == "value") return $this->value;
-		return parent::takeValue($variable_name, $default_value);
-	}
-	public function getVariablesNames($names){
-		parent::getVariablesNames($names);
-		$names->push("op");
-		$names->push("value");
-	}
-	/**
-	 * Returns classname of the object
-	 * @return string
-	 */
-	function getClassName(){
-		return "BayrellLang.OpCodes.OpValueString";
-	}
 	/**
 	 * Constructor
 	 */
@@ -65,5 +37,37 @@ class OpValueString extends BaseOpCode{
 	 */
 	function __destruct(){
 		parent::__destruct();
+	}
+	/* ======================= Class Init Functions ======================= */
+	public function getClassName(){return "BayrellLang.OpCodes.OpValueString";}
+	public static function getParentClassName(){return "BayrellLang.OpCodes.BaseOpCode";}
+	protected function _init(){
+		parent::_init();
+		$this->op = "op_value";
+		$this->value = "";
+	}
+	public function assignObject($obj){
+		if ($obj instanceof OpValueString){
+			$this->op = rtl::_clone($obj->op);
+			$this->value = rtl::_clone($obj->value);
+		}
+		parent::assignObject($obj);
+	}
+	public function assignValue($variable_name, $value){
+		if ($variable_name == "op") $this->op = rtl::correct($value, "string", "op_value", "");
+		else if ($variable_name == "value") $this->value = rtl::correct($value, "string", "", "");
+		else parent::assignValue($variable_name, $value);
+	}
+	public function takeValue($variable_name, $default_value = null){
+		if ($variable_name == "op") return $this->op;
+		else if ($variable_name == "value") return $this->value;
+		return parent::takeValue($variable_name, $default_value);
+	}
+	public static function getFieldsList($names){
+		$names->push("op");
+		$names->push("value");
+	}
+	public static function getFieldInfoByName($field_name){
+		return null;
 	}
 }

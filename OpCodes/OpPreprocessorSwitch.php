@@ -20,14 +20,22 @@ namespace BayrellLang\OpCodes;
 use Runtime\rtl;
 use Runtime\Map;
 use Runtime\Vector;
+use Runtime\IntrospectionInfo;
 use BayrellLang\OpCodes\OpChilds;
 class OpPreprocessorSwitch extends OpChilds{
 	public $op;
+	/* ======================= Class Init Functions ======================= */
 	public function getClassName(){return "BayrellLang.OpCodes.OpPreprocessorSwitch";}
 	public static function getParentClassName(){return "BayrellLang.OpCodes.OpChilds";}
 	protected function _init(){
 		parent::_init();
 		$this->op = "op_preprocessor_switch";
+	}
+	public function assignObject($obj){
+		if ($obj instanceof OpPreprocessorSwitch){
+			$this->op = rtl::_clone($obj->op);
+		}
+		parent::assignObject($obj);
 	}
 	public function assignValue($variable_name, $value){
 		if ($variable_name == "op") $this->op = rtl::correct($value, "string", "op_preprocessor_switch", "");
@@ -37,15 +45,10 @@ class OpPreprocessorSwitch extends OpChilds{
 		if ($variable_name == "op") return $this->op;
 		return parent::takeValue($variable_name, $default_value);
 	}
-	public function getVariablesNames($names){
-		parent::getVariablesNames($names);
+	public static function getFieldsList($names){
 		$names->push("op");
 	}
-	/**
-	 * Returns classname of the object
-	 * @return string
-	 */
-	function getClassName(){
-		return "BayrellLang.OpCodes.OpPreprocessorSwitch";
+	public static function getFieldInfoByName($field_name){
+		return null;
 	}
 }

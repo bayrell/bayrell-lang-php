@@ -20,6 +20,7 @@ namespace BayrellLang;
 use Runtime\rtl;
 use Runtime\Map;
 use Runtime\Vector;
+use Runtime\IntrospectionInfo;
 use BayrellLang\CommonTranslator;
 use BayrellLang\Output\OutputAbstract;
 use BayrellLang\Output\OutputChilds;
@@ -27,8 +28,6 @@ use BayrellLang\Output\OutputNope;
 use BayrellLang\Output\OutputOneLine;
 use BayrellLang\Output\OutputString;
 class TranslatorBay extends CommonTranslator{
-	public function getClassName(){return "BayrellLang.TranslatorBay";}
-	public static function getParentClassName(){return "BayrellLang.CommonTranslator";}
 	/**
 	 * Operator ADD
 	 */
@@ -198,4 +197,7 @@ class TranslatorBay extends CommonTranslator{
 	function OpWhile($code_tree){
 		return null;
 	}
+	/* ======================= Class Init Functions ======================= */
+	public function getClassName(){return "BayrellLang.TranslatorBay";}
+	public static function getParentClassName(){return "BayrellLang.CommonTranslator";}
 }

@@ -20,6 +20,7 @@ namespace BayrellLang;
 use Runtime\rtl;
 use Runtime\Map;
 use Runtime\Vector;
+use Runtime\IntrospectionInfo;
 use Runtime\rs;
 use Runtime\ContextObject;
 use BayrellLang\OpCodes\BaseOpCode;
@@ -76,6 +77,7 @@ use BayrellLang\OpCodes\OpShiftRight;
 use BayrellLang\OpCodes\OpStatic;
 use BayrellLang\OpCodes\OpString;
 use BayrellLang\OpCodes\OpStringItem;
+use BayrellLang\OpCodes\OpStructDeclare;
 use BayrellLang\OpCodes\OpSub;
 use BayrellLang\OpCodes\OpTemplateIdentifier;
 use BayrellLang\OpCodes\OpTernary;
@@ -93,19 +95,6 @@ class CommonTranslator extends ContextObject{
 	public $indent;
 	public $space;
 	public $crlf;
-	public function getClassName(){return "BayrellLang.CommonTranslator";}
-	public static function getParentClassName(){return "Runtime.ContextObject";}
-	protected function _init(){
-		parent::_init();
-		$this->one_lines = null;
-		$this->is_operation = false;
-		$this->current_opcode_level = 0;
-		$this->max_opcode_level = 100;
-		$this->indent_level = 0;
-		$this->indent = "\t";
-		$this->space = " ";
-		$this->crlf = "\n";
-	}
 	/**
 	 * Constructor
 	 */
@@ -183,8 +172,8 @@ class CommonTranslator extends ContextObject{
 	/**
 	 * Output string
 	 */
-	function s($s){
-		if ($s == ""){
+	function s($s, $force = false){
+		if ($s == "" && !$force){
 			return "";
 		}
 		if ($this->isOneLine()){
@@ -351,6 +340,9 @@ class CommonTranslator extends ContextObject{
 	function OpStringItem($op_code){
 		return "";
 	}
+	function OpStructDeclare($op_code){
+		return "";
+	}
 	function OpSub($op_code){
 		return "";
 	}
@@ -411,6 +403,9 @@ class CommonTranslator extends ContextObject{
 		}
 		else if ($op_code instanceof OpInterfaceDeclare){
 			return $this->OpInterfaceDeclare($op_code);
+		}
+		else if ($op_code instanceof OpStructDeclare){
+			return $this->OpStructDeclare($op_code);
 		}
 		else if ($op_code instanceof OpAdd){
 			return $this->OpAdd($op_code);
@@ -603,5 +598,19 @@ class CommonTranslator extends ContextObject{
 	function translate($op_code){
 		$this->resetTranslator();
 		return $this->translateRun($op_code);
+	}
+	/* ======================= Class Init Functions ======================= */
+	public function getClassName(){return "BayrellLang.CommonTranslator";}
+	public static function getParentClassName(){return "Runtime.ContextObject";}
+	protected function _init(){
+		parent::_init();
+		$this->one_lines = null;
+		$this->is_operation = false;
+		$this->current_opcode_level = 0;
+		$this->max_opcode_level = 100;
+		$this->indent_level = 0;
+		$this->indent = "\t";
+		$this->space = " ";
+		$this->crlf = "\n";
 	}
 }

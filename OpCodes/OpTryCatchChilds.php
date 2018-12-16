@@ -20,12 +20,29 @@ namespace BayrellLang\OpCodes;
 use Runtime\rtl;
 use Runtime\Map;
 use Runtime\Vector;
+use Runtime\IntrospectionInfo;
 use BayrellLang\OpCodes\BaseOpCode;
 class OpTryCatchChilds extends BaseOpCode{
 	public $op;
 	public $op_type;
 	public $op_ident;
 	public $childs;
+	/**
+	 * Constructor
+	 */
+	function __construct($op_type = null, $op_ident = null, $childs = null){
+		parent::__construct();
+		$this->op_type = $op_type;
+		$this->op_ident = $op_ident;
+		$this->childs = $childs;
+	}
+	/**
+	 * Destructor
+	 */
+	function __destruct(){
+		parent::__destruct();
+	}
+	/* ======================= Class Init Functions ======================= */
 	public function getClassName(){return "BayrellLang.OpCodes.OpTryCatchChilds";}
 	public static function getParentClassName(){return "BayrellLang.OpCodes.BaseOpCode";}
 	protected function _init(){
@@ -34,6 +51,15 @@ class OpTryCatchChilds extends BaseOpCode{
 		$this->op_type = null;
 		$this->op_ident = null;
 		$this->childs = null;
+	}
+	public function assignObject($obj){
+		if ($obj instanceof OpTryCatchChilds){
+			$this->op = rtl::_clone($obj->op);
+			$this->op_type = rtl::_clone($obj->op_type);
+			$this->op_ident = rtl::_clone($obj->op_ident);
+			$this->childs = rtl::_clone($obj->childs);
+		}
+		parent::assignObject($obj);
 	}
 	public function assignValue($variable_name, $value){
 		if ($variable_name == "op") $this->op = rtl::correct($value, "string", "op_try_catch_childs", "");
@@ -49,33 +75,13 @@ class OpTryCatchChilds extends BaseOpCode{
 		else if ($variable_name == "childs") return $this->childs;
 		return parent::takeValue($variable_name, $default_value);
 	}
-	public function getVariablesNames($names){
-		parent::getVariablesNames($names);
+	public static function getFieldsList($names){
 		$names->push("op");
 		$names->push("op_type");
 		$names->push("op_ident");
 		$names->push("childs");
 	}
-	/**
-	 * Returns classname of the object
-	 * @return string
-	 */
-	function getClassName(){
-		return "BayrellLang.OpCodes.OpTryCatchChilds";
-	}
-	/**
-	 * Constructor
-	 */
-	function __construct($op_type = null, $op_ident = null, $childs = null){
-		parent::__construct();
-		$this->op_type = $op_type;
-		$this->op_ident = $op_ident;
-		$this->childs = $childs;
-	}
-	/**
-	 * Destructor
-	 */
-	function __destruct(){
-		parent::__destruct();
+	public static function getFieldInfoByName($field_name){
+		return null;
 	}
 }

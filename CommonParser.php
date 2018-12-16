@@ -20,6 +20,7 @@ namespace BayrellLang;
 use Runtime\rtl;
 use Runtime\Map;
 use Runtime\Vector;
+use Runtime\IntrospectionInfo;
 use Runtime\rs;
 use BayrellParser\ParserToken;
 use BayrellParser\CoreParser;
@@ -28,13 +29,6 @@ use BayrellLang\OpCodes\BaseOpCode;
 class CommonParser extends CoreParser{
 	protected $_result;
 	public $skip_comments;
-	public function getClassName(){return "BayrellLang.CommonParser";}
-	public static function getParentClassName(){return "BayrellParser.CoreParser";}
-	protected function _init(){
-		parent::_init();
-		$this->_result = null;
-		$this->skip_comments = false;
-	}
 	/**
 	 * Return true if char is alfa symbol
 	 * @param char ch
@@ -222,5 +216,13 @@ class CommonParser extends CoreParser{
 	 */
 	function runParser(){
 		$this->_result = null;
+	}
+	/* ======================= Class Init Functions ======================= */
+	public function getClassName(){return "BayrellLang.CommonParser";}
+	public static function getParentClassName(){return "BayrellParser.CoreParser";}
+	protected function _init(){
+		parent::_init();
+		$this->_result = null;
+		$this->skip_comments = false;
 	}
 }

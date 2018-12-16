@@ -20,11 +20,13 @@ namespace BayrellLang\LangBay;
 use Runtime\rtl;
 use Runtime\Map;
 use Runtime\Vector;
+use Runtime\IntrospectionInfo;
 use Runtime\rs;
 use BayrellLang\CommonParser;
 use BayrellLang\OpCodes\BaseOpCode;
 use BayrellLang\OpCodes\OpAdd;
 use BayrellLang\OpCodes\OpAnd;
+use BayrellLang\OpCodes\OpAnnotation;
 use BayrellLang\OpCodes\OpAssign;
 use BayrellLang\OpCodes\OpAssignDeclare;
 use BayrellLang\OpCodes\OpBitAnd;
@@ -77,6 +79,7 @@ use BayrellLang\OpCodes\OpShiftRight;
 use BayrellLang\OpCodes\OpStatic;
 use BayrellLang\OpCodes\OpString;
 use BayrellLang\OpCodes\OpStringItem;
+use BayrellLang\OpCodes\OpStructDeclare;
 use BayrellLang\OpCodes\OpSub;
 use BayrellLang\OpCodes\OpTemplateIdentifier;
 use BayrellLang\OpCodes\OpTernary;
@@ -92,15 +95,6 @@ use BayrellLang\Exceptions\HexNumberExpected;
 use BayrellLang\Exceptions\TwiceDeclareElseError;
 use BayrellParser\Exceptions\ParserError;
 class ParserBay extends CommonParser{
-	public function getClassName(){return "BayrellLang.LangBay.ParserBay";}
-	public static function getParentClassName(){return "BayrellLang.CommonParser";}
-	protected function _init(){
-		parent::_init();
-		$this->current_namespace = "";
-		$this->current_class_name = "";
-		$this->is_interface = false;
-		$this->modules = null;
-	}
 	/**
 	 * Tokens Fabric
 	 * @return BayrellParserToken
@@ -1167,6 +1161,19 @@ class ParserBay extends CommonParser{
 		return $flags;
 	}
 	/**
+	 * Read annotation
+	 */
+	function readAnnotation(){
+		$this->matchNextToken("@");
+		$op_annotation = new OpAnnotation();
+		$op_annotation->kind = $this->readTemplateIdentifier();
+		$op_annotation->options = $this->readMap();
+		if ($this->annotations == null){
+			$this->annotations = new Vector();
+		}
+		$this->annotations->push($op_annotation);
+	}
+	/**
 	 * Read declare class arguments
 	 * @return BaseOpCode
 	 */
@@ -1308,10 +1315,16 @@ class ParserBay extends CommonParser{
 		if ($flags != null && $flags->p_declare || $this->is_interface){
 			$is_declare_function = true;
 		}
+		if ($this->findNextToken("@")){
+			$this->readAnnotation();
+			return ;
+		}
 		$op_code = $this->readDeclareArrowFunction(true, $is_declare_function);
-		if ($op_code){
+		if ($op_code && $op_code instanceof OpFunctionDeclare){
+			$op_code->annotations = $this->annotations;
 			$op_code->flags = $flags;
 			$res->childs->push($op_code);
+			$this->annotations = null;
 			return ;
 		}
 		$op_code = $this->readOperatorAssign();
@@ -1319,9 +1332,11 @@ class ParserBay extends CommonParser{
 			throw $this->parserError("Assign are not alowed here");
 		}
 		else if ($op_code instanceof OpAssignDeclare){
+			$op_code->annotations = $this->annotations;
 			$op_code->flags = $flags;
-			$res->class_variables->push($op_code);
+			$res->childs->push($op_code);
 			$this->matchNextToken(";");
+			$this->annotations = null;
 			return ;
 		}
 		throw $this->parserError("Unknown operator");
@@ -1380,7 +1395,7 @@ class ParserBay extends CommonParser{
 		$this->matchNextToken("}");
 	}
 	/**
-	 * Read operator namespace
+	 * Read class
 	 * @return BaseOpCode
 	 */
 	function readDeclareClass($class_flags){
@@ -1391,7 +1406,7 @@ class ParserBay extends CommonParser{
 		return $res;
 	}
 	/**
-	 * Read operator namespace
+	 * Read interface
 	 * @return BaseOpCode
 	 */
 	function readDeclareInterface($class_flags){
@@ -1400,6 +1415,21 @@ class ParserBay extends CommonParser{
 		$this->is_interface = true;
 		$this->readClassHead($res);
 		$this->is_interface = false;
+		$res->flags = $class_flags;
+		return $res;
+	}
+	/**
+	 * Read struct
+	 * @return BaseOpCode
+	 */
+	function readDeclareStruct($class_flags){
+		$res = new OpStructDeclare();
+		$this->matchNextToken("struct");
+		if ($this->findNextToken("readonly")){
+			$this->matchNextToken("readonly");
+			$res->is_readonly = true;
+		}
+		$this->readClassHead($res);
 		$res->flags = $class_flags;
 		return $res;
 	}
@@ -1475,10 +1505,16 @@ class ParserBay extends CommonParser{
 			}
 			$flags = $this->readFlags();
 			if ($this->findNextToken("class")){
+				$this->annotations = null;
 				$res->push($this->readDeclareClass($flags));
 			}
 			else if ($this->findNextToken("interface")){
+				$this->annotations = null;
 				$res->push($this->readDeclareInterface($flags));
+			}
+			else if ($this->findNextToken("struct")){
+				$this->annotations = null;
+				$res->push($this->readDeclareStruct($flags));
 			}
 			else {
 				throw $this->parserError("Unknown token " . rtl::toString($this->lookNextToken()));
@@ -1498,5 +1534,16 @@ class ParserBay extends CommonParser{
 	 */
 	function runParser(){
 		$this->_result = new OpNope($this->readProgram());
+	}
+	/* ======================= Class Init Functions ======================= */
+	public function getClassName(){return "BayrellLang.LangBay.ParserBay";}
+	public static function getParentClassName(){return "BayrellLang.CommonParser";}
+	protected function _init(){
+		parent::_init();
+		$this->current_namespace = "";
+		$this->current_class_name = "";
+		$this->is_interface = false;
+		$this->modules = null;
+		$this->annotations = null;
 	}
 }

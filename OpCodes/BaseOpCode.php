@@ -20,28 +20,11 @@ namespace BayrellLang\OpCodes;
 use Runtime\rtl;
 use Runtime\Map;
 use Runtime\Vector;
+use Runtime\IntrospectionInfo;
 use Runtime\CoreObject;
 use Runtime\Interfaces\SerializeInterface;
 class BaseOpCode extends CoreObject implements SerializeInterface{
 	public $op;
-	public function getClassName(){return "BayrellLang.OpCodes.BaseOpCode";}
-	public static function getParentClassName(){return "Runtime.CoreObject";}
-	protected function _init(){
-		parent::_init();
-		$this->op = "";
-	}
-	public function assignValue($variable_name, $value){
-		if ($variable_name == "op") $this->op = rtl::correct($value, "string", "", "");
-		else parent::assignValue($variable_name, $value);
-	}
-	public function takeValue($variable_name, $default_value = null){
-		if ($variable_name == "op") return $this->op;
-		return parent::takeValue($variable_name, $default_value);
-	}
-	public function getVariablesNames($names){
-		parent::getVariablesNames($names);
-		$names->push("op");
-	}
 	/**
 	 * Constructor
 	 */
@@ -54,5 +37,32 @@ class BaseOpCode extends CoreObject implements SerializeInterface{
 	 */
 	function getClassName(){
 		return "BayrellLang.OpCodes.BaseOpCode";
+	}
+	/* ======================= Class Init Functions ======================= */
+	public function getClassName(){return "BayrellLang.OpCodes.BaseOpCode";}
+	public static function getParentClassName(){return "Runtime.CoreObject";}
+	protected function _init(){
+		parent::_init();
+		$this->op = "";
+	}
+	public function assignObject($obj){
+		if ($obj instanceof BaseOpCode){
+			$this->op = rtl::_clone($obj->op);
+		}
+		parent::assignObject($obj);
+	}
+	public function assignValue($variable_name, $value){
+		if ($variable_name == "op") $this->op = rtl::correct($value, "string", "", "");
+		else parent::assignValue($variable_name, $value);
+	}
+	public function takeValue($variable_name, $default_value = null){
+		if ($variable_name == "op") return $this->op;
+		return parent::takeValue($variable_name, $default_value);
+	}
+	public static function getFieldsList($names){
+		$names->push("op");
+	}
+	public static function getFieldInfoByName($field_name){
+		return null;
 	}
 }

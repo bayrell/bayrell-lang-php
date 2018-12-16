@@ -20,44 +20,12 @@ namespace BayrellLang\OpCodes;
 use Runtime\rtl;
 use Runtime\Map;
 use Runtime\Vector;
+use Runtime\IntrospectionInfo;
 use BayrellLang\OpCodes\BaseOpCode;
 class OpDynamic extends BaseOpCode{
 	public $op;
 	public $value;
 	public $name;
-	public function getClassName(){return "BayrellLang.OpCodes.OpDynamic";}
-	public static function getParentClassName(){return "BayrellLang.OpCodes.BaseOpCode";}
-	protected function _init(){
-		parent::_init();
-		$this->op = "op_dynamic";
-		$this->value = null;
-		$this->name = null;
-	}
-	public function assignValue($variable_name, $value){
-		if ($variable_name == "op") $this->op = rtl::correct($value, "string", "op_dynamic", "");
-		else if ($variable_name == "value") $this->value = rtl::correct($value, "BayrellLang.OpCodes.BaseOpCode", null, "");
-		else if ($variable_name == "name") $this->name = rtl::correct($value, "string", null, "");
-		else parent::assignValue($variable_name, $value);
-	}
-	public function takeValue($variable_name, $default_value = null){
-		if ($variable_name == "op") return $this->op;
-		else if ($variable_name == "value") return $this->value;
-		else if ($variable_name == "name") return $this->name;
-		return parent::takeValue($variable_name, $default_value);
-	}
-	public function getVariablesNames($names){
-		parent::getVariablesNames($names);
-		$names->push("op");
-		$names->push("value");
-		$names->push("name");
-	}
-	/**
-	 * Returns classname of the object
-	 * @return string
-	 */
-	function getClassName(){
-		return "BayrellLang.OpCodes.OpDynamic";
-	}
 	/**
 	 * Constructor
 	 */
@@ -71,5 +39,42 @@ class OpDynamic extends BaseOpCode{
 	 */
 	function __destruct(){
 		parent::__destruct();
+	}
+	/* ======================= Class Init Functions ======================= */
+	public function getClassName(){return "BayrellLang.OpCodes.OpDynamic";}
+	public static function getParentClassName(){return "BayrellLang.OpCodes.BaseOpCode";}
+	protected function _init(){
+		parent::_init();
+		$this->op = "op_dynamic";
+		$this->value = null;
+		$this->name = null;
+	}
+	public function assignObject($obj){
+		if ($obj instanceof OpDynamic){
+			$this->op = rtl::_clone($obj->op);
+			$this->value = rtl::_clone($obj->value);
+			$this->name = rtl::_clone($obj->name);
+		}
+		parent::assignObject($obj);
+	}
+	public function assignValue($variable_name, $value){
+		if ($variable_name == "op") $this->op = rtl::correct($value, "string", "op_dynamic", "");
+		else if ($variable_name == "value") $this->value = rtl::correct($value, "BayrellLang.OpCodes.BaseOpCode", null, "");
+		else if ($variable_name == "name") $this->name = rtl::correct($value, "string", null, "");
+		else parent::assignValue($variable_name, $value);
+	}
+	public function takeValue($variable_name, $default_value = null){
+		if ($variable_name == "op") return $this->op;
+		else if ($variable_name == "value") return $this->value;
+		else if ($variable_name == "name") return $this->name;
+		return parent::takeValue($variable_name, $default_value);
+	}
+	public static function getFieldsList($names){
+		$names->push("op");
+		$names->push("value");
+		$names->push("name");
+	}
+	public static function getFieldInfoByName($field_name){
+		return null;
 	}
 }

@@ -20,6 +20,7 @@ namespace BayrellLang\OpCodes;
 use Runtime\rtl;
 use Runtime\Map;
 use Runtime\Vector;
+use Runtime\IntrospectionInfo;
 use BayrellLang\OpCodes\BaseOpCode;
 use BayrellLang\OpCodes\OpFlags;
 class OpClassDeclare extends BaseOpCode{
@@ -27,63 +28,10 @@ class OpClassDeclare extends BaseOpCode{
 	public $class_name;
 	public $class_extends;
 	public $class_implements;
-	public $class_variables;
+	/*public serializable Vector<OpAssignDeclare> class_variables = null;*/
 	public $childs;
 	public $class_template;
 	public $flags;
-	public function getClassName(){return "BayrellLang.OpCodes.OpClassDeclare";}
-	public static function getParentClassName(){return "BayrellLang.OpCodes.BaseOpCode";}
-	protected function _init(){
-		parent::_init();
-		$this->op = "op_class";
-		$this->class_name = "";
-		$this->class_extends = "";
-		$this->class_implements = null;
-		$this->class_variables = null;
-		$this->childs = null;
-		$this->class_template = null;
-		$this->flags = null;
-	}
-	public function assignValue($variable_name, $value){
-		if ($variable_name == "op") $this->op = rtl::correct($value, "string", "op_class", "");
-		else if ($variable_name == "class_name") $this->class_name = rtl::correct($value, "string", "", "");
-		else if ($variable_name == "class_extends") $this->class_extends = rtl::correct($value, "BayrellLang.OpCodes.BaseOpCode", "", "");
-		else if ($variable_name == "class_implements") $this->class_implements = rtl::correct($value, "Runtime.Vector", null, "string");
-		else if ($variable_name == "class_variables") $this->class_variables = rtl::correct($value, "Runtime.Vector", null, "OpAssignDeclare");
-		else if ($variable_name == "childs") $this->childs = rtl::correct($value, "Runtime.Vector", null, "BayrellLang.OpCodes.BaseOpCode");
-		else if ($variable_name == "class_template") $this->class_template = rtl::correct($value, "Runtime.Vector", null, "BayrellLang.OpCodes.BaseOpCode");
-		else if ($variable_name == "flags") $this->flags = rtl::correct($value, "BayrellLang.OpCodes.OpFlags", null, "");
-		else parent::assignValue($variable_name, $value);
-	}
-	public function takeValue($variable_name, $default_value = null){
-		if ($variable_name == "op") return $this->op;
-		else if ($variable_name == "class_name") return $this->class_name;
-		else if ($variable_name == "class_extends") return $this->class_extends;
-		else if ($variable_name == "class_implements") return $this->class_implements;
-		else if ($variable_name == "class_variables") return $this->class_variables;
-		else if ($variable_name == "childs") return $this->childs;
-		else if ($variable_name == "class_template") return $this->class_template;
-		else if ($variable_name == "flags") return $this->flags;
-		return parent::takeValue($variable_name, $default_value);
-	}
-	public function getVariablesNames($names){
-		parent::getVariablesNames($names);
-		$names->push("op");
-		$names->push("class_name");
-		$names->push("class_extends");
-		$names->push("class_implements");
-		$names->push("class_variables");
-		$names->push("childs");
-		$names->push("class_template");
-		$names->push("flags");
-	}
-	/**
-	 * Returns classname of the object
-	 * @return string
-	 */
-	function getClassName(){
-		return "BayrellLang.OpCodes.OpClassDeclare";
-	}
 	/**
 	 * Read is Flag
 	 */
@@ -111,5 +59,62 @@ class OpClassDeclare extends BaseOpCode{
 	 */
 	function __destruct(){
 		parent::__destruct();
+	}
+	/* ======================= Class Init Functions ======================= */
+	public function getClassName(){return "BayrellLang.OpCodes.OpClassDeclare";}
+	public static function getParentClassName(){return "BayrellLang.OpCodes.BaseOpCode";}
+	protected function _init(){
+		parent::_init();
+		$this->op = "op_class";
+		$this->class_name = "";
+		$this->class_extends = "";
+		$this->class_implements = null;
+		$this->childs = null;
+		$this->class_template = null;
+		$this->flags = null;
+	}
+	public function assignObject($obj){
+		if ($obj instanceof OpClassDeclare){
+			$this->op = rtl::_clone($obj->op);
+			$this->class_name = rtl::_clone($obj->class_name);
+			$this->class_extends = rtl::_clone($obj->class_extends);
+			$this->class_implements = rtl::_clone($obj->class_implements);
+			$this->childs = rtl::_clone($obj->childs);
+			$this->class_template = rtl::_clone($obj->class_template);
+			$this->flags = rtl::_clone($obj->flags);
+		}
+		parent::assignObject($obj);
+	}
+	public function assignValue($variable_name, $value){
+		if ($variable_name == "op") $this->op = rtl::correct($value, "string", "op_class", "");
+		else if ($variable_name == "class_name") $this->class_name = rtl::correct($value, "string", "", "");
+		else if ($variable_name == "class_extends") $this->class_extends = rtl::correct($value, "BayrellLang.OpCodes.BaseOpCode", "", "");
+		else if ($variable_name == "class_implements") $this->class_implements = rtl::correct($value, "Runtime.Vector", null, "string");
+		else if ($variable_name == "childs") $this->childs = rtl::correct($value, "Runtime.Vector", null, "BayrellLang.OpCodes.BaseOpCode");
+		else if ($variable_name == "class_template") $this->class_template = rtl::correct($value, "Runtime.Vector", null, "BayrellLang.OpCodes.BaseOpCode");
+		else if ($variable_name == "flags") $this->flags = rtl::correct($value, "BayrellLang.OpCodes.OpFlags", null, "");
+		else parent::assignValue($variable_name, $value);
+	}
+	public function takeValue($variable_name, $default_value = null){
+		if ($variable_name == "op") return $this->op;
+		else if ($variable_name == "class_name") return $this->class_name;
+		else if ($variable_name == "class_extends") return $this->class_extends;
+		else if ($variable_name == "class_implements") return $this->class_implements;
+		else if ($variable_name == "childs") return $this->childs;
+		else if ($variable_name == "class_template") return $this->class_template;
+		else if ($variable_name == "flags") return $this->flags;
+		return parent::takeValue($variable_name, $default_value);
+	}
+	public static function getFieldsList($names){
+		$names->push("op");
+		$names->push("class_name");
+		$names->push("class_extends");
+		$names->push("class_implements");
+		$names->push("childs");
+		$names->push("class_template");
+		$names->push("flags");
+	}
+	public static function getFieldInfoByName($field_name){
+		return null;
 	}
 }

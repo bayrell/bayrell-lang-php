@@ -20,12 +20,29 @@ namespace BayrellLang\OpCodes;
 use Runtime\rtl;
 use Runtime\Map;
 use Runtime\Vector;
+use Runtime\IntrospectionInfo;
 use BayrellLang\OpCodes\BaseOpCode;
 class OpAssign extends BaseOpCode{
 	public $op;
 	public $ident;
 	public $value;
 	public $op_name;
+	/**
+	 * Constructor
+	 */
+	function __construct($ident = null, $value = null, $op_name = ""){
+		parent::__construct();
+		$this->ident = $ident;
+		$this->value = $value;
+		$this->op_name = $op_name;
+	}
+	/**
+	 * Destructor
+	 */
+	function __destruct(){
+		parent::__destruct();
+	}
+	/* ======================= Class Init Functions ======================= */
 	public function getClassName(){return "BayrellLang.OpCodes.OpAssign";}
 	public static function getParentClassName(){return "BayrellLang.OpCodes.BaseOpCode";}
 	protected function _init(){
@@ -34,6 +51,15 @@ class OpAssign extends BaseOpCode{
 		$this->ident = null;
 		$this->value = null;
 		$this->op_name = "";
+	}
+	public function assignObject($obj){
+		if ($obj instanceof OpAssign){
+			$this->op = rtl::_clone($obj->op);
+			$this->ident = rtl::_clone($obj->ident);
+			$this->value = rtl::_clone($obj->value);
+			$this->op_name = rtl::_clone($obj->op_name);
+		}
+		parent::assignObject($obj);
 	}
 	public function assignValue($variable_name, $value){
 		if ($variable_name == "op") $this->op = rtl::correct($value, "string", "op_assign", "");
@@ -49,33 +75,13 @@ class OpAssign extends BaseOpCode{
 		else if ($variable_name == "op_name") return $this->op_name;
 		return parent::takeValue($variable_name, $default_value);
 	}
-	public function getVariablesNames($names){
-		parent::getVariablesNames($names);
+	public static function getFieldsList($names){
 		$names->push("op");
 		$names->push("ident");
 		$names->push("value");
 		$names->push("op_name");
 	}
-	/**
-	 * Returns classname of the object
-	 * @return string
-	 */
-	function getClassName(){
-		return "BayrellLang.OpCodes.OpAssign";
-	}
-	/**
-	 * Constructor
-	 */
-	function __construct($ident = null, $value = null, $op_name = ""){
-		parent::__construct();
-		$this->ident = $ident;
-		$this->value = $value;
-		$this->op_name = $op_name;
-	}
-	/**
-	 * Destructor
-	 */
-	function __destruct(){
-		parent::__destruct();
+	public static function getFieldInfoByName($field_name){
+		return null;
 	}
 }

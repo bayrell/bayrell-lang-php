@@ -20,18 +20,20 @@ namespace BayrellLang\LangPHP;
 use Runtime\rtl;
 use Runtime\Map;
 use Runtime\Vector;
+use Runtime\IntrospectionInfo;
 use Runtime\CoreObject;
 use Runtime\ContextObject;
 use Runtime\Interfaces\ContextInterface;
 use Runtime\Interfaces\FactoryInterface;
 use BayrellLang\LangPHP\TranslatorPHP;
 class TranslatorPHPFactory extends ContextObject implements FactoryInterface{
-	public function getClassName(){return "BayrellLang.LangPHP.TranslatorPHPFactory";}
-	public static function getParentClassName(){return "Runtime.ContextObject";}
 	/**
 	 * Returns new Instance
 	 */
 	function newInstance($context){
 		return new TranslatorPHP($context);
 	}
+	/* ======================= Class Init Functions ======================= */
+	public function getClassName(){return "BayrellLang.LangPHP.TranslatorPHPFactory";}
+	public static function getParentClassName(){return "Runtime.ContextObject";}
 }

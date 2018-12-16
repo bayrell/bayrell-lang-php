@@ -20,18 +20,27 @@ namespace BayrellLang\OpCodes;
 use Runtime\rtl;
 use Runtime\Map;
 use Runtime\Vector;
+use Runtime\IntrospectionInfo;
 use BayrellLang\OpCodes\BaseOpCode;
 use BayrellLang\OpCodes\OpFunctionDeclare;
 use BayrellLang\OpCodes\OpFlags;
 class OpFunctionArrowDeclare extends OpFunctionDeclare{
 	public $op;
 	public $return_function;
+	/* ======================= Class Init Functions ======================= */
 	public function getClassName(){return "BayrellLang.OpCodes.OpFunctionArrowDeclare";}
 	public static function getParentClassName(){return "BayrellLang.OpCodes.OpFunctionDeclare";}
 	protected function _init(){
 		parent::_init();
 		$this->op = "op_arrow_function";
 		$this->return_function = null;
+	}
+	public function assignObject($obj){
+		if ($obj instanceof OpFunctionArrowDeclare){
+			$this->op = rtl::_clone($obj->op);
+			$this->return_function = rtl::_clone($obj->return_function);
+		}
+		parent::assignObject($obj);
 	}
 	public function assignValue($variable_name, $value){
 		if ($variable_name == "op") $this->op = rtl::correct($value, "string", "op_arrow_function", "");
@@ -43,16 +52,11 @@ class OpFunctionArrowDeclare extends OpFunctionDeclare{
 		else if ($variable_name == "return_function") return $this->return_function;
 		return parent::takeValue($variable_name, $default_value);
 	}
-	public function getVariablesNames($names){
-		parent::getVariablesNames($names);
+	public static function getFieldsList($names){
 		$names->push("op");
 		$names->push("return_function");
 	}
-	/**
-	 * Returns classname of the object
-	 * @return string
-	 */
-	function getClassName(){
-		return "BayrellLang.OpCodes.OpFunctionArrowDeclare";
+	public static function getFieldInfoByName($field_name){
+		return null;
 	}
 }

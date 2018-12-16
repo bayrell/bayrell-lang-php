@@ -20,32 +20,11 @@ namespace BayrellLang\OpCodes;
 use Runtime\rtl;
 use Runtime\Map;
 use Runtime\Vector;
+use Runtime\IntrospectionInfo;
 use BayrellLang\OpCodes\BaseOpCode;
 class OpMap extends BaseOpCode{
 	public $op;
 	public $values;
-	public function getClassName(){return "BayrellLang.OpCodes.OpMap";}
-	public static function getParentClassName(){return "BayrellLang.OpCodes.BaseOpCode";}
-	protected function _init(){
-		parent::_init();
-		$this->op = "op_map";
-		$this->values = null;
-	}
-	public function assignValue($variable_name, $value){
-		if ($variable_name == "op") $this->op = rtl::correct($value, "string", "op_map", "");
-		else if ($variable_name == "values") $this->values = rtl::correct($value, "Runtime.Map", null, "string");
-		else parent::assignValue($variable_name, $value);
-	}
-	public function takeValue($variable_name, $default_value = null){
-		if ($variable_name == "op") return $this->op;
-		else if ($variable_name == "values") return $this->values;
-		return parent::takeValue($variable_name, $default_value);
-	}
-	public function getVariablesNames($names){
-		parent::getVariablesNames($names);
-		$names->push("op");
-		$names->push("values");
-	}
 	/**
 	 * Returns classname of the object
 	 * @return string
@@ -65,5 +44,37 @@ class OpMap extends BaseOpCode{
 	 */
 	function __destruct(){
 		parent::__destruct();
+	}
+	/* ======================= Class Init Functions ======================= */
+	public function getClassName(){return "BayrellLang.OpCodes.OpMap";}
+	public static function getParentClassName(){return "BayrellLang.OpCodes.BaseOpCode";}
+	protected function _init(){
+		parent::_init();
+		$this->op = "op_map";
+		$this->values = null;
+	}
+	public function assignObject($obj){
+		if ($obj instanceof OpMap){
+			$this->op = rtl::_clone($obj->op);
+			$this->values = rtl::_clone($obj->values);
+		}
+		parent::assignObject($obj);
+	}
+	public function assignValue($variable_name, $value){
+		if ($variable_name == "op") $this->op = rtl::correct($value, "string", "op_map", "");
+		else if ($variable_name == "values") $this->values = rtl::correct($value, "Runtime.Map", null, "string");
+		else parent::assignValue($variable_name, $value);
+	}
+	public function takeValue($variable_name, $default_value = null){
+		if ($variable_name == "op") return $this->op;
+		else if ($variable_name == "values") return $this->values;
+		return parent::takeValue($variable_name, $default_value);
+	}
+	public static function getFieldsList($names){
+		$names->push("op");
+		$names->push("values");
+	}
+	public static function getFieldInfoByName($field_name){
+		return null;
 	}
 }

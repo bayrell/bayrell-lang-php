@@ -20,20 +20,10 @@ namespace BayrellLang\LangES6;
 use Runtime\rtl;
 use Runtime\Map;
 use Runtime\Vector;
+use Runtime\IntrospectionInfo;
 use Runtime\rs;
 use Runtime\CoreObject;
 class FunctionStack extends CoreObject{
-	public function getClassName(){return "BayrellLang.LangES6.FunctionStack";}
-	public static function getParentClassName(){return "Runtime.CoreObject";}
-	protected function _init(){
-		parent::_init();
-		$this->name = "";
-		$this->is_async = false;
-		$this->async_ctx = "";
-		$this->async_jump = "";
-		$this->async_jump_pos = new Vector();
-		$this->async_stop_pos = new Vector();
-	}
 	/**
 	 * Returns jump string from arr
 	 * @param Vector<int> arr
@@ -121,5 +111,17 @@ class FunctionStack extends CoreObject{
 		}
 		$obj = $this->async_stop_pos->item($sz - 1);
 		return $obj->get("end", "", "string");
+	}
+	/* ======================= Class Init Functions ======================= */
+	public function getClassName(){return "BayrellLang.LangES6.FunctionStack";}
+	public static function getParentClassName(){return "Runtime.CoreObject";}
+	protected function _init(){
+		parent::_init();
+		$this->name = "";
+		$this->is_async = false;
+		$this->async_ctx = "";
+		$this->async_jump = "";
+		$this->async_jump_pos = new Vector();
+		$this->async_stop_pos = new Vector();
 	}
 }

@@ -20,15 +20,15 @@ namespace BayrellLang\LangNodeJS;
 use Runtime\rtl;
 use Runtime\Map;
 use Runtime\Vector;
+use Runtime\IntrospectionInfo;
 use Runtime\re;
 use Runtime\rs;
+use BayrellLang\OpCodes\OpAssignDeclare;
 use BayrellLang\OpCodes\OpIdentifier;
 use BayrellLang\OpCodes\OpPreprocessorCase;
 use BayrellLang\LangES6\TranslatorES6;
 use BayrellLang\CommonTranslator;
 class TranslatorNodeJS extends TranslatorES6{
-	public function getClassName(){return "BayrellLang.LangNodeJS.TranslatorNodeJS";}
-	public static function getParentClassName(){return "BayrellLang.LangES6.TranslatorES6";}
 	/**
 	 * Get name
 	 */
@@ -50,7 +50,7 @@ class TranslatorNodeJS extends TranslatorES6{
 		$this->current_module_name = $arr->item(0);
 		$this->modules->clear();
 		if ($this->current_module_name != "Runtime"){
-			return "var rtl = require('bayrell-runtime-nodejs').rtl;" . rtl::toString($this->s("var Map = require('bayrell-runtime-nodejs').Map;")) . rtl::toString($this->s("var Vector = require('bayrell-runtime-nodejs').Vector;"));
+			return "var rtl = require('bayrell-runtime-nodejs').rtl;" . rtl::toString($this->s("var Map = require('bayrell-runtime-nodejs').Map;")) . rtl::toString($this->s("var Vector = require('bayrell-runtime-nodejs').Vector;")) . rtl::toString($this->s("var IntrospectionInfo = require('bayrell-runtime-nodejs').IntrospectionInfo;"));
 		}
 		return "";
 	}
@@ -72,6 +72,8 @@ class TranslatorNodeJS extends TranslatorES6{
 		if ($op_code->alias_name != ""){
 			$class_name = $op_code->alias_name;
 		}
+		$this->modules->set($class_name, $lib_name);
+		/* If same modules */
 		if ($arr1->item(0) == $arr2->item(0)){
 			$pos = 0;
 			while ($pos < $sz_arr1 && $pos < $sz_arr2 && $arr1->item($pos) == $arr2->item($pos)){
@@ -130,9 +132,13 @@ class TranslatorNodeJS extends TranslatorES6{
 	 */
 	function OpClassDeclareFooter($op_code){
 		$res = "";
-		for ($i = 0; $i < $op_code->class_variables->count(); $i++){
-			$variable = $op_code->class_variables->item($i);
-			if ($variable->flags != null && $variable->flags->p_static == true){
+		/* Static variables */
+		for ($i = 0; $i < $op_code->childs->count(); $i++){
+			$variable = $op_code->childs->item($i);
+			if (!($variable instanceof OpAssignDeclare)){
+				continue;
+			}
+			if ($variable->flags != null && ($variable->isFlag("static") || $variable->isFlag("const"))){
 				$this->beginOperation();
 				$s = rtl::toString($op_code->class_name) . "." . rtl::toString($variable->name) . " = " . rtl::toString($this->translateRun($variable->value)) . ";";
 				$this->endOperation();
@@ -153,6 +159,52 @@ class TranslatorNodeJS extends TranslatorES6{
 		return $res;
 	}
 	/**
+	 * Class declare footer
+	 */
+	function OpClassDeclareFooterNew($op_code){
+		$ch = "";
+		$res = "";
+		$current_namespace = "";
+		$v = rs::explode(".", $this->current_namespace);
+		$res .= $this->s("module.exports = {};");
+		for ($i = 0; $i < $v->count(); $i++){
+			if ($i == 0){
+				continue;
+			}
+			$current_namespace .= rtl::toString($ch) . rtl::toString($v->item($i));
+			$s = "if (typeof module.exports." . rtl::toString($current_namespace) . " == 'undefined') " . "module.exports." . rtl::toString($current_namespace) . " = {};";
+			$res .= $this->s($s);
+			$ch = ".";
+		}
+		if ($current_namespace == ""){
+			$current_namespace = "module.exports";
+		}
+		else {
+			$current_namespace = "module.exports." . rtl::toString($current_namespace);
+		}
+		$res .= $this->s(rtl::toString($current_namespace) . "." . rtl::toString($op_code->class_name) . " = " . rtl::toString($op_code->class_name));
+		for ($i = 0; $i < $op_code->class_variables->count(); $i++){
+			$variable = $op_code->class_variables->item($i);
+			if ($variable->flags != null && $variable->flags->p_static == true){
+				$this->beginOperation();
+				$s = rtl::toString($current_namespace) . "." . rtl::toString($op_code->class_name) . "." . rtl::toString($variable->name) . " = " . rtl::toString($this->translateRun($variable->value)) . ";";
+				$this->endOperation();
+				$res .= $this->s($s);
+			}
+		}
+		/* Static implements */
+		$class_implements = $op_code->class_implements;
+		if ($class_implements != null && $class_implements->count() > 0){
+			$name = $op_code->class_name;
+			$res .= $this->s(rtl::toString($current_namespace) . "." . rtl::toString($name) . ".__static_implements__ = [];");
+			for ($i = 0; $i < $class_implements->count(); $i++){
+				$value = $class_implements->item($i);
+				$res .= $this->s(rtl::toString($current_namespace) . "." . rtl::toString($name) . ".__static_implements__.push(" . rtl::toString($this->getName($value)) . ")");
+			}
+		}
+		return $res;
+	}
+	/**
 	 * Calc preprocessor condition
 	 */
 	function calcPreprocessorCondition($op_case){
@@ -163,4 +215,7 @@ class TranslatorNodeJS extends TranslatorES6{
 		}
 		return false;
 	}
+	/* ======================= Class Init Functions ======================= */
+	public function getClassName(){return "BayrellLang.LangNodeJS.TranslatorNodeJS";}
+	public static function getParentClassName(){return "BayrellLang.LangES6.TranslatorES6";}
 }

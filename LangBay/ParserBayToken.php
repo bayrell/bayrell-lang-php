@@ -20,6 +20,7 @@ namespace BayrellLang\LangBay;
 use Runtime\rtl;
 use Runtime\Map;
 use Runtime\Vector;
+use Runtime\IntrospectionInfo;
 use Runtime\rs;
 use BayrellParser\ParserToken;
 use BayrellParser\Exceptions\ParserEOF;
@@ -31,17 +32,10 @@ class ParserBayToken extends ParserToken{
 	const TOKEN_STRING = "string";
 	const TOKEN_COMMENT = "comment";
 	protected $_special_tokens;
-	public $parser;
-	public function getClassName(){return "BayrellLang.LangBay.ParserBayToken";}
-	public static function getParentClassName(){return "BayrellParser.ParserToken";}
-	protected function _init(){
-		parent::_init();
-		$this->_special_tokens = null;
-		$this->parser = null;
-	}
 	/**
 	 * Current content of the file
 	 */
+	public $parser;
 	/**
 	 * Returns new Instance
 	 */
@@ -188,5 +182,13 @@ class ParserBayToken extends ParserToken{
 			return ;
 		}
 		$this->readNextTokenBase();
+	}
+	/* ======================= Class Init Functions ======================= */
+	public function getClassName(){return "BayrellLang.LangBay.ParserBayToken";}
+	public static function getParentClassName(){return "BayrellParser.ParserToken";}
+	protected function _init(){
+		parent::_init();
+		$this->_special_tokens = null;
+		$this->parser = null;
 	}
 }

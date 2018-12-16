@@ -20,6 +20,7 @@ namespace BayrellLang\OpCodes;
 use Runtime\rtl;
 use Runtime\Map;
 use Runtime\Vector;
+use Runtime\IntrospectionInfo;
 use BayrellLang\OpCodes\BaseOpCode;
 use BayrellLang\OpCodes\OpIfElse;
 class OpIf extends BaseOpCode{
@@ -28,6 +29,23 @@ class OpIf extends BaseOpCode{
 	public $if_true;
 	public $if_false;
 	public $if_else;
+	/**
+	 * Constructor
+	 */
+	function __construct($condition = null, $if_true = null, $if_false = null, $if_else){
+		parent::__construct();
+		$this->condition = $condition;
+		$this->if_true = $if_true;
+		$this->if_false = $if_false;
+		$this->if_else = $if_else;
+	}
+	/**
+	 * Destructor
+	 */
+	function __destruct(){
+		parent::__destruct();
+	}
+	/* ======================= Class Init Functions ======================= */
 	public function getClassName(){return "BayrellLang.OpCodes.OpIf";}
 	public static function getParentClassName(){return "BayrellLang.OpCodes.BaseOpCode";}
 	protected function _init(){
@@ -37,6 +55,16 @@ class OpIf extends BaseOpCode{
 		$this->if_true = null;
 		$this->if_false = null;
 		$this->if_else = null;
+	}
+	public function assignObject($obj){
+		if ($obj instanceof OpIf){
+			$this->op = rtl::_clone($obj->op);
+			$this->condition = rtl::_clone($obj->condition);
+			$this->if_true = rtl::_clone($obj->if_true);
+			$this->if_false = rtl::_clone($obj->if_false);
+			$this->if_else = rtl::_clone($obj->if_else);
+		}
+		parent::assignObject($obj);
 	}
 	public function assignValue($variable_name, $value){
 		if ($variable_name == "op") $this->op = rtl::correct($value, "string", "op_if", "");
@@ -54,35 +82,14 @@ class OpIf extends BaseOpCode{
 		else if ($variable_name == "if_else") return $this->if_else;
 		return parent::takeValue($variable_name, $default_value);
 	}
-	public function getVariablesNames($names){
-		parent::getVariablesNames($names);
+	public static function getFieldsList($names){
 		$names->push("op");
 		$names->push("condition");
 		$names->push("if_true");
 		$names->push("if_false");
 		$names->push("if_else");
 	}
-	/**
-	 * Returns classname of the object
-	 * @return string
-	 */
-	function getClassName(){
-		return "BayrellLang.OpCodes.OpIf";
-	}
-	/**
-	 * Constructor
-	 */
-	function __construct($condition = null, $if_true = null, $if_false = null, $if_else){
-		parent::__construct();
-		$this->condition = $condition;
-		$this->if_true = $if_true;
-		$this->if_false = $if_false;
-		$this->if_else = $if_else;
-	}
-	/**
-	 * Destructor
-	 */
-	function __destruct(){
-		parent::__destruct();
+	public static function getFieldInfoByName($field_name){
+		return null;
 	}
 }

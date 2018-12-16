@@ -20,6 +20,7 @@ namespace BayrellLang\OpCodes;
 use Runtime\rtl;
 use Runtime\Map;
 use Runtime\Vector;
+use Runtime\IntrospectionInfo;
 use BayrellLang\OpCodes\BaseOpCode;
 class OpFor extends BaseOpCode{
 	public $op;
@@ -27,6 +28,23 @@ class OpFor extends BaseOpCode{
 	public $loop_init;
 	public $loop_inc;
 	public $childs;
+	/**
+	 * Constructor
+	 */
+	function __construct($loop_condition = null, $loop_init = null, $loop_inc = null, $childs = null){
+		parent::__construct();
+		$this->loop_condition = $loop_condition;
+		$this->loop_init = $loop_init;
+		$this->loop_inc = $loop_inc;
+		$this->childs = $childs;
+	}
+	/**
+	 * Destructor
+	 */
+	function __destruct(){
+		parent::__destruct();
+	}
+	/* ======================= Class Init Functions ======================= */
 	public function getClassName(){return "BayrellLang.OpCodes.OpFor";}
 	public static function getParentClassName(){return "BayrellLang.OpCodes.BaseOpCode";}
 	protected function _init(){
@@ -36,6 +54,16 @@ class OpFor extends BaseOpCode{
 		$this->loop_init = null;
 		$this->loop_inc = null;
 		$this->childs = null;
+	}
+	public function assignObject($obj){
+		if ($obj instanceof OpFor){
+			$this->op = rtl::_clone($obj->op);
+			$this->loop_condition = rtl::_clone($obj->loop_condition);
+			$this->loop_init = rtl::_clone($obj->loop_init);
+			$this->loop_inc = rtl::_clone($obj->loop_inc);
+			$this->childs = rtl::_clone($obj->childs);
+		}
+		parent::assignObject($obj);
 	}
 	public function assignValue($variable_name, $value){
 		if ($variable_name == "op") $this->op = rtl::correct($value, "string", "op_for", "");
@@ -53,35 +81,14 @@ class OpFor extends BaseOpCode{
 		else if ($variable_name == "childs") return $this->childs;
 		return parent::takeValue($variable_name, $default_value);
 	}
-	public function getVariablesNames($names){
-		parent::getVariablesNames($names);
+	public static function getFieldsList($names){
 		$names->push("op");
 		$names->push("loop_condition");
 		$names->push("loop_init");
 		$names->push("loop_inc");
 		$names->push("childs");
 	}
-	/**
-	 * Returns classname of the object
-	 * @return string
-	 */
-	function getClassName(){
-		return "BayrellLang.OpCodes.OpFor";
-	}
-	/**
-	 * Constructor
-	 */
-	function __construct($loop_condition = null, $loop_init = null, $loop_inc = null, $childs = null){
-		parent::__construct();
-		$this->loop_condition = $loop_condition;
-		$this->loop_init = $loop_init;
-		$this->loop_inc = $loop_inc;
-		$this->childs = $childs;
-	}
-	/**
-	 * Destructor
-	 */
-	function __destruct(){
-		parent::__destruct();
+	public static function getFieldInfoByName($field_name){
+		return null;
 	}
 }

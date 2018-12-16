@@ -20,12 +20,28 @@ namespace BayrellLang\OpCodes;
 use Runtime\rtl;
 use Runtime\Map;
 use Runtime\Vector;
+use Runtime\IntrospectionInfo;
 use BayrellLang\OpCodes\BaseOpCode;
 class OpCall extends BaseOpCode{
 	public $op;
 	public $value;
 	public $args;
 	public $is_await;
+	/**
+	 * Constructor
+	 */
+	function __construct($value = null, $args = null){
+		parent::__construct();
+		$this->value = $value;
+		$this->args = $args;
+	}
+	/**
+	 * Destructor
+	 */
+	function __destruct(){
+		parent::__destruct();
+	}
+	/* ======================= Class Init Functions ======================= */
 	public function getClassName(){return "BayrellLang.OpCodes.OpCall";}
 	public static function getParentClassName(){return "BayrellLang.OpCodes.BaseOpCode";}
 	protected function _init(){
@@ -34,6 +50,15 @@ class OpCall extends BaseOpCode{
 		$this->value = null;
 		$this->args = null;
 		$this->is_await = false;
+	}
+	public function assignObject($obj){
+		if ($obj instanceof OpCall){
+			$this->op = rtl::_clone($obj->op);
+			$this->value = rtl::_clone($obj->value);
+			$this->args = rtl::_clone($obj->args);
+			$this->is_await = rtl::_clone($obj->is_await);
+		}
+		parent::assignObject($obj);
 	}
 	public function assignValue($variable_name, $value){
 		if ($variable_name == "op") $this->op = rtl::correct($value, "string", "op_call", "");
@@ -49,32 +74,13 @@ class OpCall extends BaseOpCode{
 		else if ($variable_name == "is_await") return $this->is_await;
 		return parent::takeValue($variable_name, $default_value);
 	}
-	public function getVariablesNames($names){
-		parent::getVariablesNames($names);
+	public static function getFieldsList($names){
 		$names->push("op");
 		$names->push("value");
 		$names->push("args");
 		$names->push("is_await");
 	}
-	/**
-	 * Returns classname of the object
-	 * @return string
-	 */
-	function getClassName(){
-		return "BayrellLang.OpCodes.OpCall";
-	}
-	/**
-	 * Constructor
-	 */
-	function __construct($value = null, $args = null){
-		parent::__construct();
-		$this->value = $value;
-		$this->args = $args;
-	}
-	/**
-	 * Destructor
-	 */
-	function __destruct(){
-		parent::__destruct();
+	public static function getFieldInfoByName($field_name){
+		return null;
 	}
 }

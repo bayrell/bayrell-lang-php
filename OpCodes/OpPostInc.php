@@ -20,14 +20,22 @@ namespace BayrellLang\OpCodes;
 use Runtime\rtl;
 use Runtime\Map;
 use Runtime\Vector;
+use Runtime\IntrospectionInfo;
 use BayrellLang\OpCodes\OpValue1;
 class OpPostInc extends OpValue1{
 	public $op;
+	/* ======================= Class Init Functions ======================= */
 	public function getClassName(){return "BayrellLang.OpCodes.OpPostInc";}
 	public static function getParentClassName(){return "BayrellLang.OpCodes.OpValue1";}
 	protected function _init(){
 		parent::_init();
 		$this->op = "op_post_inc";
+	}
+	public function assignObject($obj){
+		if ($obj instanceof OpPostInc){
+			$this->op = rtl::_clone($obj->op);
+		}
+		parent::assignObject($obj);
 	}
 	public function assignValue($variable_name, $value){
 		if ($variable_name == "op") $this->op = rtl::correct($value, "string", "op_post_inc", "");
@@ -37,15 +45,10 @@ class OpPostInc extends OpValue1{
 		if ($variable_name == "op") return $this->op;
 		return parent::takeValue($variable_name, $default_value);
 	}
-	public function getVariablesNames($names){
-		parent::getVariablesNames($names);
+	public static function getFieldsList($names){
 		$names->push("op");
 	}
-	/**
-	 * Returns classname of the object
-	 * @return string
-	 */
-	function getClassName(){
-		return "BayrellLang.OpCodes.OpPostInc";
+	public static function getFieldInfoByName($field_name){
+		return null;
 	}
 }

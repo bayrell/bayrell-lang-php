@@ -20,12 +20,11 @@ namespace BayrellLang\Exceptions;
 use Runtime\rtl;
 use Runtime\Map;
 use Runtime\Vector;
+use Runtime\IntrospectionInfo;
 use Runtime\RuntimeUtils;
 use BayrellParser\Exceptions\ParserError;
 use BayrellLang\LangConstant;
 class HexNumberExpected extends ParserError{
-	public function getClassName(){return "BayrellLang.Exceptions.HexNumberExpected";}
-	public static function getParentClassName(){return "BayrellParser.Exceptions.ParserError";}
 	function __construct($line, $col, $context, $prev = null){
 		if ($context == null){
 			$context = RuntimeUtils::globalContext();
@@ -35,4 +34,7 @@ class HexNumberExpected extends ParserError{
 		$this->pos = $col;
 		$this->buildMessage();
 	}
+	/* ======================= Class Init Functions ======================= */
+	public function getClassName(){return "BayrellLang.Exceptions.HexNumberExpected";}
+	public static function getParentClassName(){return "BayrellParser.Exceptions.ParserError";}
 }

@@ -20,12 +20,29 @@ namespace BayrellLang\OpCodes;
 use Runtime\rtl;
 use Runtime\Map;
 use Runtime\Vector;
+use Runtime\IntrospectionInfo;
 use BayrellLang\OpCodes\BaseOpCode;
 class OpTernary extends BaseOpCode{
 	public $op;
 	public $condition;
 	public $if_true;
 	public $if_false;
+	/**
+	 * Constructor
+	 */
+	function __construct($condition = null, $if_true = null, $if_false = null){
+		parent::__construct();
+		$this->condition = $condition;
+		$this->if_true = $if_true;
+		$this->if_false = $if_false;
+	}
+	/**
+	 * Destructor
+	 */
+	function __destruct(){
+		parent::__destruct();
+	}
+	/* ======================= Class Init Functions ======================= */
 	public function getClassName(){return "BayrellLang.OpCodes.OpTernary";}
 	public static function getParentClassName(){return "BayrellLang.OpCodes.BaseOpCode";}
 	protected function _init(){
@@ -34,6 +51,15 @@ class OpTernary extends BaseOpCode{
 		$this->condition = null;
 		$this->if_true = null;
 		$this->if_false = null;
+	}
+	public function assignObject($obj){
+		if ($obj instanceof OpTernary){
+			$this->op = rtl::_clone($obj->op);
+			$this->condition = rtl::_clone($obj->condition);
+			$this->if_true = rtl::_clone($obj->if_true);
+			$this->if_false = rtl::_clone($obj->if_false);
+		}
+		parent::assignObject($obj);
 	}
 	public function assignValue($variable_name, $value){
 		if ($variable_name == "op") $this->op = rtl::correct($value, "string", "op_ternary", "");
@@ -49,33 +75,13 @@ class OpTernary extends BaseOpCode{
 		else if ($variable_name == "if_false") return $this->if_false;
 		return parent::takeValue($variable_name, $default_value);
 	}
-	public function getVariablesNames($names){
-		parent::getVariablesNames($names);
+	public static function getFieldsList($names){
 		$names->push("op");
 		$names->push("condition");
 		$names->push("if_true");
 		$names->push("if_false");
 	}
-	/**
-	 * Returns classname of the object
-	 * @return string
-	 */
-	function getClassName(){
-		return "BayrellLang.OpCodes.OpTernary";
-	}
-	/**
-	 * Constructor
-	 */
-	function __construct($condition = null, $if_true = null, $if_false = null){
-		parent::__construct();
-		$this->condition = $condition;
-		$this->if_true = $if_true;
-		$this->if_false = $if_false;
-	}
-	/**
-	 * Destructor
-	 */
-	function __destruct(){
-		parent::__destruct();
+	public static function getFieldInfoByName($field_name){
+		return null;
 	}
 }

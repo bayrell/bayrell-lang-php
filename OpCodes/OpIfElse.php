@@ -20,44 +20,12 @@ namespace BayrellLang\OpCodes;
 use Runtime\rtl;
 use Runtime\Map;
 use Runtime\Vector;
+use Runtime\IntrospectionInfo;
 use BayrellLang\OpCodes\BaseOpCode;
 class OpIfElse extends BaseOpCode{
 	public $op;
 	public $condition;
 	public $if_true;
-	public function getClassName(){return "BayrellLang.OpCodes.OpIfElse";}
-	public static function getParentClassName(){return "BayrellLang.OpCodes.BaseOpCode";}
-	protected function _init(){
-		parent::_init();
-		$this->op = "op_if_else";
-		$this->condition = null;
-		$this->if_true = null;
-	}
-	public function assignValue($variable_name, $value){
-		if ($variable_name == "op") $this->op = rtl::correct($value, "string", "op_if_else", "");
-		else if ($variable_name == "condition") $this->condition = rtl::correct($value, "BayrellLang.OpCodes.BaseOpCode", null, "");
-		else if ($variable_name == "if_true") $this->if_true = rtl::correct($value, "Runtime.Vector", null, "BayrellLang.OpCodes.BaseOpCode");
-		else parent::assignValue($variable_name, $value);
-	}
-	public function takeValue($variable_name, $default_value = null){
-		if ($variable_name == "op") return $this->op;
-		else if ($variable_name == "condition") return $this->condition;
-		else if ($variable_name == "if_true") return $this->if_true;
-		return parent::takeValue($variable_name, $default_value);
-	}
-	public function getVariablesNames($names){
-		parent::getVariablesNames($names);
-		$names->push("op");
-		$names->push("condition");
-		$names->push("if_true");
-	}
-	/**
-	 * Returns classname of the object
-	 * @return string
-	 */
-	function getClassName(){
-		return "BayrellLang.OpCodes.OpIfElse";
-	}
 	/**
 	 * Constructor
 	 */
@@ -71,5 +39,42 @@ class OpIfElse extends BaseOpCode{
 	 */
 	function __destruct(){
 		parent::__destruct();
+	}
+	/* ======================= Class Init Functions ======================= */
+	public function getClassName(){return "BayrellLang.OpCodes.OpIfElse";}
+	public static function getParentClassName(){return "BayrellLang.OpCodes.BaseOpCode";}
+	protected function _init(){
+		parent::_init();
+		$this->op = "op_if_else";
+		$this->condition = null;
+		$this->if_true = null;
+	}
+	public function assignObject($obj){
+		if ($obj instanceof OpIfElse){
+			$this->op = rtl::_clone($obj->op);
+			$this->condition = rtl::_clone($obj->condition);
+			$this->if_true = rtl::_clone($obj->if_true);
+		}
+		parent::assignObject($obj);
+	}
+	public function assignValue($variable_name, $value){
+		if ($variable_name == "op") $this->op = rtl::correct($value, "string", "op_if_else", "");
+		else if ($variable_name == "condition") $this->condition = rtl::correct($value, "BayrellLang.OpCodes.BaseOpCode", null, "");
+		else if ($variable_name == "if_true") $this->if_true = rtl::correct($value, "Runtime.Vector", null, "BayrellLang.OpCodes.BaseOpCode");
+		else parent::assignValue($variable_name, $value);
+	}
+	public function takeValue($variable_name, $default_value = null){
+		if ($variable_name == "op") return $this->op;
+		else if ($variable_name == "condition") return $this->condition;
+		else if ($variable_name == "if_true") return $this->if_true;
+		return parent::takeValue($variable_name, $default_value);
+	}
+	public static function getFieldsList($names){
+		$names->push("op");
+		$names->push("condition");
+		$names->push("if_true");
+	}
+	public static function getFieldInfoByName($field_name){
+		return null;
 	}
 }

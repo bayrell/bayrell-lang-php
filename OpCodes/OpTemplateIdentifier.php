@@ -20,26 +20,12 @@ namespace BayrellLang\OpCodes;
 use Runtime\rtl;
 use Runtime\Map;
 use Runtime\Vector;
+use Runtime\IntrospectionInfo;
 use BayrellLang\OpCodes\BaseOpCode;
 class OpTemplateIdentifier extends BaseOpCode{
 	public $op;
 	public $t;
 	public $childs;
-	public function getClassName(){return "BayrellLang.OpCodes.OpTemplateIdentifier";}
-	public static function getParentClassName(){return "BayrellLang.OpCodes.BaseOpCode";}
-	protected function _init(){
-		parent::_init();
-		$this->op = "op_template_identifier";
-		$this->t = null;
-		$this->childs = null;
-	}
-	/**
-	 * Returns classname of the object
-	 * @return string
-	 */
-	function getClassName(){
-		return "BayrellLang.OpCodes.OpTemplateIdentifier";
-	}
 	/**
 	 * Constructor
 	 */
@@ -92,5 +78,14 @@ class OpTemplateIdentifier extends BaseOpCode{
 		else {
 			parent::assignValue($variable_name, $value);
 		}
+	}
+	/* ======================= Class Init Functions ======================= */
+	public function getClassName(){return "BayrellLang.OpCodes.OpTemplateIdentifier";}
+	public static function getParentClassName(){return "BayrellLang.OpCodes.BaseOpCode";}
+	protected function _init(){
+		parent::_init();
+		$this->op = "op_template_identifier";
+		$this->t = null;
+		$this->childs = null;
 	}
 }

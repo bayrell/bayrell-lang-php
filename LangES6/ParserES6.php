@@ -20,7 +20,9 @@ namespace BayrellLang\LangES6;
 use Runtime\rtl;
 use Runtime\Map;
 use Runtime\Vector;
+use Runtime\IntrospectionInfo;
 class BayrellParserES6{
+	/* ======================= Class Init Functions ======================= */
 	public function getClassName(){return "BayrellLang.LangES6.BayrellParserES6";}
 	public static function getParentClassName(){return "";}
 }

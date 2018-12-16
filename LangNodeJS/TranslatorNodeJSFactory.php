@@ -20,18 +20,20 @@ namespace BayrellLang\LangNodeJS;
 use Runtime\rtl;
 use Runtime\Map;
 use Runtime\Vector;
+use Runtime\IntrospectionInfo;
 use Runtime\CoreObject;
 use Runtime\ContextObject;
 use Runtime\Interfaces\ContextInterface;
 use Runtime\Interfaces\FactoryInterface;
 use BayrellLang\LangNodeJS\TranslatorNodeJS;
 class TranslatorNodeJSFactory extends ContextObject implements FactoryInterface{
-	public function getClassName(){return "BayrellLang.LangNodeJS.TranslatorNodeJSFactory";}
-	public static function getParentClassName(){return "Runtime.ContextObject";}
 	/**
 	 * Returns new Instance
 	 */
 	function newInstance($context){
 		return new TranslatorNodeJS($context);
 	}
+	/* ======================= Class Init Functions ======================= */
+	public function getClassName(){return "BayrellLang.LangNodeJS.TranslatorNodeJSFactory";}
+	public static function getParentClassName(){return "Runtime.ContextObject";}
 }

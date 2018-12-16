@@ -20,6 +20,7 @@ namespace BayrellLang\LangBay;
 use Runtime\rtl;
 use Runtime\Map;
 use Runtime\Vector;
+use Runtime\IntrospectionInfo;
 use Runtime\rs;
 use BayrellParser\ParserToken;
 use BayrellParser\Exceptions\ParserEOF;
@@ -28,8 +29,6 @@ use BayrellLang\Exceptions\EndOfStringExpected;
 class ParserBayNameToken extends ParserToken{
 	const TOKEN_NONE = "none";
 	const TOKEN_BASE = "base";
-	public function getClassName(){return "BayrellLang.LangBay.ParserBayNameToken";}
-	public static function getParentClassName(){return "BayrellParser.ParserToken";}
 	/**
 	 * Return true if char is token char
 	 * @param {char} ch
@@ -38,4 +37,7 @@ class ParserBayNameToken extends ParserToken{
 	function isTokenChar($ch){
 		return rs::strpos("qazwsxedcrfvtgbyhnujmikolp0123456789_.", rs::strtolower($ch)) !== -1;
 	}
+	/* ======================= Class Init Functions ======================= */
+	public function getClassName(){return "BayrellLang.LangBay.ParserBayNameToken";}
+	public static function getParentClassName(){return "BayrellParser.ParserToken";}
 }

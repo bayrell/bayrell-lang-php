@@ -20,44 +20,12 @@ namespace BayrellLang\OpCodes;
 use Runtime\rtl;
 use Runtime\Map;
 use Runtime\Vector;
+use Runtime\IntrospectionInfo;
 use BayrellLang\OpCodes\BaseOpCode;
 class OpValue2 extends BaseOpCode{
 	public $op;
 	public $value1;
 	public $value2;
-	public function getClassName(){return "BayrellLang.OpCodes.OpValue2";}
-	public static function getParentClassName(){return "BayrellLang.OpCodes.BaseOpCode";}
-	protected function _init(){
-		parent::_init();
-		$this->op = "op_value2";
-		$this->value1 = null;
-		$this->value2 = null;
-	}
-	public function assignValue($variable_name, $value){
-		if ($variable_name == "op") $this->op = rtl::correct($value, "string", "op_value2", "");
-		else if ($variable_name == "value1") $this->value1 = rtl::correct($value, "BayrellLang.OpCodes.BaseOpCode", null, "");
-		else if ($variable_name == "value2") $this->value2 = rtl::correct($value, "BayrellLang.OpCodes.BaseOpCode", null, "");
-		else parent::assignValue($variable_name, $value);
-	}
-	public function takeValue($variable_name, $default_value = null){
-		if ($variable_name == "op") return $this->op;
-		else if ($variable_name == "value1") return $this->value1;
-		else if ($variable_name == "value2") return $this->value2;
-		return parent::takeValue($variable_name, $default_value);
-	}
-	public function getVariablesNames($names){
-		parent::getVariablesNames($names);
-		$names->push("op");
-		$names->push("value1");
-		$names->push("value2");
-	}
-	/**
-	 * Returns classname of the object
-	 * @return string
-	 */
-	function getClassName(){
-		return "BayrellLang.OpCodes.OpValue2";
-	}
 	/**
 	 * Constructor
 	 */
@@ -71,5 +39,42 @@ class OpValue2 extends BaseOpCode{
 	 */
 	function __destruct(){
 		parent::__destruct();
+	}
+	/* ======================= Class Init Functions ======================= */
+	public function getClassName(){return "BayrellLang.OpCodes.OpValue2";}
+	public static function getParentClassName(){return "BayrellLang.OpCodes.BaseOpCode";}
+	protected function _init(){
+		parent::_init();
+		$this->op = "op_value2";
+		$this->value1 = null;
+		$this->value2 = null;
+	}
+	public function assignObject($obj){
+		if ($obj instanceof OpValue2){
+			$this->op = rtl::_clone($obj->op);
+			$this->value1 = rtl::_clone($obj->value1);
+			$this->value2 = rtl::_clone($obj->value2);
+		}
+		parent::assignObject($obj);
+	}
+	public function assignValue($variable_name, $value){
+		if ($variable_name == "op") $this->op = rtl::correct($value, "string", "op_value2", "");
+		else if ($variable_name == "value1") $this->value1 = rtl::correct($value, "BayrellLang.OpCodes.BaseOpCode", null, "");
+		else if ($variable_name == "value2") $this->value2 = rtl::correct($value, "BayrellLang.OpCodes.BaseOpCode", null, "");
+		else parent::assignValue($variable_name, $value);
+	}
+	public function takeValue($variable_name, $default_value = null){
+		if ($variable_name == "op") return $this->op;
+		else if ($variable_name == "value1") return $this->value1;
+		else if ($variable_name == "value2") return $this->value2;
+		return parent::takeValue($variable_name, $default_value);
+	}
+	public static function getFieldsList($names){
+		$names->push("op");
+		$names->push("value1");
+		$names->push("value2");
+	}
+	public static function getFieldInfoByName($field_name){
+		return null;
 	}
 }

@@ -20,6 +20,7 @@ namespace BayrellLang\LangES6;
 use Runtime\rtl;
 use Runtime\Map;
 use Runtime\Vector;
+use Runtime\IntrospectionInfo;
 use Runtime\re;
 use Runtime\rs;
 use BayrellLang\CommonTranslator;
@@ -77,6 +78,7 @@ use BayrellLang\OpCodes\OpShiftLeft;
 use BayrellLang\OpCodes\OpShiftRight;
 use BayrellLang\OpCodes\OpStatic;
 use BayrellLang\OpCodes\OpString;
+use BayrellLang\OpCodes\OpStructDeclare;
 use BayrellLang\OpCodes\OpSub;
 use BayrellLang\OpCodes\OpTemplateIdentifier;
 use BayrellLang\OpCodes\OpTernary;
@@ -88,20 +90,6 @@ use BayrellLang\OpCodes\OpVector;
 use BayrellLang\OpCodes\OpWhile;
 use BayrellLang\LangES6\FunctionStack;
 class TranslatorES6 extends CommonTranslator{
-	public function getClassName(){return "BayrellLang.LangES6.TranslatorES6";}
-	public static function getParentClassName(){return "BayrellLang.CommonTranslator";}
-	protected function _init(){
-		parent::_init();
-		$this->modules = null;
-		$this->current_namespace = "";
-		$this->current_class_name = "";
-		$this->function_stack = null;
-		$this->current_module_name = "";
-		$this->is_interface = false;
-		$this->is_return = false;
-		$this->is_async_opcode = false;
-		$this->is_async_await_op_call = false;
-	}
 	/**
 	 * Returns true if function is async
 	 * @return bool
@@ -1304,6 +1292,7 @@ class TranslatorES6 extends CommonTranslator{
 			$this->modules->set("rtl", "Runtime.rtl");
 			$this->modules->set("Map", "Runtime.Map");
 			$this->modules->set("Vector", "Runtime.Vector");
+			$this->modules->set("IntrospectionInfo", "Runtime.IntrospectionInfo");
 		}
 		return "";
 	}
@@ -1603,8 +1592,11 @@ class TranslatorES6 extends CommonTranslator{
 	function OpClassDeclareFooter($op_code){
 		$res = "";
 		/* Static variables */
-		for ($i = 0; $i < $op_code->class_variables->count(); $i++){
-			$variable = $op_code->class_variables->item($i);
+		for ($i = 0; $i < $op_code->childs->count(); $i++){
+			$variable = $op_code->childs->item($i);
+			if (!($variable instanceof OpAssignDeclare)){
+				continue;
+			}
 			if ($variable->flags != null && ($variable->isFlag("static") || $variable->isFlag("const"))){
 				$this->beginOperation();
 				$s = rtl::toString($this->current_namespace) . "." . rtl::toString($op_code->class_name) . "." . rtl::toString($variable->name) . " = " . rtl::toString($this->translateRun($variable->value)) . ";";
@@ -1678,7 +1670,7 @@ class TranslatorES6 extends CommonTranslator{
 	 * Class init functions
 	 */
 	function OpClassInit($op_code){
-		$class_variables = $op_code->class_variables;
+		$childs = $op_code->childs;
 		$class_implements = $op_code->class_implements;
 		$class_extends = "";
 		if ($op_code->class_extends){
@@ -1690,18 +1682,39 @@ class TranslatorES6 extends CommonTranslator{
 		$has_cloneable = false;
 		$has_variables = false;
 		$has_implements = $class_implements != null && $class_implements->count() > 0;
-		for ($i = 0; $i < $class_variables->count(); $i++){
-			$variable = $class_variables->item($i);
-			if ($variable->isFlag("serializable")){
-				$has_serializable = true;
+		$has_methods_annotations = false;
+		$has_fields_annotations = false;
+		for ($i = 0; $i < $childs->count(); $i++){
+			$variable = $childs->item($i);
+			if ($variable instanceof OpAssignDeclare){
+				if ($variable->isFlag("serializable")){
+					$has_serializable = true;
+					$has_cloneable = true;
+				}
+				if ($variable->isFlag("cloneable")){
+					$has_cloneable = true;
+				}
+				if ($variable->isFlag("assignable")){
+					$has_serializable = true;
+				}
+				if (!$variable->isFlag("static") && !$variable->isFlag("const")){
+					$has_variables = true;
+				}
+				if ($variable->hasAnnotations()){
+					$has_methods_annotations = true;
+				}
 			}
-			if ($variable->isFlag("cloneable")){
-				$has_cloneable = true;
-			}
-			if (!$variable->isFlag("static") && !$variable->isFlag("const")){
-				$has_variables = true;
+			if ($variable instanceof OpFunctionDeclare){
+				if ($variable->hasAnnotations()){
+					$has_fields_annotations = true;
+				}
 			}
 		}
+		if ($this->is_struct){
+			$has_serializable = true;
+			$has_cloneable = true;
+		}
+		$res .= $this->s("/* ======================= Class Init Functions ======================= */");
 		if (!$this->is_interface){
 			$res .= $this->s("getClassName(){" . "return " . rtl::toString($this->convertString(rtl::toString($this->current_namespace) . "." . rtl::toString($this->current_class_name))) . ";}");
 			$res .= $this->s("static getParentClassName(){" . "return " . rtl::toString($this->convertString($class_extends)) . ";}");
@@ -1713,9 +1726,12 @@ class TranslatorES6 extends CommonTranslator{
 				if ($class_extends != ""){
 					$res .= $this->s("super._init();");
 				}
-				if ($class_variables != null){
-					for ($i = 0; $i < $class_variables->count(); $i++){
-						$variable = $class_variables->item($i);
+				if ($childs != null){
+					for ($i = 0; $i < $childs->count(); $i++){
+						$variable = $childs->item($i);
+						if (!($variable instanceof OpAssignDeclare)){
+							continue;
+						}
 						if (!$variable->isFlag("static") && !$variable->isFlag("const")){
 							$this->beginOperation();
 							$s = "this." . rtl::toString($variable->name) . " = " . rtl::toString($this->translateRun($variable->value)) . ";";
@@ -1742,9 +1758,13 @@ class TranslatorES6 extends CommonTranslator{
 				$this->levelInc();
 				$res .= $this->s("if (obj instanceof " . rtl::toString($this->getName($this->current_class_name)) . "){");
 				$this->levelInc();
-				for ($i = 0; $i < $class_variables->count(); $i++){
-					$variable = $class_variables->item($i);
-					if ($variable->isFlag("cloneable")){
+				for ($i = 0; $i < $childs->count(); $i++){
+					$variable = $childs->item($i);
+					if (!($variable instanceof OpAssignDeclare)){
+						continue;
+					}
+					$is_struct = $this->is_struct && !$variable->isFlag("static") && !$variable->isFlag("const");
+					if ($variable->isFlag("public") && ($variable->isFlag("cloneable") || $variable->isFlag("serializable") || $is_struct)){
 						$res .= $this->s("this." . rtl::toString($variable->name) . " = " . rtl::toString($this->getName("rtl")) . "._clone(" . "obj." . rtl::toString($variable->name) . ");");
 					}
 				}
@@ -1759,9 +1779,13 @@ class TranslatorES6 extends CommonTranslator{
 				$res .= $this->s("assignValue(variable_name, value){");
 				$this->levelInc();
 				$class_variables_serializable_count = 0;
-				for ($i = 0; $i < $class_variables->count(); $i++){
-					$variable = $class_variables->item($i);
-					if ($variable->isFlag("serializable")){
+				for ($i = 0; $i < $childs->count(); $i++){
+					$variable = $childs->item($i);
+					if (!($variable instanceof OpAssignDeclare)){
+						continue;
+					}
+					$is_struct = $this->is_struct && !$variable->isFlag("static") && !$variable->isFlag("const");
+					if ($variable->isFlag("public") && ($variable->isFlag("serializable") || $variable->isFlag("assignable") || $is_struct)){
 						$type_value = $this->getAssignDeclareTypeValue($variable);
 						$type_template = $this->getAssignDeclareTypeTemplate($variable);
 						$def_val = "null";
@@ -1780,16 +1804,25 @@ class TranslatorES6 extends CommonTranslator{
 						$class_variables_serializable_count++;
 					}
 				}
-				$res .= $this->s("else super.assignValue(variable_name, value);");
+				if ($class_variables_serializable_count == 0){
+					$res .= $this->s("super.assignValue(variable_name, value);");
+				}
+				else {
+					$res .= $this->s("else super.assignValue(variable_name, value);");
+				}
 				$this->levelDec();
 				$res .= $this->s("}");
 				$res .= $this->s("takeValue(variable_name, default_value){");
 				$this->levelInc();
 				$res .= $this->s("if (default_value == undefined) default_value = null;");
 				$class_variables_serializable_count = 0;
-				for ($i = 0; $i < $class_variables->count(); $i++){
-					$variable = $class_variables->item($i);
-					if ($variable->isFlag("serializable")){
+				for ($i = 0; $i < $childs->count(); $i++){
+					$variable = $childs->item($i);
+					if (!($variable instanceof OpAssignDeclare)){
+						continue;
+					}
+					$is_struct = $this->is_struct && !$variable->isFlag("static") && !$variable->isFlag("const");
+					if ($variable->isFlag("public") && ($variable->isFlag("serializable") || $variable->isFlag("assignable") || $is_struct)){
 						$take_value_s = "if (variable_name == " . rtl::toString($this->convertString($variable->name)) . ") " . "return this." . rtl::toString($variable->name) . ";";
 						if ($class_variables_serializable_count == 0){
 							$res .= $this->s($take_value_s);
@@ -1803,15 +1836,109 @@ class TranslatorES6 extends CommonTranslator{
 				$res .= $this->s("return super.takeValue(variable_name, default_value);");
 				$this->levelDec();
 				$res .= $this->s("}");
-				$res .= $this->s("getVariablesNames(names){");
+			}
+			if ($has_serializable || $has_fields_annotations){
+				$res .= $this->s("static getFieldsList(names){");
 				$this->levelInc();
-				$res .= $this->s("super.getVariablesNames(names);");
-				for ($i = 0; $i < $class_variables->count(); $i++){
-					$variable = $class_variables->item($i);
-					if ($variable->isFlag("serializable")){
+				for ($i = 0; $i < $childs->count(); $i++){
+					$variable = $childs->item($i);
+					if (!($variable instanceof OpAssignDeclare)){
+						continue;
+					}
+					$is_struct = $this->is_struct && !$variable->isFlag("static") && !$variable->isFlag("const");
+					if ($variable->isFlag("public") && ($variable->isFlag("serializable") || $variable->isFlag("assignable") || $is_struct)){
 						$res .= $this->s("names.push(" . rtl::toString($this->convertString($variable->name)) . ");");
 					}
 				}
+				$this->levelDec();
+				$res .= $this->s("}");
+				$res .= $this->s("static getFieldInfoByName(field_name){");
+				$this->levelInc();
+				for ($i = 0; $i < $childs->count(); $i++){
+					$variable = $childs->item($i);
+					if (!($variable instanceof OpAssignDeclare)){
+						continue;
+					}
+					if ($variable->isFlag("public") && $variable->hasAnnotations()){
+						$res .= $this->s("if (field_name == " . rtl::toString($this->convertString($variable->name)) . "){");
+						$this->levelInc();
+						$res .= $this->s("return new " . rtl::toString($this->getName("IntrospectionInfo")) . "(");
+						$this->levelInc();
+						$res .= $this->s("(new " . rtl::toString($this->getName("Map")) . "())");
+						$res .= $this->s(".set(\"kind\", \"field\")");
+						$res .= $this->s(".set(\"name\", " . rtl::toString($this->convertString($variable->name)) . ")");
+						$res .= $this->s(".set(\"annotations\", ");
+						$this->levelInc();
+						$res .= $this->s("(new " . rtl::toString($this->getName("Vector")) . "())");
+						for ($j = 0; $j < $variable->annotations->count(); $j++){
+							$annotation = $variable->annotations->item($j);
+							$this->pushOneLine(true);
+							$s_kind = $this->translateRun($annotation->kind);
+							$s_options = $this->translateRun($annotation->options);
+							$this->popOneLine();
+							$res .= $this->s(".push(new " . rtl::toString($s_kind) . "(" . rtl::toString($s_options) . "))");
+						}
+						$this->levelDec();
+						$res .= $this->s(")");
+						$this->levelDec();
+						$res .= $this->s(");");
+						$this->levelDec();
+						$res .= $this->s("}");
+					}
+				}
+				$res .= $this->s("return null;");
+				$this->levelDec();
+				$res .= $this->s("}");
+			}
+			if ($has_methods_annotations){
+				$res .= $this->s("static getMethodsList(names){");
+				$this->levelInc();
+				for ($i = 0; $i < $childs->count(); $i++){
+					$variable = $childs->item($i);
+					if (!($variable instanceof OpFunctionDeclare)){
+						continue;
+					}
+					if ($variable->isFlag("public") && $variable->hasAnnotations()){
+						$res .= $this->s("names.push(" . rtl::toString($this->convertString($variable->name)) . ");");
+					}
+				}
+				$this->levelDec();
+				$res .= $this->s("}");
+				$res .= $this->s("static getMethodInfoByName(method_name){");
+				$this->levelInc();
+				for ($i = 0; $i < $childs->count(); $i++){
+					$variable = $childs->item($i);
+					if (!($variable instanceof OpFunctionDeclare)){
+						continue;
+					}
+					if ($variable->isFlag("public") && $variable->hasAnnotations()){
+						$res .= $this->s("if (method_name == " . rtl::toString($this->convertString($variable->name)) . "){");
+						$this->levelInc();
+						$res .= $this->s("return new " . rtl::toString($this->getName("IntrospectionInfo")) . "(");
+						$this->levelInc();
+						$res .= $this->s("(new " . rtl::toString($this->getName("Map")) . "())");
+						$res .= $this->s(".set(\"kind\", \"method\")");
+						$res .= $this->s(".set(\"name\", " . rtl::toString($this->convertString($variable->name)) . ")");
+						$res .= $this->s(".set(\"annotations\", ");
+						$this->levelInc();
+						$res .= $this->s("(new " . rtl::toString($this->getName("Vector")) . "())");
+						for ($j = 0; $j < $variable->annotations->count(); $j++){
+							$annotation = $variable->annotations->item($j);
+							$this->pushOneLine(true);
+							$s_kind = $this->translateRun($annotation->kind);
+							$s_options = $this->translateRun($annotation->options);
+							$this->popOneLine();
+							$res .= $this->s(".push(new " . rtl::toString($s_kind) . "(" . rtl::toString($s_options) . "))");
+						}
+						$this->levelDec();
+						$res .= $this->s(")");
+						$this->levelDec();
+						$res .= $this->s(");");
+						$this->levelDec();
+						$res .= $this->s("}");
+					}
+				}
+				$res .= $this->s("return null;");
 				$this->levelDec();
 				$res .= $this->s("}");
 			}
@@ -1861,9 +1988,10 @@ class TranslatorES6 extends CommonTranslator{
 			return "";
 		}
 		$res .= $this->OpClassDeclareHeader($op_code);
-		$res .= $this->OpClassInit($op_code);
 		/* Body */
 		$res .= $this->OpClassBody($op_code);
+		/* Class Init */
+		$res .= $this->OpClassInit($op_code);
 		/* Footer class */
 		$this->levelDec();
 		$res .= $this->s("}");
@@ -1878,6 +2006,16 @@ class TranslatorES6 extends CommonTranslator{
 		$this->is_interface = true;
 		$res = $this->OpClassDeclare($op_code);
 		$this->is_interface = false;
+		return $res;
+	}
+	/**
+	 * Struct declare
+	 */
+	function OpStructDeclare($op_code){
+		$this->is_struct = true;
+		$this->struct_read_only = $op_code->is_readonly;
+		$res = $this->OpClassDeclare($op_code);
+		$this->is_struct = false;
 		return $res;
 	}
 	/** =========================== Preprocessor ========================== */
@@ -1922,5 +2060,22 @@ class TranslatorES6 extends CommonTranslator{
 		$s = "\"use strict;\"" . rtl::toString($this->crlf);
 		$s .= $this->translateRun($op_code);
 		return $s;
+	}
+	/* ======================= Class Init Functions ======================= */
+	public function getClassName(){return "BayrellLang.LangES6.TranslatorES6";}
+	public static function getParentClassName(){return "BayrellLang.CommonTranslator";}
+	protected function _init(){
+		parent::_init();
+		$this->modules = null;
+		$this->current_namespace = "";
+		$this->current_class_name = "";
+		$this->function_stack = null;
+		$this->current_module_name = "";
+		$this->is_interface = false;
+		$this->is_struct = false;
+		$this->is_return = false;
+		$this->is_async_opcode = false;
+		$this->is_async_await_op_call = false;
+		$this->struct_read_only = false;
 	}
 }

@@ -20,11 +20,13 @@ namespace BayrellLang;
 use Runtime\rtl;
 use Runtime\Map;
 use Runtime\Vector;
+use Runtime\IntrospectionInfo;
 use Runtime\RuntimeConstant;
 class LangConstant{
 	const ERROR_END_OF_THE_STRING_EXPECTED = RuntimeConstant::ERROR_MODULE_PARSER - 501;
 	const ERROR_PARSER_HEX_NUMBER_EXPECTED = RuntimeConstant::ERROR_MODULE_PARSER - 502;
 	const ERROR_TWICE_DECLARE_ERROR = RuntimeConstant::ERROR_MODULE_PARSER - 503;
+	/* ======================= Class Init Functions ======================= */
 	public function getClassName(){return "BayrellLang.LangConstant";}
 	public static function getParentClassName(){return "";}
 }
