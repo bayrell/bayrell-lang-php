@@ -91,6 +91,13 @@ use BayrellLang\OpCodes\OpWhile;
 use BayrellLang\LangES6\FunctionStack;
 class TranslatorES6 extends CommonTranslator{
 	/**
+	 * Returns full class name
+	 * @return string
+	 */
+	function getCurrentClassName(){
+		return rtl::toString($this->current_namespace) . "." . rtl::toString($this->current_class_name);
+	}
+	/**
 	 * Returns true if function is async
 	 * @return bool
 	 */
@@ -1701,12 +1708,12 @@ class TranslatorES6 extends CommonTranslator{
 					$has_variables = true;
 				}
 				if ($variable->hasAnnotations()){
-					$has_methods_annotations = true;
+					$has_fields_annotations = true;
 				}
 			}
 			if ($variable instanceof OpFunctionDeclare){
 				if ($variable->hasAnnotations()){
-					$has_fields_annotations = true;
+					$has_methods_annotations = true;
 				}
 			}
 		}
@@ -1846,7 +1853,7 @@ class TranslatorES6 extends CommonTranslator{
 						continue;
 					}
 					$is_struct = $this->is_struct && !$variable->isFlag("static") && !$variable->isFlag("const");
-					if ($variable->isFlag("public") && ($variable->isFlag("serializable") || $variable->isFlag("assignable") || $is_struct)){
+					if ($variable->isFlag("public") && ($variable->isFlag("serializable") || $is_struct || $variable->hasAnnotations())){
 						$res .= $this->s("names.push(" . rtl::toString($this->convertString($variable->name)) . ");");
 					}
 				}
@@ -1866,6 +1873,7 @@ class TranslatorES6 extends CommonTranslator{
 						$this->levelInc();
 						$res .= $this->s("(new " . rtl::toString($this->getName("Map")) . "())");
 						$res .= $this->s(".set(\"kind\", \"field\")");
+						$res .= $this->s(".set(\"class_name\", " . rtl::toString($this->convertString($this->getCurrentClassName())) . ")");
 						$res .= $this->s(".set(\"name\", " . rtl::toString($this->convertString($variable->name)) . ")");
 						$res .= $this->s(".set(\"annotations\", ");
 						$this->levelInc();
@@ -1918,6 +1926,7 @@ class TranslatorES6 extends CommonTranslator{
 						$this->levelInc();
 						$res .= $this->s("(new " . rtl::toString($this->getName("Map")) . "())");
 						$res .= $this->s(".set(\"kind\", \"method\")");
+						$res .= $this->s(".set(\"class_name\", " . rtl::toString($this->convertString($this->getCurrentClassName())) . ")");
 						$res .= $this->s(".set(\"name\", " . rtl::toString($this->convertString($variable->name)) . ")");
 						$res .= $this->s(".set(\"annotations\", ");
 						$this->levelInc();
@@ -1942,6 +1951,32 @@ class TranslatorES6 extends CommonTranslator{
 				$this->levelDec();
 				$res .= $this->s("}");
 			}
+		}
+		if ($op_code->hasAnnotations()){
+			$res .= $this->s("static getClassInfo(){");
+			$this->levelInc();
+			$res .= $this->s("return new " . rtl::toString($this->getName("IntrospectionInfo")) . "(");
+			$this->levelInc();
+			$res .= $this->s("(new " . rtl::toString($this->getName("Map")) . "())");
+			$res .= $this->s(".set(\"kind\", \"class\")");
+			$res .= $this->s(".set(\"class_name\", " . rtl::toString($this->convertString($this->getCurrentClassName())) . ")");
+			$res .= $this->s(".set(\"annotations\", ");
+			$this->levelInc();
+			$res .= $this->s("(new " . rtl::toString($this->getName("Vector")) . "())");
+			for ($j = 0; $j < $op_code->annotations->count(); $j++){
+				$annotation = $op_code->annotations->item($j);
+				$this->pushOneLine(true);
+				$s_kind = $this->translateRun($annotation->kind);
+				$s_options = $this->translateRun($annotation->options);
+				$this->popOneLine();
+				$res .= $this->s(".push(new " . rtl::toString($s_kind) . "(" . rtl::toString($s_options) . "))");
+			}
+			$this->levelDec();
+			$res .= $this->s(")");
+			$this->levelDec();
+			$res .= $this->s(");");
+			$this->levelDec();
+			$res .= $this->s("}");
 		}
 		return $res;
 	}

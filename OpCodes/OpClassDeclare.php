@@ -32,6 +32,7 @@ class OpClassDeclare extends BaseOpCode{
 	public $childs;
 	public $class_template;
 	public $flags;
+	public $annotations;
 	/**
 	 * Read is Flag
 	 */
@@ -43,6 +44,12 @@ class OpClassDeclare extends BaseOpCode{
 			return false;
 		}
 		return $this->flags->takeValue($name);
+	}
+	/**
+	 * Has Annotations
+	 */
+	function hasAnnotations(){
+		return $this->annotations != null && $this->annotations->count() > 0;
 	}
 	/**
 	 * Constructor
@@ -72,6 +79,7 @@ class OpClassDeclare extends BaseOpCode{
 		$this->childs = null;
 		$this->class_template = null;
 		$this->flags = null;
+		$this->annotations = null;
 	}
 	public function assignObject($obj){
 		if ($obj instanceof OpClassDeclare){
@@ -82,6 +90,7 @@ class OpClassDeclare extends BaseOpCode{
 			$this->childs = rtl::_clone($obj->childs);
 			$this->class_template = rtl::_clone($obj->class_template);
 			$this->flags = rtl::_clone($obj->flags);
+			$this->annotations = rtl::_clone($obj->annotations);
 		}
 		parent::assignObject($obj);
 	}
@@ -93,6 +102,7 @@ class OpClassDeclare extends BaseOpCode{
 		else if ($variable_name == "childs") $this->childs = rtl::correct($value, "Runtime.Vector", null, "BayrellLang.OpCodes.BaseOpCode");
 		else if ($variable_name == "class_template") $this->class_template = rtl::correct($value, "Runtime.Vector", null, "BayrellLang.OpCodes.BaseOpCode");
 		else if ($variable_name == "flags") $this->flags = rtl::correct($value, "BayrellLang.OpCodes.OpFlags", null, "");
+		else if ($variable_name == "annotations") $this->annotations = rtl::correct($value, "Runtime.Vector", null, "OpAnnotation");
 		else parent::assignValue($variable_name, $value);
 	}
 	public function takeValue($variable_name, $default_value = null){
@@ -103,6 +113,7 @@ class OpClassDeclare extends BaseOpCode{
 		else if ($variable_name == "childs") return $this->childs;
 		else if ($variable_name == "class_template") return $this->class_template;
 		else if ($variable_name == "flags") return $this->flags;
+		else if ($variable_name == "annotations") return $this->annotations;
 		return parent::takeValue($variable_name, $default_value);
 	}
 	public static function getFieldsList($names){
@@ -113,6 +124,7 @@ class OpClassDeclare extends BaseOpCode{
 		$names->push("childs");
 		$names->push("class_template");
 		$names->push("flags");
+		$names->push("annotations");
 	}
 	public static function getFieldInfoByName($field_name){
 		return null;

@@ -88,6 +88,13 @@ use BayrellLang\OpCodes\OpUse;
 use BayrellLang\OpCodes\OpWhile;
 class TranslatorPHP extends CommonTranslator{
 	/**
+	 * Returns full class name
+	 * @return string
+	 */
+	function getCurrentClassName(){
+		return rtl::toString($this->current_namespace) . "." . rtl::toString($this->current_class_name);
+	}
+	/**
 	 * Get name
 	 */
 	function getName($name){
@@ -1134,18 +1141,15 @@ class TranslatorPHP extends CommonTranslator{
 					$has_variables = true;
 				}
 				if ($variable->hasAnnotations()){
-					$has_methods_annotations = true;
+					$has_fields_annotations = true;
 				}
 			}
 			if ($variable instanceof OpFunctionDeclare){
 				if ($variable->hasAnnotations()){
 					$has_fields_annotations = true;
+					$has_methods_annotations = true;
 				}
 			}
-		}
-		$var_prefix = "";
-		if ($this->struct_read_only && $this->is_struct){
-			$var_prefix = "__";
 		}
 		if ($this->current_module_name != "Runtime" || $this->current_class_name != "CoreObject"){
 			if ($has_variables){
@@ -1160,6 +1164,10 @@ class TranslatorPHP extends CommonTranslator{
 						if (!($variable instanceof OpAssignDeclare)){
 							continue;
 						}
+						$var_prefix = "";
+						if ($this->struct_read_only && $this->is_struct && $variable->isFlag("public") && !$variable->isFlag("static")){
+							$var_prefix = "__";
+						}
 						if (!$variable->isFlag("static") && !$variable->isFlag("const")){
 							$this->beginOperation();
 							$s = "\$this->" . rtl::toString($var_prefix) . rtl::toString($variable->name) . " = " . rtl::toString($this->translateRun($variable->value)) . ";";
@@ -1173,9 +1181,6 @@ class TranslatorPHP extends CommonTranslator{
 			}
 			if ($has_cloneable){
 				$s1 = "public";
-				if ($this->struct_read_only){
-					$s1 = "protected";
-				}
 				$res .= $this->s(rtl::toString($s1) . " function assignObject(\$obj){");
 				$this->levelInc();
 				$res .= $this->s("if (\$obj instanceof " . rtl::toString($this->getName($this->current_class_name)) . "){");
@@ -1184,6 +1189,10 @@ class TranslatorPHP extends CommonTranslator{
 					$variable = $childs->item($i);
 					if (!($variable instanceof OpAssignDeclare)){
 						continue;
+					}
+					$var_prefix = "";
+					if ($this->struct_read_only && $this->is_struct && $variable->isFlag("public") && !$variable->isFlag("static")){
+						$var_prefix = "__";
 					}
 					$is_struct = $this->is_struct && !$variable->isFlag("static") && !$variable->isFlag("const");
 					if ($variable->isFlag("public") && ($variable->isFlag("cloneable") || $variable->isFlag("serializable") || $is_struct)){
@@ -1199,9 +1208,6 @@ class TranslatorPHP extends CommonTranslator{
 			if ($has_serializable){
 				$class_variables_serializable_count = 0;
 				$s1 = "public";
-				if ($this->struct_read_only){
-					$s1 = "protected";
-				}
 				$res .= $this->s(rtl::toString($s1) . " function assignValue(\$variable_name, \$value){");
 				$this->levelInc();
 				$class_variables_serializable_count = 0;
@@ -1209,6 +1215,10 @@ class TranslatorPHP extends CommonTranslator{
 					$variable = $childs->item($i);
 					if (!($variable instanceof OpAssignDeclare)){
 						continue;
+					}
+					$var_prefix = "";
+					if ($this->struct_read_only && $this->is_struct && $variable->isFlag("public") && !$variable->isFlag("static")){
+						$var_prefix = "__";
 					}
 					$is_struct = $this->is_struct && !$variable->isFlag("static") && !$variable->isFlag("const");
 					if ($variable->isFlag("public") && ($variable->isFlag("serializable") || $variable->isFlag("assignable") || $is_struct)){
@@ -1246,6 +1256,10 @@ class TranslatorPHP extends CommonTranslator{
 					if (!($variable instanceof OpAssignDeclare)){
 						continue;
 					}
+					$var_prefix = "";
+					if ($this->struct_read_only && $this->is_struct && $variable->isFlag("public") && !$variable->isFlag("static")){
+						$var_prefix = "__";
+					}
 					$is_struct = $this->is_struct && !$variable->isFlag("static") && !$variable->isFlag("const");
 					if ($variable->isFlag("public") && ($variable->isFlag("serializable") || $variable->isFlag("assignable") || $is_struct)){
 						$take_value_s = "if (\$variable_name == " . rtl::toString($this->convertString($variable->name)) . ") " . "return \$this->" . rtl::toString($var_prefix) . rtl::toString($variable->name) . ";";
@@ -1271,7 +1285,7 @@ class TranslatorPHP extends CommonTranslator{
 						continue;
 					}
 					$is_struct = $this->is_struct && !$variable->isFlag("static") && !$variable->isFlag("const");
-					if ($variable->isFlag("public") && ($variable->isFlag("serializable") || $variable->isFlag("assignable") || $is_struct || $variable->hasAnnotations())){
+					if ($variable->isFlag("public") && ($variable->isFlag("serializable") || $is_struct || $variable->hasAnnotations())){
 						$res .= $this->s("\$names->push(" . rtl::toString($this->convertString($variable->name)) . ");");
 					}
 				}
@@ -1292,6 +1306,7 @@ class TranslatorPHP extends CommonTranslator{
 						$this->levelInc();
 						$res .= $this->s("(new " . rtl::toString($this->getName("Map")) . "())");
 						$res .= $this->s("->set(\"kind\", \"field\")");
+						$res .= $this->s("->set(\"class_name\", " . rtl::toString($this->convertString($this->getCurrentClassName())) . ")");
 						$res .= $this->s("->set(\"name\", " . rtl::toString($this->convertString($variable->name)) . ")");
 						$res .= $this->s("->set(\"annotations\", ");
 						$this->levelInc();
@@ -1344,6 +1359,7 @@ class TranslatorPHP extends CommonTranslator{
 						$this->levelInc();
 						$res .= $this->s("(new " . rtl::toString($this->getName("Map")) . "())");
 						$res .= $this->s("->set(\"kind\", \"method\")");
+						$res .= $this->s("->set(\"class_name\", " . rtl::toString($this->convertString($this->getCurrentClassName())) . ")");
 						$res .= $this->s("->set(\"name\", " . rtl::toString($this->convertString($variable->name)) . ")");
 						$res .= $this->s("->set(\"annotations\", ");
 						$this->levelInc();
@@ -1372,6 +1388,32 @@ class TranslatorPHP extends CommonTranslator{
 				$res .= $this->s("public function __get(\$key){ return \$this->takeValue(\$key); }");
 				$res .= $this->s("public function __set(\$key, \$value){}");
 			}
+		}
+		if ($op_code->hasAnnotations()){
+			$res .= $this->s("public static function getClassInfo(){");
+			$this->levelInc();
+			$res .= $this->s("return new " . rtl::toString($this->getName("IntrospectionInfo")) . "(");
+			$this->levelInc();
+			$res .= $this->s("(new " . rtl::toString($this->getName("Map")) . "())");
+			$res .= $this->s("->set(\"kind\", \"class\")");
+			$res .= $this->s("->set(\"class_name\", " . rtl::toString($this->convertString($this->getCurrentClassName())) . ")");
+			$res .= $this->s("->set(\"annotations\", ");
+			$this->levelInc();
+			$res .= $this->s("(new " . rtl::toString($this->getName("Vector")) . "())");
+			for ($j = 0; $j < $op_code->annotations->count(); $j++){
+				$annotation = $op_code->annotations->item($j);
+				$this->pushOneLine(true);
+				$s_kind = $this->translateRun($annotation->kind);
+				$s_options = $this->translateRun($annotation->options);
+				$this->popOneLine();
+				$res .= $this->s("->push(new " . rtl::toString($s_kind) . "(" . rtl::toString($s_options) . "))");
+			}
+			$this->levelDec();
+			$res .= $this->s(")");
+			$this->levelDec();
+			$res .= $this->s(");");
+			$this->levelDec();
+			$res .= $this->s("}");
 		}
 		return $res;
 	}
