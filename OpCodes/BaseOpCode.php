@@ -25,19 +25,6 @@ use Runtime\CoreObject;
 use Runtime\Interfaces\SerializeInterface;
 class BaseOpCode extends CoreObject implements SerializeInterface{
 	public $op;
-	/**
-	 * Constructor
-	 */
-	function __construct(){
-		parent::__construct(null);
-	}
-	/**
-	 * Returns classname of the object
-	 * @return string
-	 */
-	function getClassName(){
-		return "BayrellLang.OpCodes.BaseOpCode";
-	}
 	/* ======================= Class Init Functions ======================= */
 	public function getClassName(){return "BayrellLang.OpCodes.BaseOpCode";}
 	public static function getParentClassName(){return "Runtime.CoreObject";}

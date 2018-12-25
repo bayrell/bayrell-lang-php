@@ -62,7 +62,7 @@ class Utils extends ContextObject{
 	 * @string string source
 	 * @return string
 	 */
-	static function translate($context, $parser_factory, $translator_factory, $source){
+	static function translateSource($context, $parser_factory, $translator_factory, $source){
 		$parser = $parser_factory->newInstance($context);
 		$translator = $translator_factory->newInstance($context);
 		$parser->parseString($source);
@@ -102,7 +102,7 @@ class Utils extends ContextObject{
 		*/
 		$file_system = $context->createProvider("default:fs");
 		$content = $file_system->readFile($src_file_name);
-		$res = static::translate($context, $parser_factory, $translator_factory, $content);
+		$res = static::translateSource($context, $parser_factory, $translator_factory, $content);
 		$dir = BayrellCommonUtils::dirname($dest_file_name);
 		$file_system->makeDir($dir);
 		$file_system->saveFile($dest_file_name, $res);

@@ -30,7 +30,7 @@ class ParserBayFactory extends ContextObject implements FactoryInterface{
 	/**
 	 * Returns new Instance
 	 */
-	function newInstance($context){
+	function newInstance($context = null){
 		return new ParserBay($context);
 	}
 	/* ======================= Class Init Functions ======================= */

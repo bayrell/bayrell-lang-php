@@ -26,13 +26,6 @@ class OpMap extends BaseOpCode{
 	public $op;
 	public $values;
 	/**
-	 * Returns classname of the object
-	 * @return string
-	 */
-	function getClassName(){
-		return "BayrellLang.OpCodes.OpMap";
-	}
-	/**
 	 * Constructor
 	 */
 	function __construct(){

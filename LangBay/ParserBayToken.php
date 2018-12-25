@@ -138,7 +138,7 @@ class ParserBayToken extends ParserToken{
 	 */
 	function skipComments(){
 		$look = $this->lookString(2);
-		while ($look == "/*"){
+		while ($look == "/*" && !$this->isEOF()){
 			/* */
 			$this->readComment($look);
 			$this->skipSystemChar();
