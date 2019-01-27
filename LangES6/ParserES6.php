@@ -17,10 +17,12 @@
  *  limitations under the License.
  */
 namespace BayrellLang\LangES6;
+use Runtime\rs;
 use Runtime\rtl;
 use Runtime\Map;
 use Runtime\Vector;
 use Runtime\IntrospectionInfo;
+use Runtime\UIStruct;
 class BayrellParserES6{
 	/* ======================= Class Init Functions ======================= */
 	public function getClassName(){return "BayrellLang.LangES6.BayrellParserES6";}

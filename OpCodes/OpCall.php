@@ -17,10 +17,12 @@
  *  limitations under the License.
  */
 namespace BayrellLang\OpCodes;
+use Runtime\rs;
 use Runtime\rtl;
 use Runtime\Map;
 use Runtime\Vector;
 use Runtime\IntrospectionInfo;
+use Runtime\UIStruct;
 use BayrellLang\OpCodes\BaseOpCode;
 class OpCall extends BaseOpCode{
 	public $op;
@@ -46,10 +48,6 @@ class OpCall extends BaseOpCode{
 	public static function getParentClassName(){return "BayrellLang.OpCodes.BaseOpCode";}
 	protected function _init(){
 		parent::_init();
-		$this->op = "op_call";
-		$this->value = null;
-		$this->args = null;
-		$this->is_await = false;
 	}
 	public function assignObject($obj){
 		if ($obj instanceof OpCall){
@@ -60,12 +58,12 @@ class OpCall extends BaseOpCode{
 		}
 		parent::assignObject($obj);
 	}
-	public function assignValue($variable_name, $value){
-		if ($variable_name == "op") $this->op = rtl::correct($value, "string", "op_call", "");
-		else if ($variable_name == "value") $this->value = rtl::correct($value, "BayrellLang.OpCodes.BaseOpCode", null, "");
-		else if ($variable_name == "args") $this->args = rtl::correct($value, "Runtime.Vector", null, "BayrellLang.OpCodes.BaseOpCode");
-		else if ($variable_name == "is_await") $this->is_await = rtl::correct($value, "bool", false, "");
-		else parent::assignValue($variable_name, $value);
+	public function assignValue($variable_name, $value, $sender = null){
+		if ($variable_name == "op")$this->op = rtl::correct($value,"string","op_call","");
+		else if ($variable_name == "value")$this->value = rtl::correct($value,"BayrellLang.OpCodes.BaseOpCode",null,"");
+		else if ($variable_name == "args")$this->args = rtl::correct($value,"Runtime.Vector",null,"BayrellLang.OpCodes.BaseOpCode");
+		else if ($variable_name == "is_await")$this->is_await = rtl::correct($value,"bool",false,"");
+		else parent::assignValue($variable_name, $value, $sender);
 	}
 	public function takeValue($variable_name, $default_value = null){
 		if ($variable_name == "op") return $this->op;
@@ -74,11 +72,13 @@ class OpCall extends BaseOpCode{
 		else if ($variable_name == "is_await") return $this->is_await;
 		return parent::takeValue($variable_name, $default_value);
 	}
-	public static function getFieldsList($names){
-		$names->push("op");
-		$names->push("value");
-		$names->push("args");
-		$names->push("is_await");
+	public static function getFieldsList($names, $flag=0){
+		if (($flag | 3)==3){
+			$names->push("op");
+			$names->push("value");
+			$names->push("args");
+			$names->push("is_await");
+		}
 	}
 	public static function getFieldInfoByName($field_name){
 		return null;

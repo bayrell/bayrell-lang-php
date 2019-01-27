@@ -17,20 +17,22 @@
  *  limitations under the License.
  */
 namespace BayrellLang\OpCodes;
+use Runtime\rs;
 use Runtime\rtl;
 use Runtime\Map;
 use Runtime\Vector;
 use Runtime\IntrospectionInfo;
+use Runtime\UIStruct;
 use Runtime\CoreObject;
+use Runtime\CoreStruct;
 use Runtime\Interfaces\SerializeInterface;
-class BaseOpCode extends CoreObject implements SerializeInterface{
+class BaseOpCode extends CoreStruct implements SerializeInterface{
 	public $op;
 	/* ======================= Class Init Functions ======================= */
 	public function getClassName(){return "BayrellLang.OpCodes.BaseOpCode";}
-	public static function getParentClassName(){return "Runtime.CoreObject";}
+	public static function getParentClassName(){return "Runtime.CoreStruct";}
 	protected function _init(){
 		parent::_init();
-		$this->op = "";
 	}
 	public function assignObject($obj){
 		if ($obj instanceof BaseOpCode){
@@ -38,16 +40,18 @@ class BaseOpCode extends CoreObject implements SerializeInterface{
 		}
 		parent::assignObject($obj);
 	}
-	public function assignValue($variable_name, $value){
-		if ($variable_name == "op") $this->op = rtl::correct($value, "string", "", "");
-		else parent::assignValue($variable_name, $value);
+	public function assignValue($variable_name, $value, $sender = null){
+		if ($variable_name == "op")$this->op = rtl::correct($value,"string","","");
+		else parent::assignValue($variable_name, $value, $sender);
 	}
 	public function takeValue($variable_name, $default_value = null){
 		if ($variable_name == "op") return $this->op;
 		return parent::takeValue($variable_name, $default_value);
 	}
-	public static function getFieldsList($names){
-		$names->push("op");
+	public static function getFieldsList($names, $flag=0){
+		if (($flag | 3)==3){
+			$names->push("op");
+		}
 	}
 	public static function getFieldInfoByName($field_name){
 		return null;

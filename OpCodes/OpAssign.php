@@ -17,10 +17,12 @@
  *  limitations under the License.
  */
 namespace BayrellLang\OpCodes;
+use Runtime\rs;
 use Runtime\rtl;
 use Runtime\Map;
 use Runtime\Vector;
 use Runtime\IntrospectionInfo;
+use Runtime\UIStruct;
 use BayrellLang\OpCodes\BaseOpCode;
 class OpAssign extends BaseOpCode{
 	public $op;
@@ -47,10 +49,6 @@ class OpAssign extends BaseOpCode{
 	public static function getParentClassName(){return "BayrellLang.OpCodes.BaseOpCode";}
 	protected function _init(){
 		parent::_init();
-		$this->op = "op_assign";
-		$this->ident = null;
-		$this->value = null;
-		$this->op_name = "";
 	}
 	public function assignObject($obj){
 		if ($obj instanceof OpAssign){
@@ -61,12 +59,12 @@ class OpAssign extends BaseOpCode{
 		}
 		parent::assignObject($obj);
 	}
-	public function assignValue($variable_name, $value){
-		if ($variable_name == "op") $this->op = rtl::correct($value, "string", "op_assign", "");
-		else if ($variable_name == "ident") $this->ident = rtl::correct($value, "BayrellLang.OpCodes.BaseOpCode", null, "");
-		else if ($variable_name == "value") $this->value = rtl::correct($value, "BayrellLang.OpCodes.BaseOpCode", null, "");
-		else if ($variable_name == "op_name") $this->op_name = rtl::correct($value, "string", "", "");
-		else parent::assignValue($variable_name, $value);
+	public function assignValue($variable_name, $value, $sender = null){
+		if ($variable_name == "op")$this->op = rtl::correct($value,"string","op_assign","");
+		else if ($variable_name == "ident")$this->ident = rtl::correct($value,"BayrellLang.OpCodes.BaseOpCode",null,"");
+		else if ($variable_name == "value")$this->value = rtl::correct($value,"BayrellLang.OpCodes.BaseOpCode",null,"");
+		else if ($variable_name == "op_name")$this->op_name = rtl::correct($value,"string","","");
+		else parent::assignValue($variable_name, $value, $sender);
 	}
 	public function takeValue($variable_name, $default_value = null){
 		if ($variable_name == "op") return $this->op;
@@ -75,11 +73,13 @@ class OpAssign extends BaseOpCode{
 		else if ($variable_name == "op_name") return $this->op_name;
 		return parent::takeValue($variable_name, $default_value);
 	}
-	public static function getFieldsList($names){
-		$names->push("op");
-		$names->push("ident");
-		$names->push("value");
-		$names->push("op_name");
+	public static function getFieldsList($names, $flag=0){
+		if (($flag | 3)==3){
+			$names->push("op");
+			$names->push("ident");
+			$names->push("value");
+			$names->push("op_name");
+		}
 	}
 	public static function getFieldInfoByName($field_name){
 		return null;

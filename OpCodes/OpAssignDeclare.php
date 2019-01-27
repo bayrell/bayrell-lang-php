@@ -17,10 +17,12 @@
  *  limitations under the License.
  */
 namespace BayrellLang\OpCodes;
+use Runtime\rs;
 use Runtime\rtl;
 use Runtime\Map;
 use Runtime\Vector;
 use Runtime\IntrospectionInfo;
+use Runtime\UIStruct;
 use BayrellLang\OpCodes\BaseOpCode;
 use BayrellLang\OpCodes\OpAnnotation;
 use BayrellLang\OpCodes\OpDynamic;
@@ -72,12 +74,6 @@ class OpAssignDeclare extends BaseOpCode{
 	public static function getParentClassName(){return "BayrellLang.OpCodes.BaseOpCode";}
 	protected function _init(){
 		parent::_init();
-		$this->op = "op_assign_declare";
-		$this->tp = null;
-		$this->name = null;
-		$this->value = null;
-		$this->flags = null;
-		$this->annotations = null;
 	}
 	public function assignObject($obj){
 		if ($obj instanceof OpAssignDeclare){
@@ -90,14 +86,14 @@ class OpAssignDeclare extends BaseOpCode{
 		}
 		parent::assignObject($obj);
 	}
-	public function assignValue($variable_name, $value){
-		if ($variable_name == "op") $this->op = rtl::correct($value, "string", "op_assign_declare", "");
-		else if ($variable_name == "tp") $this->tp = rtl::correct($value, "BayrellLang.OpCodes.BaseOpCode", null, "");
-		else if ($variable_name == "name") $this->name = rtl::correct($value, "string", null, "");
-		else if ($variable_name == "value") $this->value = rtl::correct($value, "BayrellLang.OpCodes.BaseOpCode", null, "");
-		else if ($variable_name == "flags") $this->flags = rtl::correct($value, "BayrellLang.OpCodes.OpFlags", null, "");
-		else if ($variable_name == "annotations") $this->annotations = rtl::correct($value, "Runtime.Vector", null, "BayrellLang.OpCodes.OpAnnotation");
-		else parent::assignValue($variable_name, $value);
+	public function assignValue($variable_name, $value, $sender = null){
+		if ($variable_name == "op")$this->op = rtl::correct($value,"string","op_assign_declare","");
+		else if ($variable_name == "tp")$this->tp = rtl::correct($value,"BayrellLang.OpCodes.BaseOpCode",null,"");
+		else if ($variable_name == "name")$this->name = rtl::correct($value,"string",null,"");
+		else if ($variable_name == "value")$this->value = rtl::correct($value,"BayrellLang.OpCodes.BaseOpCode",null,"");
+		else if ($variable_name == "flags")$this->flags = rtl::correct($value,"BayrellLang.OpCodes.OpFlags",null,"");
+		else if ($variable_name == "annotations")$this->annotations = rtl::correct($value,"Runtime.Vector",null,"BayrellLang.OpCodes.OpAnnotation");
+		else parent::assignValue($variable_name, $value, $sender);
 	}
 	public function takeValue($variable_name, $default_value = null){
 		if ($variable_name == "op") return $this->op;
@@ -108,13 +104,15 @@ class OpAssignDeclare extends BaseOpCode{
 		else if ($variable_name == "annotations") return $this->annotations;
 		return parent::takeValue($variable_name, $default_value);
 	}
-	public static function getFieldsList($names){
-		$names->push("op");
-		$names->push("tp");
-		$names->push("name");
-		$names->push("value");
-		$names->push("flags");
-		$names->push("annotations");
+	public static function getFieldsList($names, $flag=0){
+		if (($flag | 3)==3){
+			$names->push("op");
+			$names->push("tp");
+			$names->push("name");
+			$names->push("value");
+			$names->push("flags");
+			$names->push("annotations");
+		}
 	}
 	public static function getFieldInfoByName($field_name){
 		return null;

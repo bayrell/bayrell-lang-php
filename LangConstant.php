@@ -17,10 +17,12 @@
  *  limitations under the License.
  */
 namespace BayrellLang;
+use Runtime\rs;
 use Runtime\rtl;
 use Runtime\Map;
 use Runtime\Vector;
 use Runtime\IntrospectionInfo;
+use Runtime\UIStruct;
 use Runtime\RuntimeConstant;
 class LangConstant{
 	const ERROR_END_OF_THE_STRING_EXPECTED = RuntimeConstant::ERROR_MODULE_PARSER - 501;

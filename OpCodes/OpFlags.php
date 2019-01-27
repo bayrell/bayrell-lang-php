@@ -17,10 +17,12 @@
  *  limitations under the License.
  */
 namespace BayrellLang\OpCodes;
+use Runtime\rs;
 use Runtime\rtl;
 use Runtime\Map;
 use Runtime\Vector;
 use Runtime\IntrospectionInfo;
+use Runtime\UIStruct;
 use BayrellLang\OpCodes\BaseOpCode;
 class OpFlags extends BaseOpCode{
 	public $op;
@@ -35,6 +37,17 @@ class OpFlags extends BaseOpCode{
 	public $p_serializable;
 	public $p_cloneable;
 	public $p_assignable;
+	public $p_memorize;
+	public $p_pure;
+	/**
+	 * Read is Flag
+	 */
+	function isFlag($name){
+		if (!OpFlags::hasFlag($name)){
+			return false;
+		}
+		return $this->takeValue($name);
+	}
 	/**
 	 * Returns name of variables to serialization
 	 * @return Vector<string>
@@ -52,6 +65,8 @@ class OpFlags extends BaseOpCode{
 		$names->push("serializable");
 		$names->push("cloneable");
 		$names->push("assignable");
+		$names->push("memorize");
+		$names->push("pure");
 	}
 	/**
 	 * Returns instance of the value by variable name
@@ -91,6 +106,12 @@ class OpFlags extends BaseOpCode{
 		}
 		else if ($variable_name == "assignable"){
 			return $this->p_assignable;
+		}
+		else if ($variable_name == "memorize"){
+			return $this->p_memorize;
+		}
+		else if ($variable_name == "pure"){
+			return $this->p_pure;
 		}
 		return parent::takeValue($variable_name, $default_value);
 	}
@@ -133,6 +154,12 @@ class OpFlags extends BaseOpCode{
 		else if ($variable_name == "assignable"){
 			$this->p_assignable = $value;
 		}
+		else if ($variable_name == "memorize"){
+			$this->p_memorize = $value;
+		}
+		else if ($variable_name == "pure"){
+			$this->p_pure = $value;
+		}
 		else {
 			parent::assignValue($variable_name, $value);
 		}
@@ -141,7 +168,7 @@ class OpFlags extends BaseOpCode{
 	 * Assign flag
 	 */
 	function assignFlag($flag_name){
-		if (static::hasFlag($flag_name)){
+		if (self::hasFlag($flag_name)){
 			$this->assignValue($flag_name, true);
 			return true;
 		}
@@ -151,13 +178,13 @@ class OpFlags extends BaseOpCode{
 	 * Get flags
 	 */
 	static function getFlags(){
-		return (new Vector())->push("async")->push("export")->push("static")->push("const")->push("public")->push("private")->push("declare")->push("protected")->push("serializable")->push("cloneable")->push("assignable");
+		return (new Vector())->push("async")->push("export")->push("static")->push("const")->push("public")->push("private")->push("declare")->push("protected")->push("serializable")->push("cloneable")->push("assignable")->push("memorize")->push("pure");
 	}
 	/**
 	 * Get flags
 	 */
 	static function hasFlag($flag_name){
-		if ($flag_name == "async" || $flag_name == "export" || $flag_name == "static" || $flag_name == "const" || $flag_name == "public" || $flag_name == "private" || $flag_name == "declare" || $flag_name == "protected" || $flag_name == "serializable" || $flag_name == "cloneable" || $flag_name == "assignable"){
+		if ($flag_name == "async" || $flag_name == "export" || $flag_name == "static" || $flag_name == "const" || $flag_name == "public" || $flag_name == "private" || $flag_name == "declare" || $flag_name == "protected" || $flag_name == "serializable" || $flag_name == "cloneable" || $flag_name == "assignable" || $flag_name == "memorize" || $flag_name == "pure"){
 			return true;
 		}
 		return false;
@@ -167,17 +194,5 @@ class OpFlags extends BaseOpCode{
 	public static function getParentClassName(){return "BayrellLang.OpCodes.BaseOpCode";}
 	protected function _init(){
 		parent::_init();
-		$this->op = "op_flags";
-		$this->p_async = false;
-		$this->p_export = false;
-		$this->p_static = false;
-		$this->p_const = false;
-		$this->p_public = false;
-		$this->p_private = false;
-		$this->p_protected = false;
-		$this->p_declare = false;
-		$this->p_serializable = false;
-		$this->p_cloneable = false;
-		$this->p_assignable = false;
 	}
 }

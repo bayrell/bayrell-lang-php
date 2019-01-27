@@ -17,10 +17,12 @@
  *  limitations under the License.
  */
 namespace BayrellLang\LangBay;
+use Runtime\rs;
 use Runtime\rtl;
 use Runtime\Map;
 use Runtime\Vector;
 use Runtime\IntrospectionInfo;
+use Runtime\UIStruct;
 use Runtime\CoreObject;
 use Runtime\ContextObject;
 use Runtime\Interfaces\ContextInterface;
@@ -30,7 +32,7 @@ class ParserBayFactory extends ContextObject implements FactoryInterface{
 	/**
 	 * Returns new Instance
 	 */
-	function newInstance($context = null){
+	function newInstance($context = null, $params = null){
 		return new ParserBay($context);
 	}
 	/* ======================= Class Init Functions ======================= */

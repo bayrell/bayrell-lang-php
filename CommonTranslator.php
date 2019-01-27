@@ -17,10 +17,12 @@
  *  limitations under the License.
  */
 namespace BayrellLang;
+use Runtime\rs;
 use Runtime\rtl;
 use Runtime\Map;
 use Runtime\Vector;
 use Runtime\IntrospectionInfo;
+use Runtime\UIStruct;
 use Runtime\rs;
 use Runtime\ContextObject;
 use BayrellLang\OpCodes\BaseOpCode;
@@ -43,6 +45,7 @@ use BayrellLang\OpCodes\OpComment;
 use BayrellLang\OpCodes\OpCompare;
 use BayrellLang\OpCodes\OpConcat;
 use BayrellLang\OpCodes\OpContinue;
+use BayrellLang\OpCodes\OpCopyStruct;
 use BayrellLang\OpCodes\OpDelete;
 use BayrellLang\OpCodes\OpDiv;
 use BayrellLang\OpCodes\OpDynamic;
@@ -51,6 +54,14 @@ use BayrellLang\OpCodes\OpFor;
 use BayrellLang\OpCodes\OpFunctionArrowDeclare;
 use BayrellLang\OpCodes\OpFunctionDeclare;
 use BayrellLang\OpCodes\OpHexNumber;
+use BayrellLang\OpCodes\OpHtmlAttribute;
+use BayrellLang\OpCodes\OpHtmlComment;
+use BayrellLang\OpCodes\OpHtmlEscape;
+use BayrellLang\OpCodes\OpHtmlJson;
+use BayrellLang\OpCodes\OpHtmlRaw;
+use BayrellLang\OpCodes\OpHtmlTag;
+use BayrellLang\OpCodes\OpHtmlText;
+use BayrellLang\OpCodes\OpHtmlView;
 use BayrellLang\OpCodes\OpIdentifier;
 use BayrellLang\OpCodes\OpIf;
 use BayrellLang\OpCodes\OpIfElse;
@@ -87,6 +98,7 @@ use BayrellLang\OpCodes\OpUse;
 use BayrellLang\OpCodes\OpVector;
 use BayrellLang\OpCodes\OpWhile;
 class CommonTranslator extends ContextObject{
+	public $op_code_stack;
 	public $one_lines;
 	public $is_operation;
 	public $current_opcode_level;
@@ -244,6 +256,9 @@ class CommonTranslator extends ContextObject{
 	function OpContinue($op_code){
 		return "";
 	}
+	function OpCopyStruct($op_code){
+		return "";
+	}
 	function OpDelete($op_code){
 		return "";
 	}
@@ -364,6 +379,19 @@ class CommonTranslator extends ContextObject{
 	function OpWhile($op_code){
 		return "";
 	}
+	/* =========================== HTML OP Codes ========================== */
+	function OpHtmlJson($op_code){
+		return "";
+	}
+	function OpHtmlRaw($op_code){
+		return "";
+	}
+	function OpHtmlTag($op_code){
+		return "";
+	}
+	function OpHtmlView($op_code){
+		return "";
+	}
 	/**
 	 * Translate to language
 	 * @param BaseOpCode op_code - Abstract syntax tree
@@ -397,7 +425,7 @@ class CommonTranslator extends ContextObject{
 	 * @param BaseOpCode op_code - Abstract syntax tree
 	 * @returns string - The result
 	 */
-	function translateRun($op_code){
+	function translateItem($op_code){
 		if ($op_code instanceof OpNope){
 			return $this->translateChilds($op_code->childs);
 		}
@@ -457,6 +485,9 @@ class CommonTranslator extends ContextObject{
 		}
 		else if ($op_code instanceof OpContinue){
 			return $this->OpContinue($op_code);
+		}
+		else if ($op_code instanceof OpCopyStruct){
+			return $this->OpCopyStruct($op_code);
 		}
 		else if ($op_code instanceof OpDelete){
 			return $this->OpDelete($op_code);
@@ -578,7 +609,33 @@ class CommonTranslator extends ContextObject{
 		else if ($op_code instanceof OpWhile){
 			return $this->OpWhile($op_code);
 		}
+		else if ($op_code instanceof OpHtmlJson){
+			return $this->OpHtmlJson($op_code);
+		}
+		else if ($op_code instanceof OpHtmlRaw){
+			return $this->OpHtmlRaw($op_code);
+		}
+		else if ($op_code instanceof OpHtmlTag){
+			return $this->OpHtmlTag($op_code);
+		}
+		else if ($op_code instanceof OpHtmlText){
+			return $this->OpString($op_code);
+		}
+		else if ($op_code instanceof OpHtmlView){
+			return $this->OpHtmlView($op_code);
+		}
 		return "";
+	}
+	/**
+	 * Translate to language
+	 * @param BaseOpCode op_code - Abstract syntax tree
+	 * @returns string - The result
+	 */
+	function translateRun($op_code){
+		$this->op_code_stack->push($op_code);
+		$res = $this->translateItem($op_code);
+		$this->op_code_stack->pop();
+		return $res;
 	}
 	/**
 	 * Reset translator to default settings
@@ -589,6 +646,7 @@ class CommonTranslator extends ContextObject{
 		$this->current_opcode_level = 0;
 		$this->max_opcode_level = 100;
 		$this->indent_level = 0;
+		$this->op_code_stack = new Vector();
 	}
 	/**
 	 * Translate to language
@@ -604,13 +662,5 @@ class CommonTranslator extends ContextObject{
 	public static function getParentClassName(){return "Runtime.ContextObject";}
 	protected function _init(){
 		parent::_init();
-		$this->one_lines = null;
-		$this->is_operation = false;
-		$this->current_opcode_level = 0;
-		$this->max_opcode_level = 100;
-		$this->indent_level = 0;
-		$this->indent = "\t";
-		$this->space = " ";
-		$this->crlf = "\n";
 	}
 }

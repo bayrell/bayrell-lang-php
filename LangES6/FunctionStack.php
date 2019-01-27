@@ -17,13 +17,21 @@
  *  limitations under the License.
  */
 namespace BayrellLang\LangES6;
+use Runtime\rs;
 use Runtime\rtl;
 use Runtime\Map;
 use Runtime\Vector;
 use Runtime\IntrospectionInfo;
+use Runtime\UIStruct;
 use Runtime\rs;
 use Runtime\CoreObject;
 class FunctionStack extends CoreObject{
+	public $name;
+	public $is_async;
+	public $async_ctx;
+	public $async_jump;
+	public $async_jump_pos;
+	public $async_stop_pos;
 	/**
 	 * Returns jump string from arr
 	 * @param Vector<int> arr
@@ -40,7 +48,7 @@ class FunctionStack extends CoreObject{
 	 * @return string
 	 */
 	function getJumpPos(){
-		return static::getJumpString($this->async_jump_pos);
+		return self::getJumpString($this->async_jump_pos);
 	}
 	/**
 	 * Returns next jump position
@@ -51,7 +59,7 @@ class FunctionStack extends CoreObject{
 		$sz = $arr->count();
 		$item = $arr->item($sz - 1);
 		$arr->set($sz - 1, $item + 1);
-		return static::getJumpString($arr);
+		return self::getJumpString($arr);
 	}
 	/**
 	 * Increments jump position
@@ -117,11 +125,5 @@ class FunctionStack extends CoreObject{
 	public static function getParentClassName(){return "Runtime.CoreObject";}
 	protected function _init(){
 		parent::_init();
-		$this->name = "";
-		$this->is_async = false;
-		$this->async_ctx = "";
-		$this->async_jump = "";
-		$this->async_jump_pos = new Vector();
-		$this->async_stop_pos = new Vector();
 	}
 }

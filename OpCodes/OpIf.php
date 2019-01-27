@@ -17,10 +17,12 @@
  *  limitations under the License.
  */
 namespace BayrellLang\OpCodes;
+use Runtime\rs;
 use Runtime\rtl;
 use Runtime\Map;
 use Runtime\Vector;
 use Runtime\IntrospectionInfo;
+use Runtime\UIStruct;
 use BayrellLang\OpCodes\BaseOpCode;
 use BayrellLang\OpCodes\OpIfElse;
 class OpIf extends BaseOpCode{
@@ -50,11 +52,6 @@ class OpIf extends BaseOpCode{
 	public static function getParentClassName(){return "BayrellLang.OpCodes.BaseOpCode";}
 	protected function _init(){
 		parent::_init();
-		$this->op = "op_if";
-		$this->condition = null;
-		$this->if_true = null;
-		$this->if_false = null;
-		$this->if_else = null;
 	}
 	public function assignObject($obj){
 		if ($obj instanceof OpIf){
@@ -66,13 +63,13 @@ class OpIf extends BaseOpCode{
 		}
 		parent::assignObject($obj);
 	}
-	public function assignValue($variable_name, $value){
-		if ($variable_name == "op") $this->op = rtl::correct($value, "string", "op_if", "");
-		else if ($variable_name == "condition") $this->condition = rtl::correct($value, "BayrellLang.OpCodes.BaseOpCode", null, "");
-		else if ($variable_name == "if_true") $this->if_true = rtl::correct($value, "Runtime.Vector", null, "BayrellLang.OpCodes.BaseOpCode");
-		else if ($variable_name == "if_false") $this->if_false = rtl::correct($value, "Runtime.Vector", null, "BayrellLang.OpCodes.BaseOpCode");
-		else if ($variable_name == "if_else") $this->if_else = rtl::correct($value, "Runtime.Vector", null, "BayrellLang.OpCodes.OpIfElse");
-		else parent::assignValue($variable_name, $value);
+	public function assignValue($variable_name, $value, $sender = null){
+		if ($variable_name == "op")$this->op = rtl::correct($value,"string","op_if","");
+		else if ($variable_name == "condition")$this->condition = rtl::correct($value,"BayrellLang.OpCodes.BaseOpCode",null,"");
+		else if ($variable_name == "if_true")$this->if_true = rtl::correct($value,"Runtime.Vector",null,"BayrellLang.OpCodes.BaseOpCode");
+		else if ($variable_name == "if_false")$this->if_false = rtl::correct($value,"Runtime.Vector",null,"BayrellLang.OpCodes.BaseOpCode");
+		else if ($variable_name == "if_else")$this->if_else = rtl::correct($value,"Runtime.Vector",null,"BayrellLang.OpCodes.OpIfElse");
+		else parent::assignValue($variable_name, $value, $sender);
 	}
 	public function takeValue($variable_name, $default_value = null){
 		if ($variable_name == "op") return $this->op;
@@ -82,12 +79,14 @@ class OpIf extends BaseOpCode{
 		else if ($variable_name == "if_else") return $this->if_else;
 		return parent::takeValue($variable_name, $default_value);
 	}
-	public static function getFieldsList($names){
-		$names->push("op");
-		$names->push("condition");
-		$names->push("if_true");
-		$names->push("if_false");
-		$names->push("if_else");
+	public static function getFieldsList($names, $flag=0){
+		if (($flag | 3)==3){
+			$names->push("op");
+			$names->push("condition");
+			$names->push("if_true");
+			$names->push("if_false");
+			$names->push("if_else");
+		}
 	}
 	public static function getFieldInfoByName($field_name){
 		return null;

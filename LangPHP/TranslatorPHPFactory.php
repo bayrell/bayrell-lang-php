@@ -17,10 +17,12 @@
  *  limitations under the License.
  */
 namespace BayrellLang\LangPHP;
+use Runtime\rs;
 use Runtime\rtl;
 use Runtime\Map;
 use Runtime\Vector;
 use Runtime\IntrospectionInfo;
+use Runtime\UIStruct;
 use Runtime\CoreObject;
 use Runtime\ContextObject;
 use Runtime\Interfaces\ContextInterface;

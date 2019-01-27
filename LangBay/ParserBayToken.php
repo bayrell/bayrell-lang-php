@@ -17,10 +17,12 @@
  *  limitations under the License.
  */
 namespace BayrellLang\LangBay;
+use Runtime\rs;
 use Runtime\rtl;
 use Runtime\Map;
 use Runtime\Vector;
 use Runtime\IntrospectionInfo;
+use Runtime\UIStruct;
 use Runtime\rs;
 use BayrellParser\ParserToken;
 use BayrellParser\Exceptions\ParserEOF;
@@ -161,7 +163,7 @@ class ParserBayToken extends ParserToken{
 		/* Try to read special tokens */
 		$pos = $this->findVector($this->_special_tokens);
 		if ($pos >= 0){
-			$this->tp = static::TOKEN_BASE;
+			$this->tp = self::TOKEN_BASE;
 			$this->token = $this->_special_tokens->item($pos);
 			$this->success = true;
 			$this->readString(rs::strlen($this->token));
@@ -169,14 +171,14 @@ class ParserBayToken extends ParserToken{
 		}
 		$look = $this->lookChar();
 		if ($look == "'" || $look == "\""){
-			$this->tp = static::TOKEN_STRING;
+			$this->tp = self::TOKEN_STRING;
 			$this->token = $this->readTokenString();
 			$this->success = true;
 			return ;
 		}
 		$look = $this->lookString(2);
 		if ($look == "/*"){
-			$this->tp = static::TOKEN_COMMENT;
+			$this->tp = self::TOKEN_COMMENT;
 			$this->token = $this->readComment($look);
 			$this->success = true;
 			return ;
@@ -188,7 +190,5 @@ class ParserBayToken extends ParserToken{
 	public static function getParentClassName(){return "BayrellParser.ParserToken";}
 	protected function _init(){
 		parent::_init();
-		$this->_special_tokens = null;
-		$this->parser = null;
 	}
 }

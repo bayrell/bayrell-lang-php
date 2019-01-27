@@ -17,10 +17,12 @@
  *  limitations under the License.
  */
 namespace BayrellLang;
+use Runtime\rs;
 use Runtime\rtl;
 use Runtime\Map;
 use Runtime\Vector;
 use Runtime\IntrospectionInfo;
+use Runtime\UIStruct;
 use Runtime\CoreObject;
 use Runtime\ContextObject;
 use Runtime\Interfaces\FactoryInterface;
@@ -102,7 +104,7 @@ class Utils extends ContextObject{
 		*/
 		$file_system = $context->createProvider("default:fs");
 		$content = $file_system->readFile($src_file_name);
-		$res = static::translateSource($context, $parser_factory, $translator_factory, $content);
+		$res = self::translateSource($context, $parser_factory, $translator_factory, $content);
 		$dir = BayrellCommonUtils::dirname($dest_file_name);
 		$file_system->makeDir($dir);
 		$file_system->saveFile($dest_file_name, $res);

@@ -17,10 +17,12 @@
  *  limitations under the License.
  */
 namespace BayrellLang\OpCodes;
+use Runtime\rs;
 use Runtime\rtl;
 use Runtime\Map;
 use Runtime\Vector;
 use Runtime\IntrospectionInfo;
+use Runtime\UIStruct;
 use BayrellLang\OpCodes\BaseOpCode;
 class OpValue2 extends BaseOpCode{
 	public $op;
@@ -45,9 +47,6 @@ class OpValue2 extends BaseOpCode{
 	public static function getParentClassName(){return "BayrellLang.OpCodes.BaseOpCode";}
 	protected function _init(){
 		parent::_init();
-		$this->op = "op_value2";
-		$this->value1 = null;
-		$this->value2 = null;
 	}
 	public function assignObject($obj){
 		if ($obj instanceof OpValue2){
@@ -57,11 +56,11 @@ class OpValue2 extends BaseOpCode{
 		}
 		parent::assignObject($obj);
 	}
-	public function assignValue($variable_name, $value){
-		if ($variable_name == "op") $this->op = rtl::correct($value, "string", "op_value2", "");
-		else if ($variable_name == "value1") $this->value1 = rtl::correct($value, "BayrellLang.OpCodes.BaseOpCode", null, "");
-		else if ($variable_name == "value2") $this->value2 = rtl::correct($value, "BayrellLang.OpCodes.BaseOpCode", null, "");
-		else parent::assignValue($variable_name, $value);
+	public function assignValue($variable_name, $value, $sender = null){
+		if ($variable_name == "op")$this->op = rtl::correct($value,"string","op_value2","");
+		else if ($variable_name == "value1")$this->value1 = rtl::correct($value,"BayrellLang.OpCodes.BaseOpCode",null,"");
+		else if ($variable_name == "value2")$this->value2 = rtl::correct($value,"BayrellLang.OpCodes.BaseOpCode",null,"");
+		else parent::assignValue($variable_name, $value, $sender);
 	}
 	public function takeValue($variable_name, $default_value = null){
 		if ($variable_name == "op") return $this->op;
@@ -69,10 +68,12 @@ class OpValue2 extends BaseOpCode{
 		else if ($variable_name == "value2") return $this->value2;
 		return parent::takeValue($variable_name, $default_value);
 	}
-	public static function getFieldsList($names){
-		$names->push("op");
-		$names->push("value1");
-		$names->push("value2");
+	public static function getFieldsList($names, $flag=0){
+		if (($flag | 3)==3){
+			$names->push("op");
+			$names->push("value1");
+			$names->push("value2");
+		}
 	}
 	public static function getFieldInfoByName($field_name){
 		return null;

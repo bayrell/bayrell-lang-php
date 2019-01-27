@@ -17,10 +17,12 @@
  *  limitations under the License.
  */
 namespace BayrellLang\LangNodeJS;
+use Runtime\rs;
 use Runtime\rtl;
 use Runtime\Map;
 use Runtime\Vector;
 use Runtime\IntrospectionInfo;
+use Runtime\UIStruct;
 use Runtime\re;
 use Runtime\rs;
 use BayrellLang\OpCodes\OpAssignDeclare;

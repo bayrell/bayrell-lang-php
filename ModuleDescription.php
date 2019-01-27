@@ -17,10 +17,12 @@
  *  limitations under the License.
  */
 namespace BayrellLang;
+use Runtime\rs;
 use Runtime\rtl;
 use Runtime\Map;
 use Runtime\Vector;
 use Runtime\IntrospectionInfo;
+use Runtime\UIStruct;
 use Runtime\Interfaces\ContextInterface;
 use Runtime\Interfaces\ModuleDescriptionInterface;
 class ModuleDescription implements ModuleDescriptionInterface{
@@ -36,7 +38,7 @@ class ModuleDescription implements ModuleDescriptionInterface{
 	 * @return string
 	 */
 	static function getModuleVersion(){
-		return "0.6.2";
+		return "0.7.0";
 	}
 	/**
 	 * Init context

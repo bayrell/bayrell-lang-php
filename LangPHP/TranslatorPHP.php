@@ -17,10 +17,12 @@
  *  limitations under the License.
  */
 namespace BayrellLang\LangPHP;
+use Runtime\rs;
 use Runtime\rtl;
 use Runtime\Map;
 use Runtime\Vector;
 use Runtime\IntrospectionInfo;
+use Runtime\UIStruct;
 use Runtime\re;
 use Runtime\rs;
 use BayrellLang\CommonTranslator;
@@ -44,6 +46,7 @@ use BayrellLang\OpCodes\OpComment;
 use BayrellLang\OpCodes\OpCompare;
 use BayrellLang\OpCodes\OpConcat;
 use BayrellLang\OpCodes\OpContinue;
+use BayrellLang\OpCodes\OpCopyStruct;
 use BayrellLang\OpCodes\OpDelete;
 use BayrellLang\OpCodes\OpDiv;
 use BayrellLang\OpCodes\OpDynamic;
@@ -52,6 +55,14 @@ use BayrellLang\OpCodes\OpFor;
 use BayrellLang\OpCodes\OpFunctionArrowDeclare;
 use BayrellLang\OpCodes\OpFunctionDeclare;
 use BayrellLang\OpCodes\OpHexNumber;
+use BayrellLang\OpCodes\OpHtmlAttribute;
+use BayrellLang\OpCodes\OpHtmlComment;
+use BayrellLang\OpCodes\OpHtmlEscape;
+use BayrellLang\OpCodes\OpHtmlJson;
+use BayrellLang\OpCodes\OpHtmlRaw;
+use BayrellLang\OpCodes\OpHtmlTag;
+use BayrellLang\OpCodes\OpHtmlText;
+use BayrellLang\OpCodes\OpHtmlView;
 use BayrellLang\OpCodes\OpIdentifier;
 use BayrellLang\OpCodes\OpIf;
 use BayrellLang\OpCodes\OpIfElse;
@@ -87,6 +98,15 @@ use BayrellLang\OpCodes\OpTryCatchChilds;
 use BayrellLang\OpCodes\OpUse;
 use BayrellLang\OpCodes\OpWhile;
 class TranslatorPHP extends CommonTranslator{
+	public $modules;
+	public $current_namespace;
+	public $current_class_name;
+	public $current_function_name;
+	public $current_function_is_static;
+	public $current_module_name;
+	public $is_static;
+	public $is_interface;
+	public $is_struct;
 	/**
 	 * Returns full class name
 	 * @return string
@@ -102,6 +122,9 @@ class TranslatorPHP extends CommonTranslator{
 			return "parent";
 		}
 		else if ($name == "self"){
+			return "self";
+		}
+		else if ($name == "static"){
 			return "static";
 		}
 		else if ($this->modules->has($name)){
@@ -205,6 +228,12 @@ class TranslatorPHP extends CommonTranslator{
 	 * Static load
 	 */
 	function OpStatic($op_code){
+		$op_code_last = $this->op_code_stack->last(null, -2);
+		if ($op_code_last instanceof OpAssign || $op_code_last instanceof OpAssignDeclare || $op_code_last instanceof OpDynamic){
+			if ($op_code->name != rs::strtoupper($op_code->name)){
+				return rtl::toString($this->translateRun($op_code->value)) . "::\$" . rtl::toString($op_code->name);
+			}
+		}
 		return rtl::toString($this->translateRun($op_code->value)) . "::" . rtl::toString($op_code->name);
 	}
 	/**
@@ -472,6 +501,26 @@ class TranslatorPHP extends CommonTranslator{
 		$this->current_opcode_level = 4;
 		return $res;
 	}
+	/**
+	 * Copy struct
+	 */
+	function copyStruct($op_code, $names){
+		if ($op_code->item instanceof OpCopyStruct){
+			$names->push($op_code->name);
+			$name = "\$" . rtl::toString(rs::implode("->", $names));
+			return rtl::toString($name) . "->copy( new Map([ " . rtl::toString($this->convertString($op_code->item->name)) . " => " . rtl::toString($this->copyStruct($op_code->item, $names)) . " ])  )";
+		}
+		return $this->translateItem($op_code->item);
+	}
+	/**
+	 * Copy struct
+	 */
+	function OpCopyStruct($op_code){
+		if ($this->is_operation){
+			return $this->copyStruct($op_code, (new Vector()));
+		}
+		return "\$" . rtl::toString($op_code->name) . " = " . rtl::toString($this->copyStruct($op_code, (new Vector()))) . ";";
+	}
 	/** ========================== Vector and Map ========================= */
 	/**
 	 * Vector
@@ -568,7 +617,7 @@ class TranslatorPHP extends CommonTranslator{
 			$ch_var = "";
 		}
 		$var_prefix = "";
-		if ($this->struct_read_only && $this->is_struct && $op_code->isFlag("public") && !$op_code->isFlag("static")){
+		if ($this->is_struct && $op_code->isFlag("public") && !$op_code->isFlag("static")){
 			$var_prefix = "__";
 		}
 		if ($op_code->value == null || !$output_value && !$op_code->isFlag("static") && !$op_code->isFlag("const")){
@@ -786,14 +835,18 @@ class TranslatorPHP extends CommonTranslator{
 		$this->modules->clear();
 		$res = "namespace " . rtl::toString(rs::implode("\\", $arr)) . ";";
 		if ($this->current_module_name != "Runtime"){
+			$res .= $this->s("use Runtime\\rs;");
 			$res .= $this->s("use Runtime\\rtl;");
 			$res .= $this->s("use Runtime\\Map;");
 			$res .= $this->s("use Runtime\\Vector;");
 			$res .= $this->s("use Runtime\\IntrospectionInfo;");
+			$res .= $this->s("use Runtime\\UIStruct;");
+			$this->modules->set("rs", "Runtime.rs");
 			$this->modules->set("rtl", "Runtime.rtl");
 			$this->modules->set("Map", "Runtime.Map");
 			$this->modules->set("Vector", "Runtime.Vector");
 			$this->modules->set("IntrospectionInfo", "Runtime.IntrospectionInfo");
+			$this->modules->set("UIStruct", "Runtime.UIStruct");
 		}
 		return $res;
 	}
@@ -817,56 +870,6 @@ class TranslatorPHP extends CommonTranslator{
 		return "use " . rtl::toString($res) . ";";
 	}
 	/** ============================= Classes ============================= */
-	/**
-	 * Function arrow declare
-	 */
-	function OpFunctionArrowDeclare($op_code){
-		$res = "";
-		$ch = "";
-		$use_vars = new Vector();
-		/* Skip if declare function */
-		if ($op_code->isFlag("declare")){
-			return "";
-		}
-		if ($op_code->isFlag("static")){
-			$res .= "static function ";
-			if ($this->current_function_name->count() == 0){
-				$this->current_function_is_static = true;
-			}
-		}
-		else {
-			$res .= "function ";
-			if ($this->current_function_name->count() == 0){
-				$this->current_function_is_static = false;
-			}
-		}
-		$this->current_function_name->push($op_code->name);
-		$res .= $op_code->name;
-		$res .= "(";
-		for ($i = 0; $i < $op_code->args->count(); $i++){
-			$variable = $op_code->args->item($i);
-			$this->pushOneLine(true);
-			$res .= rtl::toString($ch) . "\$" . rtl::toString($variable->name);
-			if ($variable->value != null){
-				$res .= " = " . rtl::toString($this->translateRun($variable->value));
-			}
-			$this->popOneLine();
-			$use_vars->push($variable->name);
-			$ch = ", ";
-		}
-		$res .= ")";
-		$res .= "{";
-		$this->setOperation(false);
-		$this->pushOneLine(false);
-		$this->levelInc();
-		$res .= $this->s("return ");
-		$res .= $this->OpFunctionDeclare($op_code->return_function, true, $use_vars);
-		$this->levelDec();
-		$res .= $this->s("}");
-		$this->popOneLine();
-		$this->current_function_name->pop();
-		return $res;
-	}
 	/**
 	 * Function declare
 	 */
@@ -954,9 +957,22 @@ class TranslatorPHP extends CommonTranslator{
 			$this->pushOneLine(false);
 			$this->levelInc();
 			if ($op_code->childs != null){
-				for ($i = 0; $i < $op_code->childs->count(); $i++){
-					$res .= $this->s($this->translateRun($op_code->childs->item($i)));
+				if ($op_code->is_lambda){
+					if ($op_code->childs->count() > 0){
+						$old_is_operation = $this->beginOperation(true);
+						$lambda_res = $this->translateRun($op_code->childs->item(0));
+						$this->endOperation($old_is_operation);
+						$res .= $this->s("return " . rtl::toString($lambda_res) . ";");
+					}
 				}
+				else {
+					for ($i = 0; $i < $op_code->childs->count(); $i++){
+						$res .= $this->s($this->translateRun($op_code->childs->item($i)));
+					}
+				}
+			}
+			else if ($op_code->return_function != null){
+				$res .= $this->s("return " . rtl::toString($this->translateItem($op_code->return_function)));
 			}
 			$this->levelDec();
 			$res .= $this->s("}" . rtl::toString(($end_semicolon) ? (";") : ("")));
@@ -1029,7 +1045,7 @@ class TranslatorPHP extends CommonTranslator{
 				if ($op_code->isFlag("protected")){
 					$s .= "protected ";
 				}
-				else if ($this->struct_read_only && $this->is_struct && $op_code->isFlag("public") && !$op_code->isFlag("static")){
+				else if ($this->is_struct && $op_code->isFlag("public") && !$op_code->isFlag("static")){
 					$s .= "protected ";
 				}
 				else {
@@ -1166,10 +1182,11 @@ class TranslatorPHP extends CommonTranslator{
 							continue;
 						}
 						$var_prefix = "";
-						if ($this->struct_read_only && $this->is_struct && $variable->isFlag("public") && !$variable->isFlag("static")){
+						if ($this->is_struct && $variable->isFlag("public") && !$variable->isFlag("static")){
 							$var_prefix = "__";
 						}
-						if (!$variable->isFlag("static") && !$variable->isFlag("const")){
+						$is_struct = $this->is_struct && !$variable->isFlag("static") && !$variable->isFlag("const");
+						if ($is_struct){
 							$this->beginOperation();
 							$s = "\$this->" . rtl::toString($var_prefix) . rtl::toString($variable->name) . " = " . rtl::toString($this->translateRun($variable->value)) . ";";
 							$this->endOperation();
@@ -1192,7 +1209,7 @@ class TranslatorPHP extends CommonTranslator{
 						continue;
 					}
 					$var_prefix = "";
-					if ($this->struct_read_only && $this->is_struct && $variable->isFlag("public") && !$variable->isFlag("static")){
+					if ($this->is_struct && $variable->isFlag("public") && !$variable->isFlag("static")){
 						$var_prefix = "__";
 					}
 					$is_struct = $this->is_struct && !$variable->isFlag("static") && !$variable->isFlag("const");
@@ -1209,7 +1226,7 @@ class TranslatorPHP extends CommonTranslator{
 			if ($has_serializable || $has_assignable){
 				$class_variables_serializable_count = 0;
 				$s1 = "public";
-				$res .= $this->s(rtl::toString($s1) . " function assignValue(\$variable_name, \$value){");
+				$res .= $this->s(rtl::toString($s1) . " function assignValue(\$variable_name, \$value, \$sender = null){");
 				$this->levelInc();
 				$class_variables_serializable_count = 0;
 				for ($i = 0; $i < $childs->count(); $i++){
@@ -1218,7 +1235,7 @@ class TranslatorPHP extends CommonTranslator{
 						continue;
 					}
 					$var_prefix = "";
-					if ($this->struct_read_only && $this->is_struct && $variable->isFlag("public") && !$variable->isFlag("static")){
+					if ($this->is_struct && $variable->isFlag("public") && !$variable->isFlag("static")){
 						$var_prefix = "__";
 					}
 					$is_struct = $this->is_struct && !$variable->isFlag("static") && !$variable->isFlag("const");
@@ -1229,9 +1246,9 @@ class TranslatorPHP extends CommonTranslator{
 						if ($variable->value != null){
 							$def_val = $this->translateRun($variable->value);
 						}
-						$s = "if (\$variable_name == " . rtl::toString($this->convertString($variable->name)) . ") ";
+						$s = "if (\$variable_name == " . rtl::toString($this->convertString($variable->name)) . ")";
 						$s .= "\$this->" . rtl::toString($var_prefix) . rtl::toString($variable->name) . " = ";
-						$s .= "rtl::correct(\$value, \"" . rtl::toString($type_value) . "\", " . rtl::toString($def_val) . ", \"" . rtl::toString($type_template) . "\");";
+						$s .= "rtl::correct(\$value,\"" . rtl::toString($type_value) . "\"," . rtl::toString($def_val) . ",\"" . rtl::toString($type_template) . "\");";
 						if ($class_variables_serializable_count == 0){
 							$res .= $this->s($s);
 						}
@@ -1242,10 +1259,10 @@ class TranslatorPHP extends CommonTranslator{
 					}
 				}
 				if ($class_variables_serializable_count == 0){
-					$res .= $this->s("parent::assignValue(\$variable_name, \$value);");
+					$res .= $this->s("parent::assignValue(\$variable_name, \$value, \$sender);");
 				}
 				else {
-					$res .= $this->s("else parent::assignValue(\$variable_name, \$value);");
+					$res .= $this->s("else parent::assignValue(\$variable_name, \$value, \$sender);");
 				}
 				$this->levelDec();
 				$res .= $this->s("}");
@@ -1258,7 +1275,7 @@ class TranslatorPHP extends CommonTranslator{
 						continue;
 					}
 					$var_prefix = "";
-					if ($this->struct_read_only && $this->is_struct && $variable->isFlag("public") && !$variable->isFlag("static")){
+					if ($this->is_struct && $variable->isFlag("public") && !$variable->isFlag("static")){
 						$var_prefix = "__";
 					}
 					$is_struct = $this->is_struct && !$variable->isFlag("static") && !$variable->isFlag("const");
@@ -1278,18 +1295,56 @@ class TranslatorPHP extends CommonTranslator{
 				$res .= $this->s("}");
 			}
 			if ($has_serializable || $has_assignable || $has_fields_annotations){
-				$res .= $this->s("public static function getFieldsList(\$names){");
+				$res .= $this->s("public static function getFieldsList(\$names, \$flag=0){");
 				$this->levelInc();
+				$vars = new Map();
 				for ($i = 0; $i < $childs->count(); $i++){
 					$variable = $childs->item($i);
 					if (!($variable instanceof OpAssignDeclare)){
 						continue;
 					}
+					if (!$variable->isFlag("public")){
+						continue;
+					}
 					$is_struct = $this->is_struct && !$variable->isFlag("static") && !$variable->isFlag("const");
-					if ($variable->isFlag("public") && ($variable->isFlag("serializable") || $variable->isFlag("assignable") || $is_struct || $variable->hasAnnotations())){
-						$res .= $this->s("\$names->push(" . rtl::toString($this->convertString($variable->name)) . ");");
+					$is_static = $variable->isFlag("static");
+					$is_serializable = $variable->isFlag("serializable");
+					$is_assignable = $variable->isFlag("assignable");
+					$has_annotation = $variable->hasAnnotations();
+					if ($is_struct){
+						$is_serializable = true;
+						$is_assignable = true;
+					}
+					if ($is_serializable){
+						$is_assignable = true;
+					}
+					$flag = 0;
+					if ($is_serializable){
+						$flag = $flag | 1;
+					}
+					if ($is_assignable){
+						$flag = $flag | 2;
+					}
+					if ($has_annotation){
+						$flag = $flag | 4;
+					}
+					if ($flag != 0){
+						if (!$vars->has($flag)){
+							$vars->set($flag, new Vector());
+						}
+						$v = $vars->item($flag);
+						$v->push($variable->name);
 					}
 				}
+				$vars->each(function ($flag, $v) use (&$res){
+					$res .= $this->s("if ((\$flag | " . rtl::toString($flag) . ")==" . rtl::toString($flag) . "){");
+					$this->levelInc();
+					$v->each(function ($varname) use (&$res){
+						$res .= $this->s("\$names->push(" . rtl::toString($this->convertString($varname)) . ");");
+					});
+					$this->levelDec();
+					$res .= $this->s("}");
+				});
 				$this->levelDec();
 				$res .= $this->s("}");
 				$res .= $this->s("public static function getFieldInfoByName(\$field_name){");
@@ -1385,9 +1440,9 @@ class TranslatorPHP extends CommonTranslator{
 				$this->levelDec();
 				$res .= $this->s("}");
 			}
-			if ($this->struct_read_only && $this->is_struct){
+			if ($this->is_struct){
 				$res .= $this->s("public function __get(\$key){ return \$this->takeValue(\$key); }");
-				$res .= $this->s("public function __set(\$key, \$value){}");
+				$res .= $this->s("public function __set(\$key, \$value){" . "throw new \\Runtime\\Exceptions\\AssignStructValueError(\$key);" . "}");
 			}
 		}
 		if ($op_code->hasAnnotations()){
@@ -1478,9 +1533,168 @@ class TranslatorPHP extends CommonTranslator{
 	 */
 	function OpStructDeclare($op_code){
 		$this->is_struct = true;
-		$this->struct_read_only = $op_code->is_readonly;
 		$res = $this->OpClassDeclare($op_code);
 		$this->is_struct = false;
+		return $res;
+	}
+	/** ========================== HTML OP Codes ========================== */
+	/**
+	 * Check if name is component
+	 * @param string name
+	 * @return bool
+	 */
+	function isComponent($name){
+		$ch = rs::charAt($name, 0);
+		return rs::strtoupper($ch) == $ch && $ch != "";
+	}
+	/**
+	 * OpHtmlJson
+	 */
+	function OpHtmlJson($op_code){
+		$value = "rs::json_encode(" . rtl::toString($this->translateRun($op_code->value)) . ")";
+		$res = "";
+		$res = "new UIStruct(";
+		$res .= $this->s("(new " . rtl::toString($this->getName("Map")) . "())");
+		$res .= $this->s("->set(\"name\", \"span\")");
+		$res .= $this->s("->set(\"props\", (new " . rtl::toString($this->getName("Map")) . "())");
+		$res .= $this->s("->set(" . rtl::toString($this->convertString("dangerouslySetInnerHTML")) . ", " . rtl::toString($value) . ")");
+		$res .= $this->s(")");
+		return $res;
+	}
+	/**
+	 * OpHtmlRaw
+	 */
+	function OpHtmlRaw($op_code){
+		$value = $this->translateRun($op_code->value);
+		$res = "";
+		$res = "new UIStruct(";
+		$res .= $this->s("(new " . rtl::toString($this->getName("Map")) . "())");
+		$res .= $this->s("->set(\"name\", \"span\")");
+		$res .= $this->s("->set(\"props\", (new " . rtl::toString($this->getName("Map")) . "())");
+		$res .= $this->s("->set(" . rtl::toString($this->convertString("dangerouslySetInnerHTML")) . ", " . rtl::toString($value) . ")");
+		$res .= $this->s(")");
+		return $res;
+	}
+	/**
+	 * Html tag
+	 */
+	function OpHtmlTag($op_code){
+		$is_component = false;
+		$res = "";
+		$this->pushOneLine(false);
+		$this->levelInc();
+		/* isComponent */
+		if ($this->modules->has($op_code->tag_name)){
+			$res = "new UIStruct(";
+			$res .= $this->s("(new " . rtl::toString($this->getName("Map")) . "())");
+			$res .= $this->s("->set(\"kind\", \"component\")");
+			$res .= $this->s("->set(\"name\", " . rtl::toString($this->convertString($this->modules->item($op_code->tag_name))) . ")");
+			$is_component = true;
+		}
+		else {
+			$res = "new UIStruct(";
+			$res .= $this->s("(new " . rtl::toString($this->getName("Map")) . "())");
+			$res .= $this->s("->set(\"name\", " . rtl::toString($this->convertString($op_code->tag_name)) . ")");
+		}
+		$raw_item = null;
+		if (!$op_code->is_plain && $op_code->childs != null && $op_code->childs->count() == 1){
+			$item = $op_code->childs->item(0);
+			if ($item instanceof OpHtmlJson){
+				$raw_item = $item;
+			}
+			else if ($item instanceof OpHtmlRaw){
+				$raw_item = $item;
+			}
+		}
+		if ($is_component){
+			$res .= $this->s("->set(\"props\", \$this->getElementAttrs()");
+		}
+		else {
+			$res .= $this->s("->set(\"props\", (new " . rtl::toString($this->getName("Map")) . "())");
+		}
+		if ($op_code->attributes != null && $op_code->attributes->count() > 0){
+			$op_code->attributes->each(function ($item) use (&$res){
+				$this->pushOneLine(true);
+				$value = $this->translateRun($item->value);
+				$this->popOneLine();
+				$res .= $this->s("->set(" . rtl::toString($this->convertString($item->key)) . ", " . rtl::toString($value) . ")");
+			});
+		}
+		if ($op_code->spreads != null && $op_code->spreads->count() > 0){
+			$op_code->spreads->each(function ($item) use (&$res){
+				$res .= $this->s("->addMap(\$" . rtl::toString($item) . ")");
+			});
+		}
+		if ($op_code->is_plain){
+			if ($op_code->childs != null){
+				$value = $op_code->childs->reduce(function ($res, $item){
+					$value = "";
+					if ($item instanceof OpHtmlJson){
+						$value = "rs::json_encode(" . rtl::toString($this->translateRun($item->value)) . ")";
+						$value = "rtl::toString(" . rtl::toString($value) . ")";
+					}
+					else if ($item instanceof OpHtmlRaw){
+						$value = $this->translateRun($item->value);
+						$value = "rtl::toString(" . rtl::toString($value) . ")";
+					}
+					else if ($item instanceof OpConcat || $item instanceof OpString || $item instanceof OpHtmlText){
+						$value = $this->translateRun($item);
+					}
+					else if ($item instanceof OpHtmlEscape){
+						$value = $this->translateRun($item);
+						$value = "rs::htmlEscape(" . rtl::toString($value) . ")";
+					}
+					else {
+						$value = $this->translateRun($item);
+						$value = "rtl::toString(" . rtl::toString($value) . ")";
+					}
+					if ($res == ""){
+						return $value;
+					}
+					return rtl::toString($res) . "." . rtl::toString($value);
+				}, "");
+				$res .= $this->s("->set(" . rtl::toString($this->convertString("dangerouslySetInnerHTML")) . ", " . rtl::toString($value) . ")");
+			}
+		}
+		else if ($raw_item != null){
+			if ($raw_item instanceof OpHtmlJson){
+				$value = "rs::json_encode(" . rtl::toString($this->translateRun($raw_item->value)) . ")";
+				$res .= $this->s("->set(" . rtl::toString($this->convertString("dangerouslySetInnerHTML")) . ", " . rtl::toString($value) . ")");
+			}
+			else if ($raw_item instanceof OpHtmlRaw){
+				$value = $this->translateRun($raw_item->value);
+				$res .= $this->s("->set(" . rtl::toString($this->convertString("dangerouslySetInnerHTML")) . ", " . rtl::toString($value) . ")");
+			}
+		}
+		$res .= $this->s(")");
+		/* Childs */
+		if ($raw_item == null && !$op_code->is_plain){
+			if ($op_code->childs != null && $op_code->childs->count() > 0){
+				$res .= $this->s("->set(\"children\", (new " . rtl::toString($this->getName("Vector")) . "())");
+				$op_code->childs->each(function ($item) use (&$res){
+					if ($item instanceof OpComment){
+						return ;
+					}
+					$res .= $this->s("->push(" . rtl::toString($this->translateRun($item)) . ")");
+				});
+				$res .= $this->s(")");
+			}
+		}
+		$this->levelDec();
+		$res .= $this->s(")");
+		$this->popOneLine();
+		return $res;
+	}
+	/**
+	 * Html tag
+	 */
+	function OpHtmlView($op_code){
+		$this->pushOneLine(false);
+		$res = "(new Vector())";
+		$op_code->childs->each(function ($item) use (&$res){
+			$res .= $this->s("->push(" . rtl::toString($this->translateRun($item)) . ")");
+		});
+		$this->popOneLine();
 		return $res;
 	}
 	/** =========================== Preprocessor ========================== */
@@ -1531,15 +1745,5 @@ class TranslatorPHP extends CommonTranslator{
 	public static function getParentClassName(){return "BayrellLang.CommonTranslator";}
 	protected function _init(){
 		parent::_init();
-		$this->modules = null;
-		$this->current_namespace = "";
-		$this->current_class_name = "";
-		$this->current_function_name = null;
-		$this->current_function_is_static = false;
-		$this->current_module_name = "";
-		$this->is_static = false;
-		$this->is_interface = false;
-		$this->is_struct = false;
-		$this->struct_read_only = false;
 	}
 }

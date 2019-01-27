@@ -17,10 +17,12 @@
  *  limitations under the License.
  */
 namespace BayrellLang;
+use Runtime\rs;
 use Runtime\rtl;
 use Runtime\Map;
 use Runtime\Vector;
 use Runtime\IntrospectionInfo;
+use Runtime\UIStruct;
 use Runtime\rs;
 use BayrellParser\ParserToken;
 use BayrellParser\CoreParser;
@@ -222,7 +224,5 @@ class CommonParser extends CoreParser{
 	public static function getParentClassName(){return "BayrellParser.CoreParser";}
 	protected function _init(){
 		parent::_init();
-		$this->_result = null;
-		$this->skip_comments = false;
 	}
 }
