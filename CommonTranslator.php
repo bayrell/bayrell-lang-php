@@ -21,6 +21,8 @@ use Runtime\rs;
 use Runtime\rtl;
 use Runtime\Map;
 use Runtime\Vector;
+use Runtime\Dict;
+use Runtime\Collection;
 use Runtime\IntrospectionInfo;
 use Runtime\UIStruct;
 use Runtime\rs;
@@ -76,6 +78,7 @@ use BayrellLang\OpCodes\OpNope;
 use BayrellLang\OpCodes\OpNot;
 use BayrellLang\OpCodes\OpNumber;
 use BayrellLang\OpCodes\OpOr;
+use BayrellLang\OpCodes\OpPipe;
 use BayrellLang\OpCodes\OpPostDec;
 use BayrellLang\OpCodes\OpPostInc;
 use BayrellLang\OpCodes\OpPow;
@@ -319,6 +322,9 @@ class CommonTranslator extends ContextObject{
 	function OpOr($op_code){
 		return "";
 	}
+	function OpPipe($op_code){
+		return "";
+	}
 	function OpPostDec($op_code){
 		return "";
 	}
@@ -380,6 +386,9 @@ class CommonTranslator extends ContextObject{
 		return "";
 	}
 	/* =========================== HTML OP Codes ========================== */
+	function OpHtmlEscape($op_code){
+		return "";
+	}
 	function OpHtmlJson($op_code){
 		return "";
 	}
@@ -387,6 +396,9 @@ class CommonTranslator extends ContextObject{
 		return "";
 	}
 	function OpHtmlTag($op_code){
+		return "";
+	}
+	function OpHtmlText($op_code){
 		return "";
 	}
 	function OpHtmlView($op_code){
@@ -549,6 +561,9 @@ class CommonTranslator extends ContextObject{
 		else if ($op_code instanceof OpOr){
 			return $this->OpOr($op_code);
 		}
+		else if ($op_code instanceof OpPipe){
+			return $this->OpPipe($op_code);
+		}
 		else if ($op_code instanceof OpPostDec){
 			return $this->OpPostDec($op_code);
 		}
@@ -609,6 +624,9 @@ class CommonTranslator extends ContextObject{
 		else if ($op_code instanceof OpWhile){
 			return $this->OpWhile($op_code);
 		}
+		else if ($op_code instanceof OpHtmlEscape){
+			return $this->OpHtmlEscape($op_code);
+		}
 		else if ($op_code instanceof OpHtmlJson){
 			return $this->OpHtmlJson($op_code);
 		}
@@ -619,7 +637,7 @@ class CommonTranslator extends ContextObject{
 			return $this->OpHtmlTag($op_code);
 		}
 		else if ($op_code instanceof OpHtmlText){
-			return $this->OpString($op_code);
+			return $this->OpHtmlText($op_code);
 		}
 		else if ($op_code instanceof OpHtmlView){
 			return $this->OpHtmlView($op_code);
@@ -659,6 +677,7 @@ class CommonTranslator extends ContextObject{
 	}
 	/* ======================= Class Init Functions ======================= */
 	public function getClassName(){return "BayrellLang.CommonTranslator";}
+	public static function getCurrentClassName(){return "BayrellLang.CommonTranslator";}
 	public static function getParentClassName(){return "Runtime.ContextObject";}
 	protected function _init(){
 		parent::_init();

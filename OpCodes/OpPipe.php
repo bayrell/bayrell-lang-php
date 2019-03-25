@@ -26,53 +26,56 @@ use Runtime\Collection;
 use Runtime\IntrospectionInfo;
 use Runtime\UIStruct;
 use BayrellLang\OpCodes\BaseOpCode;
-class OpVector extends BaseOpCode{
-	public $op;
-	public $values;
-	/**
-	 * Constructor
-	 */
-	function __construct(){
-		parent::__construct();
-		$this->values = new Vector();
-	}
-	/**
-	 * Destructor
-	 */
-	function __destruct(){
-		parent::__destruct();
-	}
+class OpPipe extends BaseOpCode{
+	protected $__op;
+	protected $__value;
+	protected $__items;
+	protected $__is_return_value;
 	/* ======================= Class Init Functions ======================= */
-	public function getClassName(){return "BayrellLang.OpCodes.OpVector";}
-	public static function getCurrentClassName(){return "BayrellLang.OpCodes.OpVector";}
+	public function getClassName(){return "BayrellLang.OpCodes.OpPipe";}
+	public static function getCurrentClassName(){return "BayrellLang.OpCodes.OpPipe";}
 	public static function getParentClassName(){return "BayrellLang.OpCodes.BaseOpCode";}
 	protected function _init(){
 		parent::_init();
+		$this->__op = "op_pipe";
+		$this->__value = null;
+		$this->__items = null;
+		$this->__is_return_value = false;
 	}
 	public function assignObject($obj){
-		if ($obj instanceof OpVector){
-			$this->op = rtl::_clone($obj->op);
-			$this->values = rtl::_clone($obj->values);
+		if ($obj instanceof OpPipe){
+			$this->__op = $obj->__op;
+			$this->__value = $obj->__value;
+			$this->__items = $obj->__items;
+			$this->__is_return_value = $obj->__is_return_value;
 		}
 		parent::assignObject($obj);
 	}
 	public function assignValue($variable_name, $value, $sender = null){
-		if ($variable_name == "op")$this->op = rtl::convert($value,"string","op_vector","");
-		else if ($variable_name == "values")$this->values = rtl::convert($value,"Runtime.Vector",null,"BayrellLang.OpCodes.BaseOpCode");
+		if ($variable_name == "op")$this->__op = rtl::convert($value,"string","op_pipe","");
+		else if ($variable_name == "value")$this->__value = rtl::convert($value,"BayrellLang.OpCodes.BaseOpCode",null,"");
+		else if ($variable_name == "items")$this->__items = rtl::convert($value,"Runtime.Vector",null,"BayrellLang.OpCodes.BaseOpCode");
+		else if ($variable_name == "is_return_value")$this->__is_return_value = rtl::convert($value,"bool",false,"");
 		else parent::assignValue($variable_name, $value, $sender);
 	}
 	public function takeValue($variable_name, $default_value = null){
-		if ($variable_name == "op") return $this->op;
-		else if ($variable_name == "values") return $this->values;
+		if ($variable_name == "op") return $this->__op;
+		else if ($variable_name == "value") return $this->__value;
+		else if ($variable_name == "items") return $this->__items;
+		else if ($variable_name == "is_return_value") return $this->__is_return_value;
 		return parent::takeValue($variable_name, $default_value);
 	}
 	public static function getFieldsList($names, $flag=0){
 		if (($flag | 3)==3){
 			$names->push("op");
-			$names->push("values");
+			$names->push("value");
+			$names->push("items");
+			$names->push("is_return_value");
 		}
 	}
 	public static function getFieldInfoByName($field_name){
 		return null;
 	}
+	public function __get($key){ return $this->takeValue($key); }
+	public function __set($key, $value){throw new \Runtime\Exceptions\AssignStructValueError($key);}
 }

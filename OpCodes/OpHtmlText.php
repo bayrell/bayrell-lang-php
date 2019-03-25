@@ -21,6 +21,8 @@ use Runtime\rs;
 use Runtime\rtl;
 use Runtime\Map;
 use Runtime\Vector;
+use Runtime\Dict;
+use Runtime\Collection;
 use Runtime\IntrospectionInfo;
 use Runtime\UIStruct;
 use Runtime\Vector;
@@ -31,6 +33,7 @@ class OpHtmlText extends OpValueString{
 	public $op;
 	/* ======================= Class Init Functions ======================= */
 	public function getClassName(){return "BayrellLang.OpCodes.OpHtmlText";}
+	public static function getCurrentClassName(){return "BayrellLang.OpCodes.OpHtmlText";}
 	public static function getParentClassName(){return "BayrellLang.OpCodes.OpValueString";}
 	protected function _init(){
 		parent::_init();
@@ -42,7 +45,7 @@ class OpHtmlText extends OpValueString{
 		parent::assignObject($obj);
 	}
 	public function assignValue($variable_name, $value, $sender = null){
-		if ($variable_name == "op")$this->op = rtl::correct($value,"string","op_html_text","");
+		if ($variable_name == "op")$this->op = rtl::convert($value,"string","op_html_text","");
 		else parent::assignValue($variable_name, $value, $sender);
 	}
 	public function takeValue($variable_name, $default_value = null){

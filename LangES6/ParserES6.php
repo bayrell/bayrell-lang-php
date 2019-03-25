@@ -21,10 +21,13 @@ use Runtime\rs;
 use Runtime\rtl;
 use Runtime\Map;
 use Runtime\Vector;
+use Runtime\Dict;
+use Runtime\Collection;
 use Runtime\IntrospectionInfo;
 use Runtime\UIStruct;
 class BayrellParserES6{
 	/* ======================= Class Init Functions ======================= */
 	public function getClassName(){return "BayrellLang.LangES6.BayrellParserES6";}
+	public static function getCurrentClassName(){return "BayrellLang.LangES6.BayrellParserES6";}
 	public static function getParentClassName(){return "";}
 }

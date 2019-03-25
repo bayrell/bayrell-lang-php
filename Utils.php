@@ -21,6 +21,8 @@ use Runtime\rs;
 use Runtime\rtl;
 use Runtime\Map;
 use Runtime\Vector;
+use Runtime\Dict;
+use Runtime\Collection;
 use Runtime\IntrospectionInfo;
 use Runtime\UIStruct;
 use Runtime\CoreObject;
@@ -104,7 +106,7 @@ class Utils extends ContextObject{
 		*/
 		$file_system = $context->createProvider("default:fs");
 		$content = $file_system->readFile($src_file_name);
-		$res = self::translateSource($context, $parser_factory, $translator_factory, $content);
+		$res = (new \Runtime\Callback(self::class, "translateSource"))($context, $parser_factory, $translator_factory, $content);
 		$dir = BayrellCommonUtils::dirname($dest_file_name);
 		$file_system->makeDir($dir);
 		$file_system->saveFile($dest_file_name, $res);
@@ -120,5 +122,6 @@ class Utils extends ContextObject{
 	}
 	/* ======================= Class Init Functions ======================= */
 	public function getClassName(){return "BayrellLang.Utils";}
+	public static function getCurrentClassName(){return "BayrellLang.Utils";}
 	public static function getParentClassName(){return "Runtime.ContextObject";}
 }

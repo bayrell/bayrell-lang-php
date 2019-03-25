@@ -21,6 +21,8 @@ use Runtime\rs;
 use Runtime\rtl;
 use Runtime\Map;
 use Runtime\Vector;
+use Runtime\Dict;
+use Runtime\Collection;
 use Runtime\IntrospectionInfo;
 use Runtime\UIStruct;
 use BayrellLang\OpCodes\BaseOpCode;
@@ -44,6 +46,7 @@ class OpCallAwait extends BaseOpCode{
 	}
 	/* ======================= Class Init Functions ======================= */
 	public function getClassName(){return "BayrellLang.OpCodes.OpCallAwait";}
+	public static function getCurrentClassName(){return "BayrellLang.OpCodes.OpCallAwait";}
 	public static function getParentClassName(){return "BayrellLang.OpCodes.BaseOpCode";}
 	protected function _init(){
 		parent::_init();
@@ -57,9 +60,9 @@ class OpCallAwait extends BaseOpCode{
 		parent::assignObject($obj);
 	}
 	public function assignValue($variable_name, $value, $sender = null){
-		if ($variable_name == "op")$this->op = rtl::correct($value,"string","op_call_await","");
-		else if ($variable_name == "value")$this->value = rtl::correct($value,"BayrellLang.OpCodes.BaseOpCode",null,"");
-		else if ($variable_name == "args")$this->args = rtl::correct($value,"Runtime.Vector",null,"BayrellLang.OpCodes.BaseOpCode");
+		if ($variable_name == "op")$this->op = rtl::convert($value,"string","op_call_await","");
+		else if ($variable_name == "value")$this->value = rtl::convert($value,"BayrellLang.OpCodes.BaseOpCode",null,"");
+		else if ($variable_name == "args")$this->args = rtl::convert($value,"Runtime.Vector",null,"BayrellLang.OpCodes.BaseOpCode");
 		else parent::assignValue($variable_name, $value, $sender);
 	}
 	public function takeValue($variable_name, $default_value = null){

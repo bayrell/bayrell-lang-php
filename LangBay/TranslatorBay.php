@@ -21,6 +21,8 @@ use Runtime\rs;
 use Runtime\rtl;
 use Runtime\Map;
 use Runtime\Vector;
+use Runtime\Dict;
+use Runtime\Collection;
 use Runtime\IntrospectionInfo;
 use Runtime\UIStruct;
 use Runtime\rs;
@@ -106,11 +108,11 @@ class TranslatorBay extends CoreTranslator{
 	 * Escape string
 	 */
 	function convertString($s){
-		$s = $re::replace("\\\\", "\\\\", $s);
-		$s = $re::replace("\"", "\\\"", $s);
-		$s = $re::replace("\n", "\\n", $s);
-		$s = $re::replace("\r", "\\r", $s);
-		$s = $re::replace("\t", "\\t", $s);
+		$s = (new \Runtime\Callback($re->getClassName(), "replace"))("\\\\", "\\\\", $s);
+		$s = (new \Runtime\Callback($re->getClassName(), "replace"))("\"", "\\\"", $s);
+		$s = (new \Runtime\Callback($re->getClassName(), "replace"))("\n", "\\n", $s);
+		$s = (new \Runtime\Callback($re->getClassName(), "replace"))("\r", "\\r", $s);
+		$s = (new \Runtime\Callback($re->getClassName(), "replace"))("\t", "\\t", $s);
 		return $s;
 	}
 	/**
@@ -914,6 +916,7 @@ class TranslatorBay extends CoreTranslator{
 	}
 	/* ======================= Class Init Functions ======================= */
 	public function getClassName(){return "BayrellLang.LangBay.TranslatorBay";}
+	public static function getCurrentClassName(){return "BayrellLang.LangBay.TranslatorBay";}
 	public static function getParentClassName(){return "BayrellLang.CoreTranslator";}
 	protected function _init(){
 		parent::_init();

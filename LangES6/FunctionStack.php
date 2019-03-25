@@ -21,6 +21,8 @@ use Runtime\rs;
 use Runtime\rtl;
 use Runtime\Map;
 use Runtime\Vector;
+use Runtime\Dict;
+use Runtime\Collection;
 use Runtime\IntrospectionInfo;
 use Runtime\UIStruct;
 use Runtime\rs;
@@ -48,7 +50,7 @@ class FunctionStack extends CoreObject{
 	 * @return string
 	 */
 	function getJumpPos(){
-		return self::getJumpString($this->async_jump_pos);
+		return (new \Runtime\Callback(self::class, "getJumpString"))($this->async_jump_pos);
 	}
 	/**
 	 * Returns next jump position
@@ -59,7 +61,7 @@ class FunctionStack extends CoreObject{
 		$sz = $arr->count();
 		$item = $arr->item($sz - 1);
 		$arr->set($sz - 1, $item + 1);
-		return self::getJumpString($arr);
+		return (new \Runtime\Callback(self::class, "getJumpString"))($arr);
 	}
 	/**
 	 * Increments jump position
@@ -122,6 +124,7 @@ class FunctionStack extends CoreObject{
 	}
 	/* ======================= Class Init Functions ======================= */
 	public function getClassName(){return "BayrellLang.LangES6.FunctionStack";}
+	public static function getCurrentClassName(){return "BayrellLang.LangES6.FunctionStack";}
 	public static function getParentClassName(){return "Runtime.CoreObject";}
 	protected function _init(){
 		parent::_init();

@@ -21,6 +21,8 @@ use Runtime\rs;
 use Runtime\rtl;
 use Runtime\Map;
 use Runtime\Vector;
+use Runtime\Dict;
+use Runtime\Collection;
 use Runtime\IntrospectionInfo;
 use Runtime\UIStruct;
 use BayrellLang\OpCodes\BaseOpCode;
@@ -71,6 +73,7 @@ class OpClassDeclare extends BaseOpCode{
 	}
 	/* ======================= Class Init Functions ======================= */
 	public function getClassName(){return "BayrellLang.OpCodes.OpClassDeclare";}
+	public static function getCurrentClassName(){return "BayrellLang.OpCodes.OpClassDeclare";}
 	public static function getParentClassName(){return "BayrellLang.OpCodes.BaseOpCode";}
 	protected function _init(){
 		parent::_init();
@@ -89,14 +92,14 @@ class OpClassDeclare extends BaseOpCode{
 		parent::assignObject($obj);
 	}
 	public function assignValue($variable_name, $value, $sender = null){
-		if ($variable_name == "op")$this->op = rtl::correct($value,"string","op_class","");
-		else if ($variable_name == "class_name")$this->class_name = rtl::correct($value,"string","","");
-		else if ($variable_name == "class_extends")$this->class_extends = rtl::correct($value,"BayrellLang.OpCodes.BaseOpCode","","");
-		else if ($variable_name == "class_implements")$this->class_implements = rtl::correct($value,"Runtime.Vector",null,"string");
-		else if ($variable_name == "childs")$this->childs = rtl::correct($value,"Runtime.Vector",null,"BayrellLang.OpCodes.BaseOpCode");
-		else if ($variable_name == "class_template")$this->class_template = rtl::correct($value,"Runtime.Vector",null,"BayrellLang.OpCodes.BaseOpCode");
-		else if ($variable_name == "flags")$this->flags = rtl::correct($value,"BayrellLang.OpCodes.OpFlags",null,"");
-		else if ($variable_name == "annotations")$this->annotations = rtl::correct($value,"Runtime.Vector",null,"OpAnnotation");
+		if ($variable_name == "op")$this->op = rtl::convert($value,"string","op_class","");
+		else if ($variable_name == "class_name")$this->class_name = rtl::convert($value,"string","","");
+		else if ($variable_name == "class_extends")$this->class_extends = rtl::convert($value,"BayrellLang.OpCodes.BaseOpCode","","");
+		else if ($variable_name == "class_implements")$this->class_implements = rtl::convert($value,"Runtime.Vector",null,"string");
+		else if ($variable_name == "childs")$this->childs = rtl::convert($value,"Runtime.Vector",null,"BayrellLang.OpCodes.BaseOpCode");
+		else if ($variable_name == "class_template")$this->class_template = rtl::convert($value,"Runtime.Vector",null,"BayrellLang.OpCodes.BaseOpCode");
+		else if ($variable_name == "flags")$this->flags = rtl::convert($value,"BayrellLang.OpCodes.OpFlags",null,"");
+		else if ($variable_name == "annotations")$this->annotations = rtl::convert($value,"Runtime.Vector",null,"OpAnnotation");
 		else parent::assignValue($variable_name, $value, $sender);
 	}
 	public function takeValue($variable_name, $default_value = null){

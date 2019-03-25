@@ -21,6 +21,8 @@ use Runtime\rs;
 use Runtime\rtl;
 use Runtime\Map;
 use Runtime\Vector;
+use Runtime\Dict;
+use Runtime\Collection;
 use Runtime\IntrospectionInfo;
 use Runtime\UIStruct;
 use BayrellLang\OpCodes\OpChilds;
@@ -28,6 +30,7 @@ class OpPreprocessorSwitch extends OpChilds{
 	public $op;
 	/* ======================= Class Init Functions ======================= */
 	public function getClassName(){return "BayrellLang.OpCodes.OpPreprocessorSwitch";}
+	public static function getCurrentClassName(){return "BayrellLang.OpCodes.OpPreprocessorSwitch";}
 	public static function getParentClassName(){return "BayrellLang.OpCodes.OpChilds";}
 	protected function _init(){
 		parent::_init();
@@ -39,7 +42,7 @@ class OpPreprocessorSwitch extends OpChilds{
 		parent::assignObject($obj);
 	}
 	public function assignValue($variable_name, $value, $sender = null){
-		if ($variable_name == "op")$this->op = rtl::correct($value,"string","op_preprocessor_switch","");
+		if ($variable_name == "op")$this->op = rtl::convert($value,"string","op_preprocessor_switch","");
 		else parent::assignValue($variable_name, $value, $sender);
 	}
 	public function takeValue($variable_name, $default_value = null){

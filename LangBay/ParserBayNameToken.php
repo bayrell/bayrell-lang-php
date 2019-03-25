@@ -21,6 +21,8 @@ use Runtime\rs;
 use Runtime\rtl;
 use Runtime\Map;
 use Runtime\Vector;
+use Runtime\Dict;
+use Runtime\Collection;
 use Runtime\IntrospectionInfo;
 use Runtime\UIStruct;
 use Runtime\rs;
@@ -41,5 +43,6 @@ class ParserBayNameToken extends ParserToken{
 	}
 	/* ======================= Class Init Functions ======================= */
 	public function getClassName(){return "BayrellLang.LangBay.ParserBayNameToken";}
+	public static function getCurrentClassName(){return "BayrellLang.LangBay.ParserBayNameToken";}
 	public static function getParentClassName(){return "BayrellParser.ParserToken";}
 }

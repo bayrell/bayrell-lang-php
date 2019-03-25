@@ -21,6 +21,8 @@ use Runtime\rs;
 use Runtime\rtl;
 use Runtime\Map;
 use Runtime\Vector;
+use Runtime\Dict;
+use Runtime\Collection;
 use Runtime\IntrospectionInfo;
 use Runtime\UIStruct;
 use Runtime\Vector;
@@ -34,20 +36,52 @@ class OpHtmlTag extends BaseOpCode{
 	public $childs;
 	public $is_plain;
 	/**
-	 * Constructor
+	 * Find attribute by attr_name
+	 * @param string attr_name
+	 * @return OpHtmlAttribute
 	 */
-	function __construct(){
-		parent::__construct();
-		$this->childs = new Vector();
+	function findAttribute($attr_name){
+		if ($this->attributes == null){
+			return null;
+		}
+		for ($i = 0; $i < $this->attributes->count(); $i++){
+			$item = $this->attributes->item($i);
+			if ($item->key == $attr_name){
+				return $item;
+			}
+		}
+		return null;
 	}
 	/**
-	 * Destructor
+	 * Remove attribute by attr_name
+	 * @param string attr_name
 	 */
-	function __destruct(){
-		parent::__destruct();
+	function removeAttribute($attr_name){
+		$this->attributes = $this->attributes->filter(function ($item) use (&$attr_name){
+			return $item->key != $attr_name;
+		});
+	}
+	/**
+	 * Set attribute by attr_name
+	 * @param string attr_name
+	 * @param mixed value
+	 */
+	function setAttribute($attr_name, $value){
+		if ($this->attributes == null){
+			return ;
+		}
+		for ($i = 0; $i < $this->attributes->count(); $i++){
+			$item = $this->attributes->item($i);
+			if ($item->key == $attr_name){
+				$item->value = $value;
+				return ;
+			}
+		}
+		$this->attributes->push(new OpHtmlAttribute((new Map())->set("key", $attr_name)->set("value", $value)));
 	}
 	/* ======================= Class Init Functions ======================= */
 	public function getClassName(){return "BayrellLang.OpCodes.OpHtmlTag";}
+	public static function getCurrentClassName(){return "BayrellLang.OpCodes.OpHtmlTag";}
 	public static function getParentClassName(){return "BayrellLang.OpCodes.BaseOpCode";}
 	protected function _init(){
 		parent::_init();
@@ -64,12 +98,12 @@ class OpHtmlTag extends BaseOpCode{
 		parent::assignObject($obj);
 	}
 	public function assignValue($variable_name, $value, $sender = null){
-		if ($variable_name == "op")$this->op = rtl::correct($value,"string","op_html_tag","");
-		else if ($variable_name == "tag_name")$this->tag_name = rtl::correct($value,"string","","");
-		else if ($variable_name == "attributes")$this->attributes = rtl::correct($value,"Runtime.Vector",null,"BayrellLang.OpCodes.OpHtmlAttribute");
-		else if ($variable_name == "spreads")$this->spreads = rtl::correct($value,"Runtime.Vector",null,"mixed");
-		else if ($variable_name == "childs")$this->childs = rtl::correct($value,"Runtime.Vector",null,"BayrellLang.OpCodes.BaseOpCode");
-		else if ($variable_name == "is_plain")$this->is_plain = rtl::correct($value,"bool",false,"");
+		if ($variable_name == "op")$this->op = rtl::convert($value,"string","op_html_tag","");
+		else if ($variable_name == "tag_name")$this->tag_name = rtl::convert($value,"string","","");
+		else if ($variable_name == "attributes")$this->attributes = rtl::convert($value,"Runtime.Vector",null,"BayrellLang.OpCodes.OpHtmlAttribute");
+		else if ($variable_name == "spreads")$this->spreads = rtl::convert($value,"Runtime.Vector",null,"mixed");
+		else if ($variable_name == "childs")$this->childs = rtl::convert($value,"Runtime.Vector",null,"BayrellLang.OpCodes.BaseOpCode");
+		else if ($variable_name == "is_plain")$this->is_plain = rtl::convert($value,"bool",false,"");
 		else parent::assignValue($variable_name, $value, $sender);
 	}
 	public function takeValue($variable_name, $default_value = null){

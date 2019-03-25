@@ -21,6 +21,8 @@ use Runtime\rs;
 use Runtime\rtl;
 use Runtime\Map;
 use Runtime\Vector;
+use Runtime\Dict;
+use Runtime\Collection;
 use Runtime\IntrospectionInfo;
 use Runtime\UIStruct;
 use Runtime\CoreObject;
@@ -37,5 +39,6 @@ class TranslatorES6Factory extends ContextObject implements FactoryInterface{
 	}
 	/* ======================= Class Init Functions ======================= */
 	public function getClassName(){return "BayrellLang.LangES6.TranslatorES6Factory";}
+	public static function getCurrentClassName(){return "BayrellLang.LangES6.TranslatorES6Factory";}
 	public static function getParentClassName(){return "Runtime.ContextObject";}
 }

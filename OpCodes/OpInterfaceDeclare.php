@@ -21,6 +21,8 @@ use Runtime\rs;
 use Runtime\rtl;
 use Runtime\Map;
 use Runtime\Vector;
+use Runtime\Dict;
+use Runtime\Collection;
 use Runtime\IntrospectionInfo;
 use Runtime\UIStruct;
 use BayrellLang\OpCodes\BaseOpCode;
@@ -29,6 +31,7 @@ class OpInterfaceDeclare extends OpClassDeclare{
 	public $op;
 	/* ======================= Class Init Functions ======================= */
 	public function getClassName(){return "BayrellLang.OpCodes.OpInterfaceDeclare";}
+	public static function getCurrentClassName(){return "BayrellLang.OpCodes.OpInterfaceDeclare";}
 	public static function getParentClassName(){return "BayrellLang.OpCodes.OpClassDeclare";}
 	protected function _init(){
 		parent::_init();
@@ -40,7 +43,7 @@ class OpInterfaceDeclare extends OpClassDeclare{
 		parent::assignObject($obj);
 	}
 	public function assignValue($variable_name, $value, $sender = null){
-		if ($variable_name == "op")$this->op = rtl::correct($value,"string","op_interace","");
+		if ($variable_name == "op")$this->op = rtl::convert($value,"string","op_interace","");
 		else parent::assignValue($variable_name, $value, $sender);
 	}
 	public function takeValue($variable_name, $default_value = null){

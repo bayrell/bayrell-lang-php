@@ -21,6 +21,8 @@ use Runtime\rs;
 use Runtime\rtl;
 use Runtime\Map;
 use Runtime\Vector;
+use Runtime\Dict;
+use Runtime\Collection;
 use Runtime\IntrospectionInfo;
 use Runtime\UIStruct;
 use Runtime\RuntimeUtils;
@@ -38,5 +40,6 @@ class HexNumberExpected extends ParserError{
 	}
 	/* ======================= Class Init Functions ======================= */
 	public function getClassName(){return "BayrellLang.Exceptions.HexNumberExpected";}
+	public static function getCurrentClassName(){return "BayrellLang.Exceptions.HexNumberExpected";}
 	public static function getParentClassName(){return "BayrellParser.Exceptions.ParserError";}
 }

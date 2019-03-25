@@ -21,6 +21,8 @@ use Runtime\rs;
 use Runtime\rtl;
 use Runtime\Map;
 use Runtime\Vector;
+use Runtime\Dict;
+use Runtime\Collection;
 use Runtime\IntrospectionInfo;
 use Runtime\UIStruct;
 use BayrellLang\OpCodes\OpValue2;
@@ -28,6 +30,7 @@ class OpShiftLeft extends OpValue2{
 	public $op;
 	/* ======================= Class Init Functions ======================= */
 	public function getClassName(){return "BayrellLang.OpCodes.OpShiftLeft";}
+	public static function getCurrentClassName(){return "BayrellLang.OpCodes.OpShiftLeft";}
 	public static function getParentClassName(){return "BayrellLang.OpCodes.OpValue2";}
 	protected function _init(){
 		parent::_init();
@@ -39,7 +42,7 @@ class OpShiftLeft extends OpValue2{
 		parent::assignObject($obj);
 	}
 	public function assignValue($variable_name, $value, $sender = null){
-		if ($variable_name == "op")$this->op = rtl::correct($value,"string","op_shift_left","");
+		if ($variable_name == "op")$this->op = rtl::convert($value,"string","op_shift_left","");
 		else parent::assignValue($variable_name, $value, $sender);
 	}
 	public function takeValue($variable_name, $default_value = null){

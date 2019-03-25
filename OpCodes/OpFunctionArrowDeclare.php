@@ -21,6 +21,8 @@ use Runtime\rs;
 use Runtime\rtl;
 use Runtime\Map;
 use Runtime\Vector;
+use Runtime\Dict;
+use Runtime\Collection;
 use Runtime\IntrospectionInfo;
 use Runtime\UIStruct;
 use BayrellLang\OpCodes\BaseOpCode;
@@ -31,6 +33,7 @@ class OpFunctionArrowDeclare extends OpFunctionDeclare{
 	public $return_function;
 	/* ======================= Class Init Functions ======================= */
 	public function getClassName(){return "BayrellLang.OpCodes.OpFunctionArrowDeclare";}
+	public static function getCurrentClassName(){return "BayrellLang.OpCodes.OpFunctionArrowDeclare";}
 	public static function getParentClassName(){return "BayrellLang.OpCodes.OpFunctionDeclare";}
 	protected function _init(){
 		parent::_init();
@@ -43,8 +46,8 @@ class OpFunctionArrowDeclare extends OpFunctionDeclare{
 		parent::assignObject($obj);
 	}
 	public function assignValue($variable_name, $value, $sender = null){
-		if ($variable_name == "op")$this->op = rtl::correct($value,"string","op_arrow_function","");
-		else if ($variable_name == "return_function")$this->return_function = rtl::correct($value,"BayrellLang.OpCodes.OpFunctionDeclare",null,"");
+		if ($variable_name == "op")$this->op = rtl::convert($value,"string","op_arrow_function","");
+		else if ($variable_name == "return_function")$this->return_function = rtl::convert($value,"BayrellLang.OpCodes.OpFunctionDeclare",null,"");
 		else parent::assignValue($variable_name, $value, $sender);
 	}
 	public function takeValue($variable_name, $default_value = null){

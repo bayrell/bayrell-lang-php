@@ -21,6 +21,8 @@ use Runtime\rs;
 use Runtime\rtl;
 use Runtime\Map;
 use Runtime\Vector;
+use Runtime\Dict;
+use Runtime\Collection;
 use Runtime\IntrospectionInfo;
 use Runtime\UIStruct;
 use Runtime\rs;
@@ -221,6 +223,7 @@ class CommonParser extends CoreParser{
 	}
 	/* ======================= Class Init Functions ======================= */
 	public function getClassName(){return "BayrellLang.CommonParser";}
+	public static function getCurrentClassName(){return "BayrellLang.CommonParser";}
 	public static function getParentClassName(){return "BayrellParser.CoreParser";}
 	protected function _init(){
 		parent::_init();

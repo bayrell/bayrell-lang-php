@@ -21,6 +21,8 @@ use Runtime\rs;
 use Runtime\rtl;
 use Runtime\Map;
 use Runtime\Vector;
+use Runtime\Dict;
+use Runtime\Collection;
 use Runtime\IntrospectionInfo;
 use Runtime\UIStruct;
 use Runtime\rs;
@@ -652,6 +654,7 @@ class CoreTranslator extends ContextObject{
 	}
 	/* ======================= Class Init Functions ======================= */
 	public function getClassName(){return "BayrellLang.CoreTranslator";}
+	public static function getCurrentClassName(){return "BayrellLang.CoreTranslator";}
 	public static function getParentClassName(){return "Runtime.ContextObject";}
 	protected function _init(){
 		parent::_init();

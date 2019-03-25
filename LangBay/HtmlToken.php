@@ -21,6 +21,8 @@ use Runtime\rs;
 use Runtime\rtl;
 use Runtime\Map;
 use Runtime\Vector;
+use Runtime\Dict;
+use Runtime\Collection;
 use Runtime\IntrospectionInfo;
 use Runtime\UIStruct;
 use Runtime\rs;
@@ -45,14 +47,14 @@ class HtmlToken extends ParserToken{
 	 * Returns special tokens
 	 */
 	static function getSpecialTokens(){
-		return (new Vector())->push("...")->push("@json{")->push("@raw{")->push("@{")->push("<!--")->push("-->")->push("<!")->push("</")->push("/>")->push("/*")->push("*/");
+		return (new Vector())->push("...")->push("@code{")->push("@json{")->push("@raw{")->push("@{")->push("<!--")->push("-->")->push("<!")->push("</")->push("/>")->push("/*")->push("*/");
 	}
 	/**
 	 * Constructor
 	 */
 	function __construct($context = null, $parser = null){
 		parent::__construct($context, $parser);
-		$this->_special_tokens = self::getSpecialTokens();
+		$this->_special_tokens = (new \Runtime\Callback(self::class, "getSpecialTokens"))();
 	}
 	/**
 	 * Return true if char is token char
@@ -116,6 +118,7 @@ class HtmlToken extends ParserToken{
 	}
 	/* ======================= Class Init Functions ======================= */
 	public function getClassName(){return "BayrellLang.LangBay.HtmlToken";}
+	public static function getCurrentClassName(){return "BayrellLang.LangBay.HtmlToken";}
 	public static function getParentClassName(){return "BayrellParser.ParserToken";}
 	protected function _init(){
 		parent::_init();

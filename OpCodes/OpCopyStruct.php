@@ -21,6 +21,8 @@ use Runtime\rs;
 use Runtime\rtl;
 use Runtime\Map;
 use Runtime\Vector;
+use Runtime\Dict;
+use Runtime\Collection;
 use Runtime\IntrospectionInfo;
 use Runtime\UIStruct;
 use BayrellLang\OpCodes\BaseOpCode;
@@ -30,6 +32,7 @@ class OpCopyStruct extends BaseOpCode{
 	public $item;
 	/* ======================= Class Init Functions ======================= */
 	public function getClassName(){return "BayrellLang.OpCodes.OpCopyStruct";}
+	public static function getCurrentClassName(){return "BayrellLang.OpCodes.OpCopyStruct";}
 	public static function getParentClassName(){return "BayrellLang.OpCodes.BaseOpCode";}
 	protected function _init(){
 		parent::_init();
@@ -43,9 +46,9 @@ class OpCopyStruct extends BaseOpCode{
 		parent::assignObject($obj);
 	}
 	public function assignValue($variable_name, $value, $sender = null){
-		if ($variable_name == "op")$this->op = rtl::correct($value,"string","op_copy_struct","");
-		else if ($variable_name == "name")$this->name = rtl::correct($value,"string","","");
-		else if ($variable_name == "item")$this->item = rtl::correct($value,"BayrellLang.OpCodes.BaseOpCode",null,"");
+		if ($variable_name == "op")$this->op = rtl::convert($value,"string","op_copy_struct","");
+		else if ($variable_name == "name")$this->name = rtl::convert($value,"string","","");
+		else if ($variable_name == "item")$this->item = rtl::convert($value,"BayrellLang.OpCodes.BaseOpCode",null,"");
 		else parent::assignValue($variable_name, $value, $sender);
 	}
 	public function takeValue($variable_name, $default_value = null){

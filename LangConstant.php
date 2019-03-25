@@ -21,6 +21,8 @@ use Runtime\rs;
 use Runtime\rtl;
 use Runtime\Map;
 use Runtime\Vector;
+use Runtime\Dict;
+use Runtime\Collection;
 use Runtime\IntrospectionInfo;
 use Runtime\UIStruct;
 use Runtime\RuntimeConstant;
@@ -30,5 +32,6 @@ class LangConstant{
 	const ERROR_TWICE_DECLARE_ERROR = RuntimeConstant::ERROR_MODULE_PARSER - 503;
 	/* ======================= Class Init Functions ======================= */
 	public function getClassName(){return "BayrellLang.LangConstant";}
+	public static function getCurrentClassName(){return "BayrellLang.LangConstant";}
 	public static function getParentClassName(){return "";}
 }
