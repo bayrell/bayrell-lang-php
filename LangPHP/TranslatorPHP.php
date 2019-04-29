@@ -27,6 +27,7 @@ use Runtime\IntrospectionInfo;
 use Runtime\UIStruct;
 use Runtime\re;
 use Runtime\rs;
+use Runtime\RuntimeUtils;
 use BayrellLang\CommonTranslator;
 use BayrellLang\OpCodes\BaseOpCode;
 use BayrellLang\OpCodes\OpAdd;
@@ -143,10 +144,10 @@ class TranslatorPHP extends CommonTranslator{
 			return "parent";
 		}
 		else if ($name == "self"){
-			return "self";
+			return "self::class";
 		}
 		else if ($name == "static"){
-			return "static";
+			return "static::class";
 		}
 		else if ($this->modules->has($name)){
 			return $name;
@@ -214,6 +215,15 @@ class TranslatorPHP extends CommonTranslator{
 	 */
 	function OpIdentifier($op_code){
 		$this->current_opcode_level = $this->max_opcode_level;
+		$op_code_last = $this->op_code_stack->last(null, -2);
+		if ($op_code_last instanceof OpStatic){
+			if ($op_code->value == "self"){
+				return "self";
+			}
+			if ($op_code->value == "static"){
+				return "static";
+			}
+		}
 		return $this->getName($op_code->value);
 	}
 	/**
@@ -1242,8 +1252,8 @@ class TranslatorPHP extends CommonTranslator{
 		$has_cloneable = false;
 		$has_methods_annotations = false;
 		$has_fields_annotations = false;
-		$res .= $this->s("/* ======================= Class Init Functions ======================= */");
 		if (!$this->is_interface){
+			$res .= $this->s("/* ======================= Class Init Functions ======================= */");
 			$res .= $this->s("public function getClassName(){" . "return " . rtl::toString($this->convertString(rtl::toString($this->current_namespace) . "." . rtl::toString($this->current_class_name))) . ";}");
 			$res .= $this->s("public static function getCurrentClassName(){" . "return " . rtl::toString($this->convertString(rtl::toString($this->current_namespace) . "." . rtl::toString($this->current_class_name))) . ";}");
 			$res .= $this->s("public static function getParentClassName(){" . "return " . rtl::toString($this->convertString($class_extends)) . ";}");
@@ -1413,7 +1423,7 @@ class TranslatorPHP extends CommonTranslator{
 				$this->levelDec();
 				$res .= $this->s("}");
 			}
-			if ($has_serializable || $has_assignable || $has_fields_annotations){
+			if (!$this->is_interface){
 				$res .= $this->s("public static function getFieldsList(\$names, \$flag=0){");
 				$this->levelInc();
 				$vars = new Map();
@@ -1505,8 +1515,6 @@ class TranslatorPHP extends CommonTranslator{
 				$res .= $this->s("return null;");
 				$this->levelDec();
 				$res .= $this->s("}");
-			}
-			if ($has_methods_annotations){
 				$res .= $this->s("public static function getMethodsList(\$names){");
 				$this->levelInc();
 				for ($i = 0; $i < $childs->count(); $i++){
@@ -1712,36 +1720,10 @@ class TranslatorPHP extends CommonTranslator{
 	 * Returns true if key is props
 	 */
 	function isOpHtmlTagProps($key){
-		if ($key == "@key" || $key == "@control"){
+		if ($key == "@key" || $key == "@control" || $key == "@model"){
 			return false;
 		}
 		return true;
-	}
-	/**
-	 * Retuns css hash 
-	 * @param string component class name
-	 * @return string hash
-	 */
-	function getCssHash($s){
-		$arr = "1234567890abcdef";
-		$arr_sz = 16;
-		$arr_mod = 65536;
-		$sz = rs::strlen($s);
-		$hash = 0;
-		for ($i = 0; $i < $sz; $i++){
-			$ch = rs::ord(mb_substr($s, $i, 1));
-			$hash = ($hash << 2) + ($hash >> 14) + $ch & 65535;
-		}
-		$res = "";
-		$pos = 0;
-		$c = 0;
-		while ($hash != 0 || $pos < 4){
-			$c = $hash & 15;
-			$hash = $hash >> 4;
-			$res .= mb_substr($arr, $c, 1);
-			$pos++;
-		}
-		return $res;
 	}
 	/**
 	 * Html tag
@@ -1754,12 +1736,13 @@ class TranslatorPHP extends CommonTranslator{
 		if ($this->modules->has($op_code->tag_name)){
 			$res = "new UIStruct(new " . rtl::toString($this->getName("Map")) . "([";
 			$res .= $this->s("\"kind\"=>\"component\",");
+			$res .= $this->s("\"class_name\"=>static::getCurrentClassName(),");
 			$res .= $this->s("\"name\"=>" . rtl::toString($this->convertString($this->modules->item($op_code->tag_name))) . ",");
 			$is_component = true;
 		}
 		else {
 			$res = "new UIStruct(new " . rtl::toString($this->getName("Map")) . "([";
-			$res .= $this->s("\"space\"=>" . rtl::toString($this->convertString($this->getCssHash($this->getUIStructClassName()))) . ",");
+			$res .= $this->s("\"space\"=>" . rtl::toString($this->convertString(RuntimeUtils::getCssHash($this->getUIStructClassName()))) . ",");
 			$res .= $this->s("\"class_name\"=>static::getCurrentClassName(),");
 			$res .= $this->s("\"name\"=>" . rtl::toString($this->convertString($op_code->tag_name)) . ",");
 		}
@@ -1779,6 +1762,10 @@ class TranslatorPHP extends CommonTranslator{
 					$value = $this->translateRun($item->value);
 					$res .= $this->s("\"controller\"=>" . rtl::toString($value) . ",");
 				}
+				else if ($key == "@model"){
+					$value = $this->translateRun($item->value);
+					$res .= $this->s("\"model\"=>" . rtl::toString($value) . ",");
+				}
 			});
 		}
 		if ($is_props || $is_spreads){
@@ -1791,9 +1778,6 @@ class TranslatorPHP extends CommonTranslator{
 						$this->pushOneLine(true);
 						$key = $item->key;
 						$value = $this->translateRun($item->value);
-						if ($key == "@lambda"){
-							$key = "callback";
-						}
 						$this->popOneLine();
 						$this->endOperation($old_operation);
 						$res .= $this->s("->set(" . rtl::toString($this->convertString($key)) . ", " . rtl::toString($value) . ")");
@@ -1809,7 +1793,7 @@ class TranslatorPHP extends CommonTranslator{
 			$res .= $this->s(",");
 		}
 		if ($op_code->is_plain){
-			if ($op_code->childs != null){
+			if ($op_code->childs != null && $op_code->childs->count() > 0){
 				$value = $op_code->childs->reduce(function ($res, $item){
 					$value = "";
 					if ($item instanceof OpHtmlJson){
@@ -1852,7 +1836,7 @@ class TranslatorPHP extends CommonTranslator{
 		}
 		else {
 			if ($op_code->childs != null && $op_code->childs->count() > 0){
-				$res .= $this->s("\"children\" => rtl::normalizeUIVector(new " . rtl::toString($this->getName("Vector")) . "([");
+				$res .= $this->s("\"children\" => rtl::normalizeUIVector(new " . rtl::toString($this->getName("Vector")) . "(");
 				$this->levelInc();
 				$childs_sz = $op_code->childs->count();
 				for ($i = 0; $i < $childs_sz; $i++){
@@ -1863,7 +1847,7 @@ class TranslatorPHP extends CommonTranslator{
 					$res .= $this->s(rtl::toString($this->translateRun($item)) . rtl::toString(($i + 1 == $childs_sz) ? ("") : (",")));
 				}
 				$this->levelDec();
-				$res .= $this->s("]))");
+				$res .= $this->s("))");
 			}
 		}
 		$res .= $this->s("]))");
@@ -1876,7 +1860,7 @@ class TranslatorPHP extends CommonTranslator{
 	 * Html tag
 	 */
 	function OpHtmlView($op_code){
-		$res = "rtl::normalizeUIVector(new Vector([";
+		$res = "rtl::normalizeUIVector(new Vector(";
 		$this->pushOneLine(false);
 		$childs_sz = $op_code->childs->count();
 		for ($i = 0; $i < $childs_sz; $i++){
@@ -1887,7 +1871,7 @@ class TranslatorPHP extends CommonTranslator{
 			$res .= $this->s(rtl::toString($this->translateRun($item)) . rtl::toString(($i + 1 == $childs_sz) ? ("") : (",")));
 		}
 		$this->popOneLine();
-		$res .= $this->s("]))");
+		$res .= $this->s("))");
 		return $res;
 	}
 	/** =========================== Preprocessor ========================== */
@@ -1940,5 +1924,15 @@ class TranslatorPHP extends CommonTranslator{
 	public static function getParentClassName(){return "BayrellLang.CommonTranslator";}
 	protected function _init(){
 		parent::_init();
+	}
+	public static function getFieldsList($names, $flag=0){
+	}
+	public static function getFieldInfoByName($field_name){
+		return null;
+	}
+	public static function getMethodsList($names){
+	}
+	public static function getMethodInfoByName($method_name){
+		return null;
 	}
 }

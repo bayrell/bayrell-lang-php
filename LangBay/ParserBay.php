@@ -26,6 +26,7 @@ use Runtime\Collection;
 use Runtime\IntrospectionInfo;
 use Runtime\UIStruct;
 use Runtime\rs;
+use Runtime\RuntimeUtils;
 use BayrellLang\CommonParser;
 use BayrellLang\OpCodes\BaseOpCode;
 use BayrellLang\OpCodes\OpAdd;
@@ -801,32 +802,6 @@ class ParserBay extends CommonParser{
 		return $res;
 	}
 	/**
-	 * Retuns css hash 
-	 * @param string component class name
-	 * @return string hash
-	 */
-	function getCssHash($s){
-		$arr = "1234567890abcdef";
-		$arr_sz = 16;
-		$arr_mod = 65536;
-		$sz = rs::strlen($s);
-		$hash = 0;
-		for ($i = 0; $i < $sz; $i++){
-			$ch = rs::ord(mb_substr($s, $i, 1));
-			$hash = ($hash << 2) + ($hash >> 14) + $ch & 65535;
-		}
-		$res = "";
-		$pos = 0;
-		$c = 0;
-		while ($hash != 0 || $pos < 4){
-			$c = $hash & 15;
-			$hash = $hash >> 4;
-			$res .= mb_substr($arr, $c, 1);
-			$pos++;
-		}
-		return $res;
-	}
-	/**
 	 * Read CSS Selector
 	 */
 	function readCssSelector($look){
@@ -865,7 +840,7 @@ class ParserBay extends CommonParser{
 			$name = rs::substr($s, 0, $pos);
 			$postfix = rs::substr($s, $pos, $sz - $pos);
 		}
-		$hash = "-" . rtl::toString($this->getCssHash($class_name));
+		$hash = "-" . rtl::toString(RuntimeUtils::getCssHash($class_name));
 		return rtl::toString($name) . rtl::toString($hash) . rtl::toString($postfix);
 	}
 	/**
@@ -1259,7 +1234,7 @@ class ParserBay extends CommonParser{
 			$this->matchNextToken("pure");
 		}
 		$res = null;
-		$res = $this->readDeclareFunction(false, false, $is_lambda);
+		$res = $this->readDeclareFunction(false, false);
 		if ($res != null){
 			$this->popToken();
 			return $res;
@@ -1819,10 +1794,10 @@ class ParserBay extends CommonParser{
 	 * Read declare class function
 	 * @return BaseOpCode
 	 */
-	function readDeclareFunction($read_name = true, $is_declare_function = false, $is_lambda = false){
+	function readDeclareFunction($read_name = true, $is_declare_function = false){
 		$res = new OpFunctionDeclare();
+		$res->is_lambda = false;
 		$this->pushToken();
-		$res->is_lambda = $is_lambda;
 		try{
 			$res->result_type = $this->readTemplateIdentifier();
 		}catch(\Exception $_the_exception){
@@ -1867,59 +1842,50 @@ class ParserBay extends CommonParser{
 			$this->matchNextToken(")");
 		}
 		if ($this->findNextToken("=>")){
+			$res->is_lambda = true;
 			$this->matchNextToken("=>");
 			if ($this->findNextToken("return")){
 				$this->matchNextToken("return");
 			}
 			$this->popToken();
-			if ($is_lambda){
-				$this->pushToken();
-				try{
-					$flags = null;
-					$flags = $this->readFlags();
-					$res->return_function = $this->readDeclareFunction(false, $is_declare_function, $is_lambda);
-					if ($res->return_function != null){
-						$res->return_function->flags = $flags;
-					}
-				}catch(\Exception $_the_exception){
-					if ($_the_exception instanceof ParserError){
-						$ex = $_the_exception;
-						$res->return_function = null;
-					}
-					else { throw $_the_exception; }
-				}
-				if ($res->return_function == null){
-					$this->popRollbackToken();
-				}
-				else {
-					$this->popToken();
-				}
-				if ($res->return_function == null){
-					$op_item;
-					try{
-						$op_item = $this->readExpression();
-					}catch(\Exception $_the_exception){
-						if ($_the_exception instanceof ParserError){
-							$ex = $_the_exception;
-							$op_item = null;
-						}
-						else { throw $_the_exception; }
-					}
-					if ($op_item != null){
-						$res->childs = (new Vector())->push($op_item);
-					}
-				}
-				if ($res->return_function == null && $res->childs == null){
-					$this->matchNextToken(";");
-				}
-			}
-			else {
+			$this->pushToken();
+			try{
 				$flags = null;
 				$flags = $this->readFlags();
-				$res->return_function = $this->readDeclareFunction(false, $is_declare_function, $is_lambda);
+				$res->return_function = $this->readDeclareFunction(false, $is_declare_function);
 				if ($res->return_function != null){
 					$res->return_function->flags = $flags;
 				}
+			}catch(\Exception $_the_exception){
+				if ($_the_exception instanceof ParserError){
+					$ex = $_the_exception;
+					$res->return_function = null;
+				}
+				else { throw $_the_exception; }
+			}
+			if ($res->return_function == null){
+				$this->popRollbackToken();
+			}
+			else {
+				$this->popToken();
+			}
+			if ($res->return_function == null){
+				$op_item;
+				try{
+					$op_item = $this->readExpression();
+				}catch(\Exception $_the_exception){
+					if ($_the_exception instanceof ParserError){
+						$ex = $_the_exception;
+						$op_item = null;
+					}
+					else { throw $_the_exception; }
+				}
+				if ($op_item != null){
+					$res->childs = (new Vector())->push($op_item);
+				}
+			}
+			if ($res->return_function == null && $res->childs == null){
+				$this->matchNextToken(";");
 			}
 			return $res;
 		}
@@ -1989,11 +1955,11 @@ class ParserBay extends CommonParser{
 				$is_lambda = true;
 			}
 		}
-		$op_code = $this->readDeclareFunction(true, $is_declare_function, $is_lambda);
+		$op_code = $this->readDeclareFunction(true, $is_declare_function);
 		if ($op_code && $op_code instanceof OpFunctionDeclare){
 			$op_code->annotations = $this->annotations;
 			$op_code->flags = $flags;
-			if ($op_code->is_lambda){
+			if ($is_lambda){
 				$flags->assignValue("static", true);
 			}
 			if ($op_code->isFlag("pure")){
@@ -2224,5 +2190,15 @@ class ParserBay extends CommonParser{
 	public static function getParentClassName(){return "BayrellLang.CommonParser";}
 	protected function _init(){
 		parent::_init();
+	}
+	public static function getFieldsList($names, $flag=0){
+	}
+	public static function getFieldInfoByName($field_name){
+		return null;
+	}
+	public static function getMethodsList($names){
+	}
+	public static function getMethodInfoByName($method_name){
+		return null;
 	}
 }

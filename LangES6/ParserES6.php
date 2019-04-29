@@ -30,4 +30,14 @@ class BayrellParserES6{
 	public function getClassName(){return "BayrellLang.LangES6.BayrellParserES6";}
 	public static function getCurrentClassName(){return "BayrellLang.LangES6.BayrellParserES6";}
 	public static function getParentClassName(){return "";}
+	public static function getFieldsList($names, $flag=0){
+	}
+	public static function getFieldInfoByName($field_name){
+		return null;
+	}
+	public static function getMethodsList($names){
+	}
+	public static function getMethodInfoByName($method_name){
+		return null;
+	}
 }

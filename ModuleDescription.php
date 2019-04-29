@@ -40,7 +40,7 @@ class ModuleDescription implements ModuleDescriptionInterface{
 	 * @return string
 	 */
 	static function getModuleVersion(){
-		return "0.7.1";
+		return "0.7.2";
 	}
 	/**
 	 * Init context
@@ -72,4 +72,14 @@ class ModuleDescription implements ModuleDescriptionInterface{
 	public function getClassName(){return "BayrellLang.ModuleDescription";}
 	public static function getCurrentClassName(){return "BayrellLang.ModuleDescription";}
 	public static function getParentClassName(){return "";}
+	public static function getFieldsList($names, $flag=0){
+	}
+	public static function getFieldInfoByName($field_name){
+		return null;
+	}
+	public static function getMethodsList($names){
+	}
+	public static function getMethodInfoByName($method_name){
+		return null;
+	}
 }

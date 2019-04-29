@@ -124,4 +124,14 @@ class Utils extends ContextObject{
 	public function getClassName(){return "BayrellLang.Utils";}
 	public static function getCurrentClassName(){return "BayrellLang.Utils";}
 	public static function getParentClassName(){return "Runtime.ContextObject";}
+	public static function getFieldsList($names, $flag=0){
+	}
+	public static function getFieldInfoByName($field_name){
+		return null;
+	}
+	public static function getMethodsList($names){
+	}
+	public static function getMethodInfoByName($method_name){
+		return null;
+	}
 }

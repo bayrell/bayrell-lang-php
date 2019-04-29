@@ -81,4 +81,9 @@ class OpValue2 extends BaseOpCode{
 	public static function getFieldInfoByName($field_name){
 		return null;
 	}
+	public static function getMethodsList($names){
+	}
+	public static function getMethodInfoByName($method_name){
+		return null;
+	}
 }

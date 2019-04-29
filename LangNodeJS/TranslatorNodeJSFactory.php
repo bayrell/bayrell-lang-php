@@ -41,4 +41,14 @@ class TranslatorNodeJSFactory extends ContextObject implements FactoryInterface{
 	public function getClassName(){return "BayrellLang.LangNodeJS.TranslatorNodeJSFactory";}
 	public static function getCurrentClassName(){return "BayrellLang.LangNodeJS.TranslatorNodeJSFactory";}
 	public static function getParentClassName(){return "Runtime.ContextObject";}
+	public static function getFieldsList($names, $flag=0){
+	}
+	public static function getFieldInfoByName($field_name){
+		return null;
+	}
+	public static function getMethodsList($names){
+	}
+	public static function getMethodInfoByName($method_name){
+		return null;
+	}
 }

@@ -60,4 +60,9 @@ class OpHtmlComment extends OpValue1{
 	public static function getFieldInfoByName($field_name){
 		return null;
 	}
+	public static function getMethodsList($names){
+	}
+	public static function getMethodInfoByName($method_name){
+		return null;
+	}
 }
