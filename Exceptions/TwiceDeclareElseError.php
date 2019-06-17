@@ -26,7 +26,7 @@ use Runtime\Collection;
 use Runtime\IntrospectionInfo;
 use Runtime\UIStruct;
 use Runtime\RuntimeUtils;
-use BayrellParser\Exceptions\ParserError;
+use BayrellLang\Parser\Exceptions\ParserError;
 use BayrellLang\LangConstant;
 class TwiceDeclareElseError extends ParserError{
 	function __construct($line, $col, $context, $prev = null){
@@ -40,8 +40,9 @@ class TwiceDeclareElseError extends ParserError{
 	}
 	/* ======================= Class Init Functions ======================= */
 	public function getClassName(){return "BayrellLang.Exceptions.TwiceDeclareElseError";}
+	public static function getCurrentNamespace(){return "BayrellLang.Exceptions";}
 	public static function getCurrentClassName(){return "BayrellLang.Exceptions.TwiceDeclareElseError";}
-	public static function getParentClassName(){return "BayrellParser.Exceptions.ParserError";}
+	public static function getParentClassName(){return "BayrellLang.Parser.Exceptions.ParserError";}
 	public static function getFieldsList($names, $flag=0){
 	}
 	public static function getFieldInfoByName($field_name){

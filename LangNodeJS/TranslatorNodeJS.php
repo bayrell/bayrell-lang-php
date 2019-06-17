@@ -26,7 +26,6 @@ use Runtime\Collection;
 use Runtime\IntrospectionInfo;
 use Runtime\UIStruct;
 use Runtime\re;
-use Runtime\rs;
 use BayrellLang\OpCodes\OpAssignDeclare;
 use BayrellLang\OpCodes\OpIdentifier;
 use BayrellLang\OpCodes\OpPreprocessorCase;
@@ -57,7 +56,15 @@ class TranslatorNodeJS extends TranslatorES6{
 		$this->current_module_name = $arr->item(0);
 		$this->modules->clear();
 		if ($this->current_module_name != "Runtime"){
-			return "var rtl = require('bayrell-runtime-nodejs').rtl;" . rtl::toString($this->s("var Map = require('bayrell-runtime-nodejs').Map;")) . rtl::toString($this->s("var Dict = require('bayrell-runtime-nodejs').Dict;")) . rtl::toString($this->s("var Vector = require('bayrell-runtime-nodejs').Vector;")) . rtl::toString($this->s("var Collection = require('bayrell-runtime-nodejs').Collection;")) . rtl::toString($this->s("var IntrospectionInfo = require('bayrell-runtime-nodejs').IntrospectionInfo;"));
+			$this->modules->set("rtl", "Runtime.rtl");
+			$this->modules->set("rs", "Runtime.rs");
+			$this->modules->set("Map", "Runtime.Map");
+			$this->modules->set("Dict", "Runtime.Dict");
+			$this->modules->set("Vector", "Runtime.Vector");
+			$this->modules->set("Collection", "Runtime.Collection");
+			$this->modules->set("IntrospectionInfo", "Runtime.IntrospectionInfo");
+			$this->modules->set("UIStruct", "Runtime.UIStruct");
+			return "var rtl = require('bayrell-runtime-nodejs').rtl;" . rtl::toString($this->s("var rs = require('bayrell-runtime-nodejs').rs;")) . rtl::toString($this->s("var Map = require('bayrell-runtime-nodejs').Map;")) . rtl::toString($this->s("var Dict = require('bayrell-runtime-nodejs').Dict;")) . rtl::toString($this->s("var Vector = require('bayrell-runtime-nodejs').Vector;")) . rtl::toString($this->s("var Collection = require('bayrell-runtime-nodejs').Collection;")) . rtl::toString($this->s("var IntrospectionInfo = require('bayrell-runtime-nodejs').IntrospectionInfo;")) . rtl::toString($this->s("var UIStruct = require('bayrell-runtime-nodejs').UIStruct;"));
 		}
 		return "";
 	}
@@ -225,6 +232,7 @@ class TranslatorNodeJS extends TranslatorES6{
 	}
 	/* ======================= Class Init Functions ======================= */
 	public function getClassName(){return "BayrellLang.LangNodeJS.TranslatorNodeJS";}
+	public static function getCurrentNamespace(){return "BayrellLang.LangNodeJS";}
 	public static function getCurrentClassName(){return "BayrellLang.LangNodeJS.TranslatorNodeJS";}
 	public static function getParentClassName(){return "BayrellLang.LangES6.TranslatorES6";}
 	public static function getFieldsList($names, $flag=0){

@@ -30,6 +30,7 @@ class OpContinue extends BaseOpCode{
 	public $op;
 	/* ======================= Class Init Functions ======================= */
 	public function getClassName(){return "BayrellLang.OpCodes.OpContinue";}
+	public static function getCurrentNamespace(){return "BayrellLang.OpCodes";}
 	public static function getCurrentClassName(){return "BayrellLang.OpCodes.OpContinue";}
 	public static function getParentClassName(){return "BayrellLang.OpCodes.BaseOpCode";}
 	protected function _init(){

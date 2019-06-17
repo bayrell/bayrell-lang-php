@@ -32,6 +32,7 @@ class LangConstant{
 	const ERROR_TWICE_DECLARE_ERROR = RuntimeConstant::ERROR_MODULE_PARSER - 503;
 	/* ======================= Class Init Functions ======================= */
 	public function getClassName(){return "BayrellLang.LangConstant";}
+	public static function getCurrentNamespace(){return "BayrellLang";}
 	public static function getCurrentClassName(){return "BayrellLang.LangConstant";}
 	public static function getParentClassName(){return "";}
 	public static function getFieldsList($names, $flag=0){

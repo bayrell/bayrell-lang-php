@@ -44,6 +44,7 @@ class OpUse extends OpValueString{
 	}
 	/* ======================= Class Init Functions ======================= */
 	public function getClassName(){return "BayrellLang.OpCodes.OpUse";}
+	public static function getCurrentNamespace(){return "BayrellLang.OpCodes";}
 	public static function getCurrentClassName(){return "BayrellLang.OpCodes.OpUse";}
 	public static function getParentClassName(){return "BayrellLang.OpCodes.OpValueString";}
 	protected function _init(){

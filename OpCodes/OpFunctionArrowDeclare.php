@@ -33,6 +33,7 @@ class OpFunctionArrowDeclare extends OpFunctionDeclare{
 	public $return_function;
 	/* ======================= Class Init Functions ======================= */
 	public function getClassName(){return "BayrellLang.OpCodes.OpFunctionArrowDeclare";}
+	public static function getCurrentNamespace(){return "BayrellLang.OpCodes";}
 	public static function getCurrentClassName(){return "BayrellLang.OpCodes.OpFunctionArrowDeclare";}
 	public static function getParentClassName(){return "BayrellLang.OpCodes.OpFunctionDeclare";}
 	protected function _init(){

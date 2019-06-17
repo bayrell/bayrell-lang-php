@@ -34,11 +34,12 @@ class TranslatorPHPFactory extends ContextObject implements FactoryInterface{
 	/**
 	 * Returns new Instance
 	 */
-	function newInstance($context){
+	function newInstance($context = null, $params = null){
 		return new TranslatorPHP($context);
 	}
 	/* ======================= Class Init Functions ======================= */
 	public function getClassName(){return "BayrellLang.LangPHP.TranslatorPHPFactory";}
+	public static function getCurrentNamespace(){return "BayrellLang.LangPHP";}
 	public static function getCurrentClassName(){return "BayrellLang.LangPHP.TranslatorPHPFactory";}
 	public static function getParentClassName(){return "Runtime.ContextObject";}
 	public static function getFieldsList($names, $flag=0){

@@ -25,10 +25,9 @@ use Runtime\Dict;
 use Runtime\Collection;
 use Runtime\IntrospectionInfo;
 use Runtime\UIStruct;
-use Runtime\rs;
-use BayrellParser\ParserToken;
-use BayrellParser\Exceptions\ParserEOF;
-use BayrellParser\Exceptions\ParserExpected;
+use BayrellLang\Parser\ParserToken;
+use BayrellLang\Parser\Exceptions\ParserEOF;
+use BayrellLang\Parser\Exceptions\ParserExpected;
 use BayrellLang\Exceptions\EndOfStringExpected;
 class ParserBayNameToken extends ParserToken{
 	const TOKEN_NONE = "none";
@@ -43,8 +42,9 @@ class ParserBayNameToken extends ParserToken{
 	}
 	/* ======================= Class Init Functions ======================= */
 	public function getClassName(){return "BayrellLang.LangBay.ParserBayNameToken";}
+	public static function getCurrentNamespace(){return "BayrellLang.LangBay";}
 	public static function getCurrentClassName(){return "BayrellLang.LangBay.ParserBayNameToken";}
-	public static function getParentClassName(){return "BayrellParser.ParserToken";}
+	public static function getParentClassName(){return "BayrellLang.Parser.ParserToken";}
 	public static function getFieldsList($names, $flag=0){
 	}
 	public static function getFieldInfoByName($field_name){

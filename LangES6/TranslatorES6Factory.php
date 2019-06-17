@@ -34,11 +34,12 @@ class TranslatorES6Factory extends ContextObject implements FactoryInterface{
 	/**
 	 * Returns new Instance
 	 */
-	function newInstance($context){
+	function newInstance($context = null, $params = null){
 		return new TranslatorES6($context);
 	}
 	/* ======================= Class Init Functions ======================= */
 	public function getClassName(){return "BayrellLang.LangES6.TranslatorES6Factory";}
+	public static function getCurrentNamespace(){return "BayrellLang.LangES6";}
 	public static function getCurrentClassName(){return "BayrellLang.LangES6.TranslatorES6Factory";}
 	public static function getParentClassName(){return "Runtime.ContextObject";}
 	public static function getFieldsList($names, $flag=0){

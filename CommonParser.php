@@ -25,9 +25,8 @@ use Runtime\Dict;
 use Runtime\Collection;
 use Runtime\IntrospectionInfo;
 use Runtime\UIStruct;
-use Runtime\rs;
-use BayrellParser\ParserToken;
-use BayrellParser\CoreParser;
+use BayrellLang\Parser\ParserToken;
+use BayrellLang\Parser\CoreParser;
 use BayrellLang\Exceptions\HexNumberExpected;
 use BayrellLang\OpCodes\BaseOpCode;
 class CommonParser extends CoreParser{
@@ -223,8 +222,9 @@ class CommonParser extends CoreParser{
 	}
 	/* ======================= Class Init Functions ======================= */
 	public function getClassName(){return "BayrellLang.CommonParser";}
+	public static function getCurrentNamespace(){return "BayrellLang";}
 	public static function getCurrentClassName(){return "BayrellLang.CommonParser";}
-	public static function getParentClassName(){return "BayrellParser.CoreParser";}
+	public static function getParentClassName(){return "BayrellLang.Parser.CoreParser";}
 	protected function _init(){
 		parent::_init();
 	}

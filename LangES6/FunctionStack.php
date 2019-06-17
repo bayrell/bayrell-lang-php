@@ -25,7 +25,6 @@ use Runtime\Dict;
 use Runtime\Collection;
 use Runtime\IntrospectionInfo;
 use Runtime\UIStruct;
-use Runtime\rs;
 use Runtime\CoreObject;
 class FunctionStack extends CoreObject{
 	public $name;
@@ -124,6 +123,7 @@ class FunctionStack extends CoreObject{
 	}
 	/* ======================= Class Init Functions ======================= */
 	public function getClassName(){return "BayrellLang.LangES6.FunctionStack";}
+	public static function getCurrentNamespace(){return "BayrellLang.LangES6";}
 	public static function getCurrentClassName(){return "BayrellLang.LangES6.FunctionStack";}
 	public static function getParentClassName(){return "Runtime.CoreObject";}
 	protected function _init(){

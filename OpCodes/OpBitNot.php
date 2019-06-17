@@ -30,6 +30,7 @@ class OpBitNot extends OpValue1{
 	public $op;
 	/* ======================= Class Init Functions ======================= */
 	public function getClassName(){return "BayrellLang.OpCodes.OpBitNot";}
+	public static function getCurrentNamespace(){return "BayrellLang.OpCodes";}
 	public static function getCurrentClassName(){return "BayrellLang.OpCodes.OpBitNot";}
 	public static function getParentClassName(){return "BayrellLang.OpCodes.OpValue1";}
 	protected function _init(){

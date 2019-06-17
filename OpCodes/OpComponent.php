@@ -25,7 +25,6 @@ use Runtime\Dict;
 use Runtime\Collection;
 use Runtime\IntrospectionInfo;
 use Runtime\UIStruct;
-use Runtime\Vector;
 use BayrellLang\OpCodes\BaseOpCode;
 class OpComponent extends BaseOpCode{
 	public $op;
@@ -45,13 +44,6 @@ class OpComponent extends BaseOpCode{
 		parent::assign($obj);
 	}
 	/**
-	 * Returns classname of the object
-	 * @return string
-	 */
-	function getClassName(){
-		return "BayrellTemplate.OpCodes.OpComponent";
-	}
-	/**
 	 * Constructor
 	 */
 	function __construct($name = "", $alias = "", $args = null){
@@ -68,6 +60,7 @@ class OpComponent extends BaseOpCode{
 	}
 	/* ======================= Class Init Functions ======================= */
 	public function getClassName(){return "BayrellLang.OpCodes.OpComponent";}
+	public static function getCurrentNamespace(){return "BayrellLang.OpCodes";}
 	public static function getCurrentClassName(){return "BayrellLang.OpCodes.OpComponent";}
 	public static function getParentClassName(){return "BayrellLang.OpCodes.BaseOpCode";}
 	protected function _init(){
@@ -86,7 +79,7 @@ class OpComponent extends BaseOpCode{
 		if ($variable_name == "op")$this->op = rtl::convert($value,"string","op_component","");
 		else if ($variable_name == "name")$this->name = rtl::convert($value,"BayrellLang.OpCodes.BaseOpCode","","");
 		else if ($variable_name == "alias")$this->alias = rtl::convert($value,"string","","");
-		else if ($variable_name == "args")$this->args = rtl::convert($value,"Runtime.Map",null,"string");
+		else if ($variable_name == "args")$this->args = rtl::convert($value,"Runtime.Map",null,"BayrellLang.OpCodes.BaseOpCode");
 		else parent::assignValue($variable_name, $value, $sender);
 	}
 	public function takeValue($variable_name, $default_value = null){

@@ -30,6 +30,7 @@ class OpNot extends OpValue1{
 	public $op;
 	/* ======================= Class Init Functions ======================= */
 	public function getClassName(){return "BayrellLang.OpCodes.OpNot";}
+	public static function getCurrentNamespace(){return "BayrellLang.OpCodes";}
 	public static function getCurrentClassName(){return "BayrellLang.OpCodes.OpNot";}
 	public static function getParentClassName(){return "BayrellLang.OpCodes.OpValue1";}
 	protected function _init(){

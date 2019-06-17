@@ -56,7 +56,7 @@ class Utils extends ContextObject{
 	 */
 	static function translateAST($context, $translator_factory, $code_tree){
 		$translator = $translator_factory->newInstance($context);
-		$res = $translator->translate($code_tree);
+		$res = $translator->translateOpCode($code_tree);
 		return $res;
 	}
 	/**
@@ -71,7 +71,7 @@ class Utils extends ContextObject{
 		$translator = $translator_factory->newInstance($context);
 		$parser->parseString($source);
 		$code_tree = $parser->getAST();
-		$res = $translator->translate($code_tree);
+		$res = $translator->translateOpCode($code_tree);
 		return $res;
 	}
 	/**
@@ -85,7 +85,7 @@ class Utils extends ContextObject{
 		$parser = new ParserBay($context);
 		$parser->parseString($source);
 		$code_tree = $parser->getAST();
-		$res = $translator->translate($code_tree);
+		$res = $translator->translateOpCode($code_tree);
 		return $res;
 	}
 	/**
@@ -122,6 +122,7 @@ class Utils extends ContextObject{
 	}
 	/* ======================= Class Init Functions ======================= */
 	public function getClassName(){return "BayrellLang.Utils";}
+	public static function getCurrentNamespace(){return "BayrellLang";}
 	public static function getCurrentClassName(){return "BayrellLang.Utils";}
 	public static function getParentClassName(){return "Runtime.ContextObject";}
 	public static function getFieldsList($names, $flag=0){

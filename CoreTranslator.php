@@ -25,9 +25,7 @@ use Runtime\Dict;
 use Runtime\Collection;
 use Runtime\IntrospectionInfo;
 use Runtime\UIStruct;
-use Runtime\rs;
 use Runtime\ContextObject;
-use BayrellLang\CoreTranslator;
 use BayrellLang\OpCodes\BaseOpCode;
 use BayrellLang\OpCodes\OpAdd;
 use BayrellLang\OpCodes\OpAnd;
@@ -654,6 +652,7 @@ class CoreTranslator extends ContextObject{
 	}
 	/* ======================= Class Init Functions ======================= */
 	public function getClassName(){return "BayrellLang.CoreTranslator";}
+	public static function getCurrentNamespace(){return "BayrellLang";}
 	public static function getCurrentClassName(){return "BayrellLang.CoreTranslator";}
 	public static function getParentClassName(){return "Runtime.ContextObject";}
 	protected function _init(){

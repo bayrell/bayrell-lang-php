@@ -31,6 +31,7 @@ class OpInterfaceDeclare extends OpClassDeclare{
 	public $op;
 	/* ======================= Class Init Functions ======================= */
 	public function getClassName(){return "BayrellLang.OpCodes.OpInterfaceDeclare";}
+	public static function getCurrentNamespace(){return "BayrellLang.OpCodes";}
 	public static function getCurrentClassName(){return "BayrellLang.OpCodes.OpInterfaceDeclare";}
 	public static function getParentClassName(){return "BayrellLang.OpCodes.OpClassDeclare";}
 	protected function _init(){

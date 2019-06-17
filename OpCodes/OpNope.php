@@ -30,6 +30,7 @@ class OpNope extends OpChilds{
 	public $op;
 	/* ======================= Class Init Functions ======================= */
 	public function getClassName(){return "BayrellLang.OpCodes.OpNope";}
+	public static function getCurrentNamespace(){return "BayrellLang.OpCodes";}
 	public static function getCurrentClassName(){return "BayrellLang.OpCodes.OpNope";}
 	public static function getParentClassName(){return "BayrellLang.OpCodes.OpChilds";}
 	protected function _init(){

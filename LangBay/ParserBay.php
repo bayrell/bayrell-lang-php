@@ -25,7 +25,6 @@ use Runtime\Dict;
 use Runtime\Collection;
 use Runtime\IntrospectionInfo;
 use Runtime\UIStruct;
-use Runtime\rs;
 use Runtime\RuntimeUtils;
 use BayrellLang\CommonParser;
 use BayrellLang\OpCodes\BaseOpCode;
@@ -110,7 +109,7 @@ use BayrellLang\LangBay\ParserBayToken;
 use BayrellLang\LangBay\ParserBayNameToken;
 use BayrellLang\Exceptions\HexNumberExpected;
 use BayrellLang\Exceptions\TwiceDeclareElseError;
-use BayrellParser\Exceptions\ParserError;
+use BayrellLang\Parser\Exceptions\ParserError;
 class ParserBay extends CommonParser{
 	public $current_namespace;
 	public $current_class_name;
@@ -119,7 +118,7 @@ class ParserBay extends CommonParser{
 	public $annotations;
 	/**
 	 * Tokens Fabric
-	 * @return BayrellParserToken
+	 * @return BayrellLang.ParserToken
 	 */
 	function createToken(){
 		return new ParserBayToken($this->context(), $this);
@@ -559,6 +558,11 @@ class ParserBay extends CommonParser{
 					$this->popRestoreToken();
 					$this->matchNextToken("}");
 				}
+				else if ($this->findNextToken("[")){
+					$this->pushToken(new ParserBayToken($this->context(), $this));
+					$attr->value = $this->readVector();
+					$this->popRestoreToken();
+				}
 				else {
 					throw $this->parserError("Unknown token " . rtl::toString($this->next_token->token));
 				}
@@ -602,10 +606,10 @@ class ParserBay extends CommonParser{
 			if (!$is_plain){
 				if ($is_next_special_token || $is_next_html_token){
 					if ($is_next_special_token || $is_prev_special_token){
-						$s = rs::trim($s, "\\t\\r\\n");
+						$s = rs::trim($s, "\t\r\n");
 					}
 					else {
-						$s = rs::trim($s, "\\t\\r\\n");
+						$s = rs::trim($s, "\t\r\n");
 					}
 					if ($s != ""){
 						$childs->push(new OpHtmlText($s));
@@ -619,7 +623,7 @@ class ParserBay extends CommonParser{
 			if ($res == null){
 				if ($this->current_token->findString("{") || $this->current_token->findString("@{") || $this->current_token->findString("@raw{") || $this->current_token->findString("@json{")){
 					if (!$is_plain){
-						$s = rs::trim($s, "\\t\\r\\n");
+						$s = rs::trim($s, "\t\r\n");
 					}
 					if ($s != ""){
 						$childs->push(new OpHtmlText($s));
@@ -683,10 +687,10 @@ class ParserBay extends CommonParser{
 		}
 		if (!$is_plain){
 			if ($is_prev_special_token){
-				$s = rs::trim($s, "\\t\\r\\n");
+				$s = rs::trim($s, "\t\r\n");
 			}
 			else {
-				$s = rs::trim($s, "\\t\\r\\n");
+				$s = rs::trim($s, "\t\r\n");
 			}
 		}
 		if ($s != ""){
@@ -738,7 +742,7 @@ class ParserBay extends CommonParser{
 					$res->is_plain = true;
 					$res->childs = $this->readHtmlBlock("</" . rtl::toString($res->tag_name) . ">", true);
 				}
-				else if ($this->findNextToken("lambda") || $this->findNextToken("pure")){
+				else if ($this->findNextToken("lambda")){
 					$this->assignCurrentToken($this->current_token);
 					$this->pushToken(new ParserBayToken($this->context(), $this));
 					$childs_function = $this->readDeclareFunction(false);
@@ -1225,13 +1229,8 @@ class ParserBay extends CommonParser{
 			return $this->readHtml();
 		}
 		$this->pushToken();
-		$is_lambda = false;
 		if ($this->findNextToken("lambda")){
-			$is_lambda = true;
 			$this->matchNextToken("lambda");
-		}
-		else if ($this->findNextToken("pure")){
-			$this->matchNextToken("pure");
 		}
 		$res = null;
 		$res = $this->readDeclareFunction(false, false);
@@ -1949,20 +1948,11 @@ class ParserBay extends CommonParser{
 				$flags->assignValue("public", true);
 			}
 		}
-		$is_lambda = false;
-		if ($flags != null){
-			if ($flags->isFlag("lambda")){
-				$is_lambda = true;
-			}
-		}
 		$op_code = $this->readDeclareFunction(true, $is_declare_function);
 		if ($op_code && $op_code instanceof OpFunctionDeclare){
 			$op_code->annotations = $this->annotations;
 			$op_code->flags = $flags;
-			if ($is_lambda){
-				$flags->assignValue("static", true);
-			}
-			if ($op_code->isFlag("pure")){
+			if ($op_code->isFlag("lambda")){
 				$flags->assignValue("static", true);
 			}
 			$res->childs->push($op_code);
@@ -2186,6 +2176,7 @@ class ParserBay extends CommonParser{
 	}
 	/* ======================= Class Init Functions ======================= */
 	public function getClassName(){return "BayrellLang.LangBay.ParserBay";}
+	public static function getCurrentNamespace(){return "BayrellLang.LangBay";}
 	public static function getCurrentClassName(){return "BayrellLang.LangBay.ParserBay";}
 	public static function getParentClassName(){return "BayrellLang.CommonParser";}
 	protected function _init(){

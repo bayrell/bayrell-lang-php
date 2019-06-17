@@ -25,7 +25,6 @@ use Runtime\Dict;
 use Runtime\Collection;
 use Runtime\IntrospectionInfo;
 use Runtime\UIStruct;
-use Runtime\rs;
 use Runtime\ContextObject;
 use BayrellLang\OpCodes\BaseOpCode;
 use BayrellLang\OpCodes\OpAdd;
@@ -115,6 +114,13 @@ class CommonTranslator extends ContextObject{
 	 */
 	function __construct($context = null){
 		parent::__construct($context);
+		$this->is_operation = false;
+		$this->current_opcode_level = 0;
+		$this->max_opcode_level = 100;
+		$this->indent_level = 0;
+		$this->indent = "\t";
+		$this->space = " ";
+		$this->crlf = "\n";
 	}
 	/**
 	 * Push new level
@@ -671,12 +677,13 @@ class CommonTranslator extends ContextObject{
 	 * @param BaseOpCode op_code - Abstract syntax tree
 	 * @returns string - The result
 	 */
-	function translate($op_code){
+	function translateOpCode($op_code){
 		$this->resetTranslator();
 		return $this->translateRun($op_code);
 	}
 	/* ======================= Class Init Functions ======================= */
 	public function getClassName(){return "BayrellLang.CommonTranslator";}
+	public static function getCurrentNamespace(){return "BayrellLang";}
 	public static function getCurrentClassName(){return "BayrellLang.CommonTranslator";}
 	public static function getParentClassName(){return "Runtime.ContextObject";}
 	protected function _init(){

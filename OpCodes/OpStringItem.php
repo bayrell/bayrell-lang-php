@@ -31,6 +31,7 @@ class OpStringItem extends OpValue2{
 	public $op;
 	/* ======================= Class Init Functions ======================= */
 	public function getClassName(){return "BayrellLang.OpCodes.OpStringItem";}
+	public static function getCurrentNamespace(){return "BayrellLang.OpCodes";}
 	public static function getCurrentClassName(){return "BayrellLang.OpCodes.OpStringItem";}
 	public static function getParentClassName(){return "BayrellLang.OpCodes.OpValue2";}
 	protected function _init(){

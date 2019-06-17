@@ -30,6 +30,7 @@ class OpMethod extends OpValue1{
 	public $op;
 	/* ======================= Class Init Functions ======================= */
 	public function getClassName(){return "BayrellLang.OpCodes.OpMethod";}
+	public static function getCurrentNamespace(){return "BayrellLang.OpCodes";}
 	public static function getCurrentClassName(){return "BayrellLang.OpCodes.OpMethod";}
 	public static function getParentClassName(){return "BayrellLang.OpCodes.OpValue1";}
 	protected function _init(){

@@ -25,13 +25,13 @@ use Runtime\Dict;
 use Runtime\Collection;
 use Runtime\IntrospectionInfo;
 use Runtime\UIStruct;
-use Runtime\Vector;
 use BayrellLang\OpCodes\BaseOpCode;
 use BayrellLang\OpCodes\OpValue1;
 class OpHtmlJson extends OpValue1{
 	public $op;
 	/* ======================= Class Init Functions ======================= */
 	public function getClassName(){return "BayrellLang.OpCodes.OpHtmlJson";}
+	public static function getCurrentNamespace(){return "BayrellLang.OpCodes";}
 	public static function getCurrentClassName(){return "BayrellLang.OpCodes.OpHtmlJson";}
 	public static function getParentClassName(){return "BayrellLang.OpCodes.OpValue1";}
 	protected function _init(){

@@ -25,10 +25,11 @@ use Runtime\Dict;
 use Runtime\Collection;
 use Runtime\IntrospectionInfo;
 use Runtime\UIStruct;
-class BayrellParserES6{
+class ParserES6{
 	/* ======================= Class Init Functions ======================= */
-	public function getClassName(){return "BayrellLang.LangES6.BayrellParserES6";}
-	public static function getCurrentClassName(){return "BayrellLang.LangES6.BayrellParserES6";}
+	public function getClassName(){return "BayrellLang.LangES6.ParserES6";}
+	public static function getCurrentNamespace(){return "BayrellLang.LangES6";}
+	public static function getCurrentClassName(){return "BayrellLang.LangES6.ParserES6";}
 	public static function getParentClassName(){return "";}
 	public static function getFieldsList($names, $flag=0){
 	}

@@ -26,7 +26,6 @@ use Runtime\Collection;
 use Runtime\IntrospectionInfo;
 use Runtime\UIStruct;
 use Runtime\re;
-use Runtime\rs;
 use Runtime\RuntimeUtils;
 use BayrellLang\CommonTranslator;
 use BayrellLang\OpCodes\BaseOpCode;
@@ -123,7 +122,7 @@ class TranslatorES6 extends CommonTranslator{
 	 * Returns full class name
 	 * @return string
 	 */
-	function getCurrentClassName(){
+	function currentClassName(){
 		return rtl::toString($this->current_namespace) . "." . rtl::toString($this->current_class_name);
 	}
 	/**
@@ -1927,6 +1926,7 @@ class TranslatorES6 extends CommonTranslator{
 		if (!$this->is_interface){
 			$res .= $this->s("/* ======================= Class Init Functions ======================= */");
 			$res .= $this->s("getClassName(){" . "return " . rtl::toString($this->convertString(rtl::toString($this->current_namespace) . "." . rtl::toString($this->current_class_name))) . ";}");
+			$res .= $this->s("static getCurrentNamespace(){" . "return " . rtl::toString($this->convertString($this->current_namespace)) . ";}");
 			$res .= $this->s("static getCurrentClassName(){" . "return " . rtl::toString($this->convertString(rtl::toString($this->current_namespace) . "." . rtl::toString($this->current_class_name))) . ";}");
 			$res .= $this->s("static getParentClassName(){" . "return " . rtl::toString($this->convertString($class_extends)) . ";}");
 		}
@@ -2160,7 +2160,7 @@ class TranslatorES6 extends CommonTranslator{
 						$this->levelInc();
 						$res .= $this->s("(new " . rtl::toString($this->getName("Map")) . "())");
 						$res .= $this->s(".set(\"kind\", \"field\")");
-						$res .= $this->s(".set(\"class_name\", " . rtl::toString($this->convertString($this->getCurrentClassName())) . ")");
+						$res .= $this->s(".set(\"class_name\", " . rtl::toString($this->convertString($this->currentClassName())) . ")");
 						$res .= $this->s(".set(\"name\", " . rtl::toString($this->convertString($variable->name)) . ")");
 						$res .= $this->s(".set(\"annotations\", ");
 						$this->levelInc();
@@ -2217,7 +2217,7 @@ class TranslatorES6 extends CommonTranslator{
 						$this->levelInc();
 						$res .= $this->s("(new " . rtl::toString($this->getName("Map")) . "())");
 						$res .= $this->s(".set(\"kind\", \"method\")");
-						$res .= $this->s(".set(\"class_name\", " . rtl::toString($this->convertString($this->getCurrentClassName())) . ")");
+						$res .= $this->s(".set(\"class_name\", " . rtl::toString($this->convertString($this->currentClassName())) . ")");
 						$res .= $this->s(".set(\"name\", " . rtl::toString($this->convertString($variable->name)) . ")");
 						$res .= $this->s(".set(\"annotations\", ");
 						$this->levelInc();
@@ -2254,7 +2254,7 @@ class TranslatorES6 extends CommonTranslator{
 			$this->levelInc();
 			$res .= $this->s("(new " . rtl::toString($this->getName("Map")) . "())");
 			$res .= $this->s(".set(\"kind\", \"class\")");
-			$res .= $this->s(".set(\"class_name\", " . rtl::toString($this->convertString($this->getCurrentClassName())) . ")");
+			$res .= $this->s(".set(\"class_name\", " . rtl::toString($this->convertString($this->currentClassName())) . ")");
 			$res .= $this->s(".set(\"annotations\", ");
 			$this->levelInc();
 			$res .= $this->s("(new " . rtl::toString($this->getName("Vector")) . "())");
@@ -2404,7 +2404,7 @@ class TranslatorES6 extends CommonTranslator{
 	 * Returns true if key is props
 	 */
 	function isOpHtmlTagProps($key){
-		if ($key == "@key" || $key == "@control" || $key == "@model"){
+		if ($key == "@key" || $key == "@control" || $key == "@model" || $key == "@ref" || $key == "@bind" || $key == "@annotations"){
 			return false;
 		}
 		return true;
@@ -2442,6 +2442,10 @@ class TranslatorES6 extends CommonTranslator{
 					$value = $this->translateRun($item->value);
 					$res .= $this->s("\"key\": " . rtl::toString($value) . ",");
 				}
+				else if ($key == "@ref"){
+					$value = $this->translateRun($item->value);
+					$res .= $this->s("\"reference\": " . rtl::toString($value) . ",");
+				}
 				else if ($key == "@control"){
 					$value = $this->translateRun($item->value);
 					$res .= $this->s("\"controller\": " . rtl::toString($value) . ",");
@@ -2449,6 +2453,14 @@ class TranslatorES6 extends CommonTranslator{
 				else if ($key == "@model"){
 					$value = $this->translateRun($item->value);
 					$res .= $this->s("\"model\": " . rtl::toString($value) . ",");
+				}
+				else if ($key == "@bind"){
+					$value = $this->translateRun($item->value);
+					$res .= $this->s("\"bind\": " . rtl::toString($value) . ",");
+				}
+				else if ($key == "@annotations"){
+					$value = $this->translateRun($item->value);
+					$res .= $this->s("\"annotations\": " . rtl::toString($value) . ",");
 				}
 			});
 		}
@@ -2591,7 +2603,7 @@ class TranslatorES6 extends CommonTranslator{
 	 * @param BaseOpCode op_code - Abstract syntax tree
 	 * @returns string - The result
 	 */
-	function translate($op_code){
+	function translateOpCode($op_code){
 		$this->resetTranslator();
 		$s = "\"use strict;\"" . rtl::toString($this->crlf);
 		$s .= $this->translateRun($op_code);
@@ -2599,6 +2611,7 @@ class TranslatorES6 extends CommonTranslator{
 	}
 	/* ======================= Class Init Functions ======================= */
 	public function getClassName(){return "BayrellLang.LangES6.TranslatorES6";}
+	public static function getCurrentNamespace(){return "BayrellLang.LangES6";}
 	public static function getCurrentClassName(){return "BayrellLang.LangES6.TranslatorES6";}
 	public static function getParentClassName(){return "BayrellLang.CommonTranslator";}
 	protected function _init(){

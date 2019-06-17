@@ -32,6 +32,7 @@ class BaseOpCode extends CoreStruct implements SerializeInterface{
 	public $op;
 	/* ======================= Class Init Functions ======================= */
 	public function getClassName(){return "BayrellLang.OpCodes.BaseOpCode";}
+	public static function getCurrentNamespace(){return "BayrellLang.OpCodes";}
 	public static function getCurrentClassName(){return "BayrellLang.OpCodes.BaseOpCode";}
 	public static function getParentClassName(){return "Runtime.CoreStruct";}
 	protected function _init(){

@@ -25,7 +25,6 @@ use Runtime\Dict;
 use Runtime\Collection;
 use Runtime\IntrospectionInfo;
 use Runtime\UIStruct;
-use Runtime\Vector;
 use BayrellLang\OpCodes\BaseOpCode;
 use BayrellLang\OpCodes\OpHtmlAttribute;
 class OpHtmlTag extends BaseOpCode{
@@ -81,6 +80,7 @@ class OpHtmlTag extends BaseOpCode{
 	}
 	/* ======================= Class Init Functions ======================= */
 	public function getClassName(){return "BayrellLang.OpCodes.OpHtmlTag";}
+	public static function getCurrentNamespace(){return "BayrellLang.OpCodes";}
 	public static function getCurrentClassName(){return "BayrellLang.OpCodes.OpHtmlTag";}
 	public static function getParentClassName(){return "BayrellLang.OpCodes.BaseOpCode";}
 	protected function _init(){

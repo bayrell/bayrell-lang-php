@@ -29,15 +29,9 @@ use BayrellLang\OpCodes\OpChilds;
 class OpHtmlView extends OpChilds{
 	public $op;
 	public $variable;
-	/**
-	 * Returns classname of the object
-	 * @return string
-	 */
-	function getClassName(){
-		return "BayrellTemplate.OpCodes.OpHtmlView";
-	}
 	/* ======================= Class Init Functions ======================= */
 	public function getClassName(){return "BayrellLang.OpCodes.OpHtmlView";}
+	public static function getCurrentNamespace(){return "BayrellLang.OpCodes";}
 	public static function getCurrentClassName(){return "BayrellLang.OpCodes.OpHtmlView";}
 	public static function getParentClassName(){return "BayrellLang.OpCodes.OpChilds";}
 	protected function _init(){

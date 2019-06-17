@@ -25,10 +25,9 @@ use Runtime\Dict;
 use Runtime\Collection;
 use Runtime\IntrospectionInfo;
 use Runtime\UIStruct;
-use Runtime\rs;
-use BayrellParser\ParserToken;
-use BayrellParser\Exceptions\ParserEOF;
-use BayrellParser\Exceptions\ParserExpected;
+use BayrellLang\Parser\ParserToken;
+use BayrellLang\Parser\Exceptions\ParserEOF;
+use BayrellLang\Parser\Exceptions\ParserExpected;
 use BayrellLang\Exceptions\EndOfStringExpected;
 class HtmlToken extends ParserToken{
 	const TOKEN_NONE = "none";
@@ -91,7 +90,7 @@ class HtmlToken extends ParserToken{
 	}
 	/**
 	 * Get next token without move cursor pos. Throws error if EOF.
-	 * @param {BayrellParserToken} token
+	 * @param {BayrellLang.ParserToken} token
 	 */
 	function readNextToken(){
 		/* Init next token function */
@@ -118,8 +117,9 @@ class HtmlToken extends ParserToken{
 	}
 	/* ======================= Class Init Functions ======================= */
 	public function getClassName(){return "BayrellLang.LangBay.HtmlToken";}
+	public static function getCurrentNamespace(){return "BayrellLang.LangBay";}
 	public static function getCurrentClassName(){return "BayrellLang.LangBay.HtmlToken";}
-	public static function getParentClassName(){return "BayrellParser.ParserToken";}
+	public static function getParentClassName(){return "BayrellLang.Parser.ParserToken";}
 	protected function _init(){
 		parent::_init();
 	}

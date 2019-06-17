@@ -25,7 +25,6 @@ use Runtime\Dict;
 use Runtime\Collection;
 use Runtime\IntrospectionInfo;
 use Runtime\UIStruct;
-use Runtime\Vector;
 use BayrellLang\OpCodes\BaseOpCode;
 class OpHtmlAttribute extends BaseOpCode{
 	public $op;
@@ -33,6 +32,7 @@ class OpHtmlAttribute extends BaseOpCode{
 	public $value;
 	/* ======================= Class Init Functions ======================= */
 	public function getClassName(){return "BayrellLang.OpCodes.OpHtmlAttribute";}
+	public static function getCurrentNamespace(){return "BayrellLang.OpCodes";}
 	public static function getCurrentClassName(){return "BayrellLang.OpCodes.OpHtmlAttribute";}
 	public static function getParentClassName(){return "BayrellLang.OpCodes.BaseOpCode";}
 	protected function _init(){
