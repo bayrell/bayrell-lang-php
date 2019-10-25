@@ -1,6 +1,6 @@
 <?php
 /*!
- *  Bayrell Common Languages Transcompiler
+ *  Bayrell Language
  *
  *  (c) Copyright 2016-2018 "Ildar Bikmamatov" <support@bayrell.org>
  *
@@ -16,62 +16,93 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-namespace BayrellLang\OpCodes;
-use Runtime\rs;
-use Runtime\rtl;
-use Runtime\Map;
-use Runtime\Vector;
-use Runtime\Dict;
-use Runtime\Collection;
-use Runtime\IntrospectionInfo;
-use Runtime\UIStruct;
-use BayrellLang\OpCodes\BaseOpCode;
-use BayrellLang\OpCodes\OpMap;
-class OpAnnotation extends BaseOpCode{
-	public $op;
-	public $kind;
-	public $options;
+namespace Bayrell\Lang\OpCodes;
+class OpAnnotation extends \Bayrell\Lang\OpCodes\BaseOpCode
+{
+	public $__op;
+	public $__name;
+	public $__params;
 	/* ======================= Class Init Functions ======================= */
-	public function getClassName(){return "BayrellLang.OpCodes.OpAnnotation";}
-	public static function getCurrentNamespace(){return "BayrellLang.OpCodes";}
-	public static function getCurrentClassName(){return "BayrellLang.OpCodes.OpAnnotation";}
-	public static function getParentClassName(){return "BayrellLang.OpCodes.BaseOpCode";}
-	protected function _init(){
-		parent::_init();
+	function _init($__ctx)
+	{
+		parent::_init($__ctx);
+		$this->__op = "op_annotation";
+		$this->__name = null;
+		$this->__params = null;
 	}
-	public function assignObject($obj){
-		if ($obj instanceof OpAnnotation){
-			$this->op = rtl::_clone($obj->op);
-			$this->kind = rtl::_clone($obj->kind);
-			$this->options = rtl::_clone($obj->options);
+	function assignObject($__ctx,$o)
+	{
+		if ($o instanceof \Bayrell\Lang\OpCodes\OpAnnotation)
+		{
+			$this->__op = $o->__op;
+			$this->__name = $o->__name;
+			$this->__params = $o->__params;
 		}
-		parent::assignObject($obj);
+		parent::assignObject($__ctx,$o);
 	}
-	public function assignValue($variable_name, $value, $sender = null){
-		if ($variable_name == "op")$this->op = rtl::convert($value,"string","op_annotation","");
-		else if ($variable_name == "kind")$this->kind = rtl::convert($value,"BayrellLang.OpCodes.BaseOpCode",null,"");
-		else if ($variable_name == "options")$this->options = rtl::convert($value,"BayrellLang.OpCodes.OpMap",null,"");
-		else parent::assignValue($variable_name, $value, $sender);
+	function assignValue($__ctx,$k,$v)
+	{
+		if ($k == "op")$this->__op = $v;
+		else if ($k == "name")$this->__name = $v;
+		else if ($k == "params")$this->__params = $v;
+		else parent::assignValue($__ctx,$k,$v);
 	}
-	public function takeValue($variable_name, $default_value = null){
-		if ($variable_name == "op") return $this->op;
-		else if ($variable_name == "kind") return $this->kind;
-		else if ($variable_name == "options") return $this->options;
-		return parent::takeValue($variable_name, $default_value);
+	function takeValue($__ctx,$k,$d=null)
+	{
+		if ($k == "op")return $this->__op;
+		else if ($k == "name")return $this->__name;
+		else if ($k == "params")return $this->__params;
+		return parent::takeValue($__ctx,$k,$d);
 	}
-	public static function getFieldsList($names, $flag=0){
-		if (($flag | 3)==3){
-			$names->push("op");
-			$names->push("kind");
-			$names->push("options");
+	function getClassName()
+	{
+		return "Bayrell.Lang.OpCodes.OpAnnotation";
+	}
+	static function getCurrentNamespace()
+	{
+		return "Bayrell.Lang.OpCodes";
+	}
+	static function getCurrentClassName()
+	{
+		return "Bayrell.Lang.OpCodes.OpAnnotation";
+	}
+	static function getParentClassName()
+	{
+		return "Bayrell.Lang.OpCodes.BaseOpCode";
+	}
+	static function getClassInfo($__ctx)
+	{
+		return new \Runtime\Annotations\IntrospectionInfo($__ctx, [
+			"kind"=>\Runtime\Annotations\IntrospectionInfo::ITEM_CLASS,
+			"class_name"=>"Bayrell.Lang.OpCodes.OpAnnotation",
+			"name"=>"Bayrell.Lang.OpCodes.OpAnnotation",
+			"annotations"=>\Runtime\Collection::from([
+			]),
+		]);
+	}
+	static function getFieldsList($__ctx,$f)
+	{
+		$a = [];
+		if (($f|3)==3)
+		{
+			$a[] = "op";
+			$a[] = "name";
+			$a[] = "params";
 		}
+		return \Runtime\Collection::from($a);
 	}
-	public static function getFieldInfoByName($field_name){
+	static function getFieldInfoByName($__ctx,$field_name)
+	{
 		return null;
 	}
-	public static function getMethodsList($names){
+	static function getMethodsList($__ctx)
+	{
+		$a = [
+		];
+		return \Runtime\Collection::from($a);
 	}
-	public static function getMethodInfoByName($method_name){
+	static function getMethodInfoByName($__ctx,$field_name)
+	{
 		return null;
 	}
 }

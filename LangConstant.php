@@ -16,33 +16,56 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-namespace BayrellLang;
-use Runtime\rs;
-use Runtime\rtl;
-use Runtime\Map;
-use Runtime\Vector;
-use Runtime\Dict;
-use Runtime\Collection;
-use Runtime\IntrospectionInfo;
-use Runtime\UIStruct;
-use Runtime\RuntimeConstant;
-class LangConstant{
-	const ERROR_END_OF_THE_STRING_EXPECTED = RuntimeConstant::ERROR_MODULE_PARSER - 501;
-	const ERROR_PARSER_HEX_NUMBER_EXPECTED = RuntimeConstant::ERROR_MODULE_PARSER - 502;
-	const ERROR_TWICE_DECLARE_ERROR = RuntimeConstant::ERROR_MODULE_PARSER - 503;
+namespace Bayrell\Lang;
+class LangConstant
+{
+	const ERROR_PARSER=-1000;
+	const ERROR_PARSER_EOF=-1001;
+	const ERROR_PARSER_EXPECTED=-1002;
 	/* ======================= Class Init Functions ======================= */
-	public function getClassName(){return "BayrellLang.LangConstant";}
-	public static function getCurrentNamespace(){return "BayrellLang";}
-	public static function getCurrentClassName(){return "BayrellLang.LangConstant";}
-	public static function getParentClassName(){return "";}
-	public static function getFieldsList($names, $flag=0){
+	function getClassName()
+	{
+		return "Bayrell.Lang.LangConstant";
 	}
-	public static function getFieldInfoByName($field_name){
+	static function getCurrentNamespace()
+	{
+		return "Bayrell.Lang";
+	}
+	static function getCurrentClassName()
+	{
+		return "Bayrell.Lang.LangConstant";
+	}
+	static function getParentClassName()
+	{
+		return "";
+	}
+	static function getClassInfo($__ctx)
+	{
+		return new \Runtime\Annotations\IntrospectionInfo($__ctx, [
+			"kind"=>\Runtime\Annotations\IntrospectionInfo::ITEM_CLASS,
+			"class_name"=>"Bayrell.Lang.LangConstant",
+			"name"=>"Bayrell.Lang.LangConstant",
+			"annotations"=>\Runtime\Collection::from([
+			]),
+		]);
+	}
+	static function getFieldsList($__ctx,$f)
+	{
+		$a = [];
+		return \Runtime\Collection::from($a);
+	}
+	static function getFieldInfoByName($__ctx,$field_name)
+	{
 		return null;
 	}
-	public static function getMethodsList($names){
+	static function getMethodsList($__ctx)
+	{
+		$a = [
+		];
+		return \Runtime\Collection::from($a);
 	}
-	public static function getMethodInfoByName($method_name){
+	static function getMethodInfoByName($__ctx,$field_name)
+	{
 		return null;
 	}
 }

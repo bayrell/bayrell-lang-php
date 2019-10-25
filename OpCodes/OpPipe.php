@@ -1,8 +1,8 @@
 <?php
 /*!
- *  Bayrell Common Languages Transcompiler
+ *  Bayrell Language
  *
- *  (c) Copyright 2016-2018 "Ildar Bikmamatov" <support@bayrell.org>
+ *  (c) Copyright 2016-2019 "Ildar Bikmamatov" <support@bayrell.org>
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -16,72 +16,125 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-namespace BayrellLang\OpCodes;
-use Runtime\rs;
-use Runtime\rtl;
-use Runtime\Map;
-use Runtime\Vector;
-use Runtime\Dict;
-use Runtime\Collection;
-use Runtime\IntrospectionInfo;
-use Runtime\UIStruct;
-use BayrellLang\OpCodes\BaseOpCode;
-class OpPipe extends BaseOpCode{
-	protected $__op;
-	protected $__value;
-	protected $__items;
-	protected $__is_return_value;
+namespace Bayrell\Lang\OpCodes;
+class OpPipe extends \Bayrell\Lang\OpCodes\BaseOpCode
+{
+	const KIND_METHOD="method";
+	const KIND_LAMBDA="lambda";
+	public $__op;
+	public $__kind;
+	public $__class_name;
+	public $__method_name;
+	public $__obj;
+	public $__args;
+	public $__is_await;
+	public $__is_context;
 	/* ======================= Class Init Functions ======================= */
-	public function getClassName(){return "BayrellLang.OpCodes.OpPipe";}
-	public static function getCurrentNamespace(){return "BayrellLang.OpCodes";}
-	public static function getCurrentClassName(){return "BayrellLang.OpCodes.OpPipe";}
-	public static function getParentClassName(){return "BayrellLang.OpCodes.BaseOpCode";}
-	protected function _init(){
-		parent::_init();
+	function _init($__ctx)
+	{
+		parent::_init($__ctx);
 		$this->__op = "op_pipe";
-		$this->__value = null;
-		$this->__items = null;
-		$this->__is_return_value = false;
+		$this->__kind = "";
+		$this->__class_name = "";
+		$this->__method_name = "";
+		$this->__obj = null;
+		$this->__args = null;
+		$this->__is_await = false;
+		$this->__is_context = true;
 	}
-	public function assignObject($obj){
-		if ($obj instanceof OpPipe){
-			$this->__op = $obj->__op;
-			$this->__value = $obj->__value;
-			$this->__items = $obj->__items;
-			$this->__is_return_value = $obj->__is_return_value;
+	function assignObject($__ctx,$o)
+	{
+		if ($o instanceof \Bayrell\Lang\OpCodes\OpPipe)
+		{
+			$this->__op = $o->__op;
+			$this->__kind = $o->__kind;
+			$this->__class_name = $o->__class_name;
+			$this->__method_name = $o->__method_name;
+			$this->__obj = $o->__obj;
+			$this->__args = $o->__args;
+			$this->__is_await = $o->__is_await;
+			$this->__is_context = $o->__is_context;
 		}
-		parent::assignObject($obj);
+		parent::assignObject($__ctx,$o);
 	}
-	public function assignValue($variable_name, $value, $sender = null){
-		if ($variable_name == "op")$this->__op = rtl::convert($value,"string","op_pipe","");
-		else if ($variable_name == "value")$this->__value = rtl::convert($value,"BayrellLang.OpCodes.BaseOpCode",null,"");
-		else if ($variable_name == "items")$this->__items = rtl::convert($value,"Runtime.Vector",null,"BayrellLang.OpCodes.BaseOpCode");
-		else if ($variable_name == "is_return_value")$this->__is_return_value = rtl::convert($value,"bool",false,"");
-		else parent::assignValue($variable_name, $value, $sender);
+	function assignValue($__ctx,$k,$v)
+	{
+		if ($k == "op")$this->__op = $v;
+		else if ($k == "kind")$this->__kind = $v;
+		else if ($k == "class_name")$this->__class_name = $v;
+		else if ($k == "method_name")$this->__method_name = $v;
+		else if ($k == "obj")$this->__obj = $v;
+		else if ($k == "args")$this->__args = $v;
+		else if ($k == "is_await")$this->__is_await = $v;
+		else if ($k == "is_context")$this->__is_context = $v;
+		else parent::assignValue($__ctx,$k,$v);
 	}
-	public function takeValue($variable_name, $default_value = null){
-		if ($variable_name == "op") return $this->__op;
-		else if ($variable_name == "value") return $this->__value;
-		else if ($variable_name == "items") return $this->__items;
-		else if ($variable_name == "is_return_value") return $this->__is_return_value;
-		return parent::takeValue($variable_name, $default_value);
+	function takeValue($__ctx,$k,$d=null)
+	{
+		if ($k == "op")return $this->__op;
+		else if ($k == "kind")return $this->__kind;
+		else if ($k == "class_name")return $this->__class_name;
+		else if ($k == "method_name")return $this->__method_name;
+		else if ($k == "obj")return $this->__obj;
+		else if ($k == "args")return $this->__args;
+		else if ($k == "is_await")return $this->__is_await;
+		else if ($k == "is_context")return $this->__is_context;
+		return parent::takeValue($__ctx,$k,$d);
 	}
-	public static function getFieldsList($names, $flag=0){
-		if (($flag | 3)==3){
-			$names->push("op");
-			$names->push("value");
-			$names->push("items");
-			$names->push("is_return_value");
+	function getClassName()
+	{
+		return "Bayrell.Lang.OpCodes.OpPipe";
+	}
+	static function getCurrentNamespace()
+	{
+		return "Bayrell.Lang.OpCodes";
+	}
+	static function getCurrentClassName()
+	{
+		return "Bayrell.Lang.OpCodes.OpPipe";
+	}
+	static function getParentClassName()
+	{
+		return "Bayrell.Lang.OpCodes.BaseOpCode";
+	}
+	static function getClassInfo($__ctx)
+	{
+		return new \Runtime\Annotations\IntrospectionInfo($__ctx, [
+			"kind"=>\Runtime\Annotations\IntrospectionInfo::ITEM_CLASS,
+			"class_name"=>"Bayrell.Lang.OpCodes.OpPipe",
+			"name"=>"Bayrell.Lang.OpCodes.OpPipe",
+			"annotations"=>\Runtime\Collection::from([
+			]),
+		]);
+	}
+	static function getFieldsList($__ctx,$f)
+	{
+		$a = [];
+		if (($f|3)==3)
+		{
+			$a[] = "op";
+			$a[] = "kind";
+			$a[] = "class_name";
+			$a[] = "method_name";
+			$a[] = "obj";
+			$a[] = "args";
+			$a[] = "is_await";
+			$a[] = "is_context";
 		}
+		return \Runtime\Collection::from($a);
 	}
-	public static function getFieldInfoByName($field_name){
+	static function getFieldInfoByName($__ctx,$field_name)
+	{
 		return null;
 	}
-	public static function getMethodsList($names){
+	static function getMethodsList($__ctx)
+	{
+		$a = [
+		];
+		return \Runtime\Collection::from($a);
 	}
-	public static function getMethodInfoByName($method_name){
+	static function getMethodInfoByName($__ctx,$field_name)
+	{
 		return null;
 	}
-	public function __get($key){ return $this->takeValue($key); }
-	public function __set($key, $value){throw new \Runtime\Exceptions\AssignStructValueError($key);}
 }

@@ -1,8 +1,8 @@
 <?php
 /*!
- *  Bayrell Common Languages Transcompiler
+ *  Bayrell Language
  *
- *  (c) Copyright 2016-2018 "Ildar Bikmamatov" <support@bayrell.org>
+ *  (c) Copyright 2016-2019 "Ildar Bikmamatov" <support@bayrell.org>
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -16,656 +16,318 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-namespace BayrellLang;
-use Runtime\rs;
-use Runtime\rtl;
-use Runtime\Map;
-use Runtime\Vector;
-use Runtime\Dict;
-use Runtime\Collection;
-use Runtime\IntrospectionInfo;
-use Runtime\UIStruct;
-use Runtime\ContextObject;
-use BayrellLang\OpCodes\BaseOpCode;
-use BayrellLang\OpCodes\OpAdd;
-use BayrellLang\OpCodes\OpAnd;
-use BayrellLang\OpCodes\OpAssign;
-use BayrellLang\OpCodes\OpAssignDeclare;
-use BayrellLang\OpCodes\OpBitAnd;
-use BayrellLang\OpCodes\OpBitNot;
-use BayrellLang\OpCodes\OpBitOr;
-use BayrellLang\OpCodes\OpBitXor;
-use BayrellLang\OpCodes\OpBreak;
-use BayrellLang\OpCodes\OpCall;
-use BayrellLang\OpCodes\OpCallAwait;
-use BayrellLang\OpCodes\OpChilds;
-use BayrellLang\OpCodes\OpClassDeclare;
-use BayrellLang\OpCodes\OpClassName;
-use BayrellLang\OpCodes\OpClone;
-use BayrellLang\OpCodes\OpComment;
-use BayrellLang\OpCodes\OpCompare;
-use BayrellLang\OpCodes\OpConcat;
-use BayrellLang\OpCodes\OpContinue;
-use BayrellLang\OpCodes\OpDelete;
-use BayrellLang\OpCodes\OpDiv;
-use BayrellLang\OpCodes\OpDynamic;
-use BayrellLang\OpCodes\OpFlags;
-use BayrellLang\OpCodes\OpFor;
-use BayrellLang\OpCodes\OpFunctionArrowDeclare;
-use BayrellLang\OpCodes\OpFunctionDeclare;
-use BayrellLang\OpCodes\OpHexNumber;
-use BayrellLang\OpCodes\OpIdentifier;
-use BayrellLang\OpCodes\OpIf;
-use BayrellLang\OpCodes\OpIfElse;
-use BayrellLang\OpCodes\OpInterfaceDeclare;
-use BayrellLang\OpCodes\OpMap;
-use BayrellLang\OpCodes\OpMethod;
-use BayrellLang\OpCodes\OpMod;
-use BayrellLang\OpCodes\OpMult;
-use BayrellLang\OpCodes\OpNamespace;
-use BayrellLang\OpCodes\OpNew;
-use BayrellLang\OpCodes\OpNope;
-use BayrellLang\OpCodes\OpNot;
-use BayrellLang\OpCodes\OpNumber;
-use BayrellLang\OpCodes\OpOr;
-use BayrellLang\OpCodes\OpPostDec;
-use BayrellLang\OpCodes\OpPostInc;
-use BayrellLang\OpCodes\OpPow;
-use BayrellLang\OpCodes\OpPreDec;
-use BayrellLang\OpCodes\OpPreInc;
-use BayrellLang\OpCodes\OpPreprocessorSwitch;
-use BayrellLang\OpCodes\OpReturn;
-use BayrellLang\OpCodes\OpShiftLeft;
-use BayrellLang\OpCodes\OpShiftRight;
-use BayrellLang\OpCodes\OpStatic;
-use BayrellLang\OpCodes\OpString;
-use BayrellLang\OpCodes\OpStringItem;
-use BayrellLang\OpCodes\OpStructDeclare;
-use BayrellLang\OpCodes\OpSub;
-use BayrellLang\OpCodes\OpTemplateIdentifier;
-use BayrellLang\OpCodes\OpTernary;
-use BayrellLang\OpCodes\OpThrow;
-use BayrellLang\OpCodes\OpTryCatch;
-use BayrellLang\OpCodes\OpUse;
-use BayrellLang\OpCodes\OpVector;
-use BayrellLang\OpCodes\OpWhile;
-class CoreTranslator extends ContextObject{
-	public $is_operation_stack;
-	public $op_code_stack;
-	public $one_lines;
-	public $current_opcode_level;
-	public $max_opcode_level;
-	public $is_operation;
-	public $indent;
-	public $space;
-	public $crlf;
+namespace Bayrell\Lang;
+class CoreTranslator extends \Runtime\CoreStruct
+{
+	public $__current_namespace_name;
+	public $__current_class_name;
+	public $__current_class_full_name;
+	public $__current_class_extends_name;
+	public $__current_function;
+	public $__modules;
+	public $__vars;
+	public $__save_vars;
+	public $__save_op_codes;
+	public $__save_op_code_inc;
+	public $__is_static_function;
+	public $__is_operation;
+	public $__opcode_level;
+	public $__indent_level;
+	public $__indent;
+	public $__crlf;
+	public $__flag_struct_check_types;
+	public $__preprocessor_flags;
 	/**
-	 * Push new level
+	 * Find save op code
 	 */
-	function pushOneLine($level = true){
-		$this->one_lines->push($level);
+	function findSaveOpCode($__ctx, $op_code)
+	{
+		return $this->save_op_codes->findItem($__ctx, \Runtime\lib::equalAttr($__ctx, "op_code", $op_code));
 	}
 	/**
-	 * Pop level
+	 * Increment indent level
 	 */
-	function popOneLine(){
-		return $this->one_lines->pop();
+	function levelInc($__ctx)
+	{
+		return $this->copy($__ctx, \Runtime\Dict::from(["indent_level"=>$this->indent_level + 1]));
 	}
 	/**
-	 * Returns true if is one line
+	 * Decrease indent level
 	 */
-	function isOneLine(){
-		return $this->one_lines->last(false);
+	function levelDec($__ctx)
+	{
+		return $this->copy($__ctx, \Runtime\Dict::from(["indent_level"=>$this->indent_level - 1]));
 	}
 	/**
-	 * Begin operation
+	 * Output content with indent
 	 */
-	function beginOperation(){
-		$this->is_operation_stack->push($this->is_operation);
-		$this->is_operation = true;
-		$this->current_opcode_level = 0;
-		return $this->is_operation_stack->last(false);
-	}
-	/**
-	 * End operation
-	 */
-	function endOperation(){
-		if ($this->is_operation_stack->count() > 0){
-			$this->is_operation = $this->is_operation_stack->pop();
+	function s($__ctx, $s, $content=null)
+	{
+		if ($s == "")
+		{
+			return "";
 		}
-		else {
-			$this->is_operation = false;
-		}
-	}
-	/**
-	 * Returns true if is operation
-	 */
-	function isOperation(){
-		return $this->is_operation;
-	}
-	/**
-	 * Set max opcode level
-	 */
-	function setMaxOpCodeLevel(){
-		$this->current_opcode_level = $this->max_opcode_level;
-	}
-	/**
-	 * Set opcode level
-	 */
-	function setOpCodeLevel($opcode_level){
-		$this->current_opcode_level = $opcode_level;
-	}
-	/**
-	 * Output string witch brackets
-	 */
-	function o($s, $current_opcode_level){
-		if ($this->is_operation == false){
+		if ($content === "")
+		{
 			return $s;
 		}
-		if ($current_opcode_level > $this->current_opcode_level){
-			return "(" . rtl::toString($s) . ")";
+		return $this->crlf . \Runtime\rtl::toStr(\Runtime\rs::str_repeat($__ctx, $this->indent, $this->indent_level)) . \Runtime\rtl::toStr($s);
+	}
+	/**
+	 * Output content with opcode level
+	 */
+	function o($__ctx, $s, $opcode_level_in, $opcode_level_out)
+	{
+		if ($opcode_level_in < $opcode_level_out)
+		{
+			return "(" . \Runtime\rtl::toStr($s) . \Runtime\rtl::toStr(")");
 		}
 		return $s;
 	}
 	/**
-	 * Output operation
+	 * Translate BaseOpCode
 	 */
-	function op($op_code, $op, $opcode_level){
-		$res = "";
-		$res .= $this->o($this->translateRun($op_code->value1), $opcode_level);
-		$res .= " " . rtl::toString($op) . " ";
-		$res .= $this->o($this->translateRun($op_code->value2), $opcode_level);
-		$this->current_opcode_level = $opcode_level;
-		return $res;
-	}
-	/**
-	 * Output string witch levels
-	 */
-	function s($s){
-		if ($this->isOneLine()){
-			return $s;
-		}
-		$arr = rs::explode("\n", $s);
-		$arr = $arr->map(function ($item){
-			return rtl::toString($this->indent) . rtl::toString($item);
-		});
-		$s = rs::implode("\n", $arr);
-		return rtl::toString($s) . rtl::toString($this->crlf);
-	}
-	/**
-	 * Output string with new line
-	 */
-	function n($s){
-		if ($this->isOneLine()){
-			return $s;
-		}
-		return rtl::toString($s) . rtl::toString($this->crlf);
-	}
-	/**
-	 * Returns CRLF
-	 */
-	function getCRLF(){
-		if ($this->isOneLine()){
-			return "";
-		}
-		return $this->crlf;
-	}
-	function OpAdd($op_code){
-		return "";
-	}
-	function OpAnd($op_code){
-		return "";
-	}
-	function OpAssign($op_code){
-		return "";
-	}
-	function OpAssignDeclare($op_code){
-		return "";
-	}
-	function OpBitAnd($op_code){
-		return "";
-	}
-	function OpBitNot($op_code){
-		return "";
-	}
-	function OpBitOr($op_code){
-		return "";
-	}
-	function OpBitXor($op_code){
-		return "";
-	}
-	function OpBreak($op_code){
-		return "";
-	}
-	function OpCall($op_code){
-		return "";
-	}
-	function OpClassDeclare($op_code){
-		return "";
-	}
-	function OpClassName($op_code){
-		return "";
-	}
-	function OpClone($op_code){
-		return "";
-	}
-	function OpComment($op_code){
-		return "";
-	}
-	function OpCompare($op_code){
-		return "";
-	}
-	function OpConcat($op_code){
-		return "";
-	}
-	function OpContinue($op_code){
-		return "";
-	}
-	function OpDelete($op_code){
-		return "";
-	}
-	function OpDiv($op_code){
-		return "";
-	}
-	function OpDynamic($op_code){
-		return "";
-	}
-	function OpFlags($op_code){
-		return "";
-	}
-	function OpFor($op_code){
-		return "";
-	}
-	function OpFunctionArrowDeclare($op_code){
-		return "";
-	}
-	function OpFunctionDeclare($op_code){
-		return "";
-	}
-	function OpHexNumber($op_code){
-		return "";
-	}
-	function OpIdentifier($op_code){
-		return "";
-	}
-	function OpIf($op_code){
-		return "";
-	}
-	function OpInterfaceDeclare($op_code){
-		return "";
-	}
-	function OpMethod($op_code){
-		return "";
-	}
-	function OpMod($op_code){
-		return "";
-	}
-	function OpMult($op_code){
-		return "";
-	}
-	function OpNamespace($op_code){
-		return "";
-	}
-	function OpNew($op_code){
-		return "";
-	}
-	function OpNope($op_code){
-		return "";
-	}
-	function OpNot($op_code){
-		return "";
-	}
-	function OpNumber($op_code){
-		return "";
-	}
-	function OpOr($op_code){
-		return "";
-	}
-	function OpPostDec($op_code){
-		return "";
-	}
-	function OpPostInc($op_code){
-		return "";
-	}
-	function OpPow($op_code){
-		return "";
-	}
-	function OpPreDec($op_code){
-		return "";
-	}
-	function OpPreInc($op_code){
-		return "";
-	}
-	function OpPreprocessorSwitch($op_code){
-		return "";
-	}
-	function OpReturn($op_code){
-		return "";
-	}
-	function OpShiftLeft($op_code){
-		return "";
-	}
-	function OpShiftRight($op_code){
-		return "";
-	}
-	function OpStatic($op_code){
-		return "";
-	}
-	function OpString($op_code){
-		return "";
-	}
-	function OpStringItem($op_code){
-		return "";
-	}
-	function OpStructDeclare($op_code){
-		return "";
-	}
-	function OpSub($op_code){
-		return "";
-	}
-	function OpTemplateIdentifier($op_code){
-		return "";
-	}
-	function OpTernary($op_code){
-		return "";
-	}
-	function OpThrow($op_code){
-		return "";
-	}
-	function OpTryCatch($op_code){
-		return "";
-	}
-	function OpUse($op_code){
-		return "";
-	}
-	function OpWhile($op_code){
-		return "";
-	}
-	/* =========================== HTML OP Codes ========================== */
-	function OpHtmlJson($op_code){
-		return "";
-	}
-	function OpHtmlRaw($op_code){
-		return "";
-	}
-	function OpHtmlTag($op_code){
-		return "";
-	}
-	function OpHtmlView($op_code){
+	static function translate($__ctx, $t, $op_code)
+	{
 		return "";
 	}
 	/**
-	 * Translate to language
-	 * @param BaseOpCode op_code - Abstract syntax tree
-	 * @returns string - The result
+	 * Inc save op code
 	 */
-	function translateChilds($childs){
-		if ($childs == null){
-			return "";
+	static function nextSaveOpCode($__ctx, $t)
+	{
+		return "__v" . \Runtime\rtl::toStr($t->save_op_code_inc);
+	}
+	/**
+	 * Inc save op code
+	 */
+	static function incSaveOpCode($__ctx, $t)
+	{
+		$var_name = static::nextSaveOpCode($__ctx, $t);
+		$save_op_code_inc = $t->save_op_code_inc + 1;
+		$t = $t->copy($__ctx, \Runtime\Dict::from(["save_op_code_inc"=>$save_op_code_inc]));
+		return \Runtime\Collection::from([$t,$var_name]);
+	}
+	/**
+	 * Add save op code
+	 */
+	static function addSaveOpCode($__ctx, $t, $data)
+	{
+		$var_name = $data->get($__ctx, "var_name", "");
+		$content = $data->get($__ctx, "content", "");
+		$var_content = $data->get($__ctx, "var_content", "");
+		$save_op_code_inc = $t->save_op_code_inc;
+		if ($var_name == "")
+		{
+			$var_name = static::nextSaveOpCode($__ctx, $t);
+			$save_op_code_inc += 1;
 		}
-		$res = "";
-		$code_str = "";
-		$flag = true;
-		for ($i = 0; $i < $childs->count(); $i++){
-			$this->setOpCodeLevel(0);
-			$code_str = $this->translateRun($childs->item($i));
-			if ($code_str == ""){
+		$data = $data->setIm($__ctx, "var_name", $var_name);
+		$s = new \Bayrell\Lang\SaveOpCode($__ctx, $data);
+		$t = $t->copy($__ctx, \Runtime\Dict::from(["save_op_codes"=>$t->save_op_codes->pushIm($__ctx, $s),"save_op_code_inc"=>$save_op_code_inc]));
+		return \Runtime\Collection::from([$t,$var_name]);
+	}
+	/**
+	 * Clear save op code
+	 */
+	static function clearSaveOpCode($__ctx, $t)
+	{
+		$t = $t->copy($__ctx, ["save_op_codes"=>new \Runtime\Collection($__ctx)]);
+		$t = $t->copy($__ctx, ["save_op_code_inc"=>0]);
+		return $t;
+	}
+	/**
+	 * Output save op code content
+	 */
+	static function outputSaveOpCode($__ctx, $t, $save_op_code_value=0)
+	{
+		$content = "";
+		for ($i = 0;$i < $t->save_op_codes->count($__ctx);$i++)
+		{
+			if ($i < $save_op_code_value)
+			{
 				continue;
 			}
-			$res .= $this->n($code_str);
+			$save = $t->save_op_codes->item($__ctx, $i);
+			$s = ($save->content == "") ? $t->s($__ctx, "var " . \Runtime\rtl::toStr($save->var_name) . \Runtime\rtl::toStr(" = ") . \Runtime\rtl::toStr($save->var_content) . \Runtime\rtl::toStr(";")) : $save->content;
+			$content .= \Runtime\rtl::toStr($s);
 		}
-		return rs::trim($res);
+		return $content;
 	}
 	/**
-	 * Translate to language
-	 * @param BaseOpCode op_code - Abstract syntax tree
-	 * @returns string - The result
+	 * Call f and return result with save op codes
 	 */
-	function translateItem($op_code){
-		if ($op_code instanceof OpNope){
-			return $this->translateChilds($op_code->childs);
-		}
-		else if ($op_code instanceof OpInterfaceDeclare){
-			return $this->OpInterfaceDeclare($op_code);
-		}
-		else if ($op_code instanceof OpStructDeclare){
-			return $this->OpStructDeclare($op_code);
-		}
-		else if ($op_code instanceof OpAdd){
-			return $this->OpAdd($op_code);
-		}
-		else if ($op_code instanceof OpAnd){
-			return $this->OpAnd($op_code);
-		}
-		else if ($op_code instanceof OpAssign){
-			return $this->OpAssign($op_code);
-		}
-		else if ($op_code instanceof OpAssignDeclare){
-			return $this->OpAssignDeclare($op_code);
-		}
-		else if ($op_code instanceof OpBitAnd){
-			return $this->OpBitAnd($op_code);
-		}
-		else if ($op_code instanceof OpBitNot){
-			return $this->OpBitNot($op_code);
-		}
-		else if ($op_code instanceof OpBitOr){
-			return $this->OpBitOr($op_code);
-		}
-		else if ($op_code instanceof OpBitXor){
-			return $this->OpBitXor($op_code);
-		}
-		else if ($op_code instanceof OpBreak){
-			return $this->OpBreak($op_code);
-		}
-		else if ($op_code instanceof OpCall){
-			return $this->OpCall($op_code);
-		}
-		else if ($op_code instanceof OpClassDeclare){
-			return $this->OpClassDeclare($op_code);
-		}
-		else if ($op_code instanceof OpClassName){
-			return $this->OpClassName($op_code);
-		}
-		else if ($op_code instanceof OpClone){
-			return $this->OpClone($op_code);
-		}
-		else if ($op_code instanceof OpComment){
-			return $this->OpComment($op_code);
-		}
-		else if ($op_code instanceof OpCompare){
-			return $this->OpCompare($op_code);
-		}
-		else if ($op_code instanceof OpConcat){
-			return $this->OpConcat($op_code);
-		}
-		else if ($op_code instanceof OpContinue){
-			return $this->OpContinue($op_code);
-		}
-		else if ($op_code instanceof OpDelete){
-			return $this->OpDelete($op_code);
-		}
-		else if ($op_code instanceof OpDiv){
-			return $this->OpDiv($op_code);
-		}
-		else if ($op_code instanceof OpDynamic){
-			return $this->OpDynamic($op_code);
-		}
-		else if ($op_code instanceof OpFlags){
-			return $this->OpFlags($op_code);
-		}
-		else if ($op_code instanceof OpFor){
-			return $this->OpFor($op_code);
-		}
-		else if ($op_code instanceof OpFunctionArrowDeclare){
-			return $this->OpFunctionArrowDeclare($op_code);
-		}
-		else if ($op_code instanceof OpFunctionDeclare){
-			return $this->OpFunctionDeclare($op_code);
-		}
-		else if ($op_code instanceof OpHexNumber){
-			return $this->OpHexNumber($op_code);
-		}
-		else if ($op_code instanceof OpIdentifier){
-			return $this->OpIdentifier($op_code);
-		}
-		else if ($op_code instanceof OpMap){
-			return $this->OpMap($op_code);
-		}
-		else if ($op_code instanceof OpMethod){
-			return $this->OpMethod($op_code);
-		}
-		else if ($op_code instanceof OpIf){
-			return $this->OpIf($op_code);
-		}
-		else if ($op_code instanceof OpMod){
-			return $this->OpMod($op_code);
-		}
-		else if ($op_code instanceof OpMult){
-			return $this->OpMult($op_code);
-		}
-		else if ($op_code instanceof OpNamespace){
-			return $this->OpNamespace($op_code);
-		}
-		else if ($op_code instanceof OpNew){
-			return $this->OpNew($op_code);
-		}
-		else if ($op_code instanceof OpNope){
-			return $this->OpNope($op_code);
-		}
-		else if ($op_code instanceof OpNot){
-			return $this->OpNot($op_code);
-		}
-		else if ($op_code instanceof OpNumber){
-			return $this->OpNumber($op_code);
-		}
-		else if ($op_code instanceof OpOr){
-			return $this->OpOr($op_code);
-		}
-		else if ($op_code instanceof OpPostDec){
-			return $this->OpPostDec($op_code);
-		}
-		else if ($op_code instanceof OpPostInc){
-			return $this->OpPostInc($op_code);
-		}
-		else if ($op_code instanceof OpPow){
-			return $this->OpPow($op_code);
-		}
-		else if ($op_code instanceof OpPreDec){
-			return $this->OpPreDec($op_code);
-		}
-		else if ($op_code instanceof OpPreInc){
-			return $this->OpPreInc($op_code);
-		}
-		else if ($op_code instanceof OpPreprocessorSwitch){
-			return $this->OpPreprocessorSwitch($op_code);
-		}
-		else if ($op_code instanceof OpReturn){
-			return $this->OpReturn($op_code);
-		}
-		else if ($op_code instanceof OpShiftLeft){
-			return $this->OpShiftLeft($op_code);
-		}
-		else if ($op_code instanceof OpShiftRight){
-			return $this->OpShiftRight($op_code);
-		}
-		else if ($op_code instanceof OpStatic){
-			return $this->OpStatic($op_code);
-		}
-		else if ($op_code instanceof OpString){
-			return $this->OpString($op_code);
-		}
-		else if ($op_code instanceof OpStringItem){
-			return $this->OpStringItem($op_code);
-		}
-		else if ($op_code instanceof OpSub){
-			return $this->OpSub($op_code);
-		}
-		else if ($op_code instanceof OpTemplateIdentifier){
-			return $this->OpTemplateIdentifier($op_code);
-		}
-		else if ($op_code instanceof OpTernary){
-			return $this->OpTernary($op_code);
-		}
-		else if ($op_code instanceof OpThrow){
-			return $this->OpThrow($op_code);
-		}
-		else if ($op_code instanceof OpTryCatch){
-			return $this->OpTryCatch($op_code);
-		}
-		else if ($op_code instanceof OpUse){
-			return $this->OpUse($op_code);
-		}
-		else if ($op_code instanceof OpVector){
-			return $this->OpVector($op_code);
-		}
-		else if ($op_code instanceof OpWhile){
-			return $this->OpWhile($op_code);
-		}
-		else if ($op_code instanceof $OpHtmlJson){
-			return $this->OpHtmlJson($op_code);
-		}
-		else if ($op_code instanceof $OpHtmlRaw){
-			return $this->OpHtmlRaw($op_code);
-		}
-		else if ($op_code instanceof $OpHtmlTag){
-			return $this->OpHtmlTag($op_code);
-		}
-		else if ($op_code instanceof $OpHtmlText){
-			return $this->OpString($op_code);
-		}
-		else if ($op_code instanceof $OpHtmlView){
-			return $this->OpHtmlView($op_code);
-		}
-		return "";
-	}
-	/**
-	 * Translate to language
-	 * @param BaseOpCode op_code - Abstract syntax tree
-	 * @returns string - The result
-	 */
-	function translateRun($op_code){
-		$this->op_code_stack->push($op_code);
-		$res = $this->translateItem($op_code);
-		$this->op_code_stack->pop();
-		return $res;
-	}
-	/**
-	 * Reset translator to default settings
-	 */
-	function resetTranslator(){
-		$this->is_operation = false;
-		$this->current_opcode_level = 0;
-		$this->max_opcode_level = 100;
-		$this->is_operation_stack = new Vector();
-		$this->op_code_stack = new Vector();
-		$this->one_lines = new Vector();
-	}
-	/**
-	 * Translate to language
-	 * @param BaseOpCode op_code - Abstract syntax tree
-	 * @returns string - The result
-	 */
-	function translate($op_code){
-		$this->resetTranslator();
-		return $this->translateRun($op_code);
+	static function saveOpCodeCall($__ctx, $t, $f, $args)
+	{
+		/* Clear save op codes */
+		$save_op_codes = $t->save_op_codes;
+		$save_op_code_inc = $t->save_op_code_inc;
+		$res = \Runtime\rtl::apply($__ctx, $f, $args->unshiftIm($__ctx, $t));
+		$t = $res[0];
+		$value = $res[1];
+		/* Output save op code */
+		$save = $t->staticMethod("outputSaveOpCode")($__ctx, $t, $save_op_codes->count($__ctx));
+		/* Restore save op codes */
+		$t = $t->copy($__ctx, ["save_op_codes"=>$save_op_codes]);
+		$t = $t->copy($__ctx, ["save_op_code_inc"=>$save_op_code_inc]);
+		return \Runtime\Collection::from([$t,$save,$value]);
 	}
 	/* ======================= Class Init Functions ======================= */
-	public function getClassName(){return "BayrellLang.CoreTranslator";}
-	public static function getCurrentNamespace(){return "BayrellLang";}
-	public static function getCurrentClassName(){return "BayrellLang.CoreTranslator";}
-	public static function getParentClassName(){return "Runtime.ContextObject";}
-	protected function _init(){
-		parent::_init();
+	function _init($__ctx)
+	{
+		parent::_init($__ctx);
+		$this->__current_namespace_name = "";
+		$this->__current_class_name = "";
+		$this->__current_class_full_name = "";
+		$this->__current_class_extends_name = "";
+		$this->__current_function = null;
+		$this->__modules = null;
+		$this->__vars = null;
+		$this->__save_vars = null;
+		$this->__save_op_codes = null;
+		$this->__save_op_code_inc = 0;
+		$this->__is_static_function = false;
+		$this->__is_operation = false;
+		$this->__opcode_level = 0;
+		$this->__indent_level = 0;
+		$this->__indent = "\t";
+		$this->__crlf = "\n";
+		$this->__flag_struct_check_types = false;
+		$this->__preprocessor_flags = null;
 	}
-	public static function getFieldsList($names, $flag=0){
+	function assignObject($__ctx,$o)
+	{
+		if ($o instanceof \Bayrell\Lang\CoreTranslator)
+		{
+			$this->__current_namespace_name = $o->__current_namespace_name;
+			$this->__current_class_name = $o->__current_class_name;
+			$this->__current_class_full_name = $o->__current_class_full_name;
+			$this->__current_class_extends_name = $o->__current_class_extends_name;
+			$this->__current_function = $o->__current_function;
+			$this->__modules = $o->__modules;
+			$this->__vars = $o->__vars;
+			$this->__save_vars = $o->__save_vars;
+			$this->__save_op_codes = $o->__save_op_codes;
+			$this->__save_op_code_inc = $o->__save_op_code_inc;
+			$this->__is_static_function = $o->__is_static_function;
+			$this->__is_operation = $o->__is_operation;
+			$this->__opcode_level = $o->__opcode_level;
+			$this->__indent_level = $o->__indent_level;
+			$this->__indent = $o->__indent;
+			$this->__crlf = $o->__crlf;
+			$this->__flag_struct_check_types = $o->__flag_struct_check_types;
+			$this->__preprocessor_flags = $o->__preprocessor_flags;
+		}
+		parent::assignObject($__ctx,$o);
 	}
-	public static function getFieldInfoByName($field_name){
+	function assignValue($__ctx,$k,$v)
+	{
+		if ($k == "current_namespace_name")$this->__current_namespace_name = $v;
+		else if ($k == "current_class_name")$this->__current_class_name = $v;
+		else if ($k == "current_class_full_name")$this->__current_class_full_name = $v;
+		else if ($k == "current_class_extends_name")$this->__current_class_extends_name = $v;
+		else if ($k == "current_function")$this->__current_function = $v;
+		else if ($k == "modules")$this->__modules = $v;
+		else if ($k == "vars")$this->__vars = $v;
+		else if ($k == "save_vars")$this->__save_vars = $v;
+		else if ($k == "save_op_codes")$this->__save_op_codes = $v;
+		else if ($k == "save_op_code_inc")$this->__save_op_code_inc = $v;
+		else if ($k == "is_static_function")$this->__is_static_function = $v;
+		else if ($k == "is_operation")$this->__is_operation = $v;
+		else if ($k == "opcode_level")$this->__opcode_level = $v;
+		else if ($k == "indent_level")$this->__indent_level = $v;
+		else if ($k == "indent")$this->__indent = $v;
+		else if ($k == "crlf")$this->__crlf = $v;
+		else if ($k == "flag_struct_check_types")$this->__flag_struct_check_types = $v;
+		else if ($k == "preprocessor_flags")$this->__preprocessor_flags = $v;
+		else parent::assignValue($__ctx,$k,$v);
+	}
+	function takeValue($__ctx,$k,$d=null)
+	{
+		if ($k == "current_namespace_name")return $this->__current_namespace_name;
+		else if ($k == "current_class_name")return $this->__current_class_name;
+		else if ($k == "current_class_full_name")return $this->__current_class_full_name;
+		else if ($k == "current_class_extends_name")return $this->__current_class_extends_name;
+		else if ($k == "current_function")return $this->__current_function;
+		else if ($k == "modules")return $this->__modules;
+		else if ($k == "vars")return $this->__vars;
+		else if ($k == "save_vars")return $this->__save_vars;
+		else if ($k == "save_op_codes")return $this->__save_op_codes;
+		else if ($k == "save_op_code_inc")return $this->__save_op_code_inc;
+		else if ($k == "is_static_function")return $this->__is_static_function;
+		else if ($k == "is_operation")return $this->__is_operation;
+		else if ($k == "opcode_level")return $this->__opcode_level;
+		else if ($k == "indent_level")return $this->__indent_level;
+		else if ($k == "indent")return $this->__indent;
+		else if ($k == "crlf")return $this->__crlf;
+		else if ($k == "flag_struct_check_types")return $this->__flag_struct_check_types;
+		else if ($k == "preprocessor_flags")return $this->__preprocessor_flags;
+		return parent::takeValue($__ctx,$k,$d);
+	}
+	function getClassName()
+	{
+		return "Bayrell.Lang.CoreTranslator";
+	}
+	static function getCurrentNamespace()
+	{
+		return "Bayrell.Lang";
+	}
+	static function getCurrentClassName()
+	{
+		return "Bayrell.Lang.CoreTranslator";
+	}
+	static function getParentClassName()
+	{
+		return "Runtime.CoreStruct";
+	}
+	static function getClassInfo($__ctx)
+	{
+		return new \Runtime\Annotations\IntrospectionInfo($__ctx, [
+			"kind"=>\Runtime\Annotations\IntrospectionInfo::ITEM_CLASS,
+			"class_name"=>"Bayrell.Lang.CoreTranslator",
+			"name"=>"Bayrell.Lang.CoreTranslator",
+			"annotations"=>\Runtime\Collection::from([
+			]),
+		]);
+	}
+	static function getFieldsList($__ctx,$f)
+	{
+		$a = [];
+		if (($f|3)==3)
+		{
+			$a[] = "current_namespace_name";
+			$a[] = "current_class_name";
+			$a[] = "current_class_full_name";
+			$a[] = "current_class_extends_name";
+			$a[] = "current_function";
+			$a[] = "modules";
+			$a[] = "vars";
+			$a[] = "save_vars";
+			$a[] = "save_op_codes";
+			$a[] = "save_op_code_inc";
+			$a[] = "is_static_function";
+			$a[] = "is_operation";
+			$a[] = "opcode_level";
+			$a[] = "indent_level";
+			$a[] = "indent";
+			$a[] = "crlf";
+			$a[] = "flag_struct_check_types";
+			$a[] = "preprocessor_flags";
+		}
+		return \Runtime\Collection::from($a);
+	}
+	static function getFieldInfoByName($__ctx,$field_name)
+	{
 		return null;
 	}
-	public static function getMethodsList($names){
+	static function getMethodsList($__ctx)
+	{
+		$a = [
+		];
+		return \Runtime\Collection::from($a);
 	}
-	public static function getMethodInfoByName($method_name){
+	static function getMethodInfoByName($__ctx,$field_name)
+	{
 		return null;
 	}
 }

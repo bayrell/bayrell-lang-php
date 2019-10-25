@@ -1,8 +1,8 @@
 <?php
 /*!
- *  Bayrell Common Languages Transcompiler
+ *  Bayrell Language
  *
- *  (c) Copyright 2016-2018 "Ildar Bikmamatov" <support@bayrell.org>
+ *  (c) Copyright 2016-2019 "Ildar Bikmamatov" <support@bayrell.org>
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -16,88 +16,105 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-namespace BayrellLang\OpCodes;
-use Runtime\rs;
-use Runtime\rtl;
-use Runtime\Map;
-use Runtime\Vector;
-use Runtime\Dict;
-use Runtime\Collection;
-use Runtime\IntrospectionInfo;
-use Runtime\UIStruct;
-use BayrellLang\OpCodes\BaseOpCode;
-use BayrellLang\OpCodes\OpIfElse;
-class OpIf extends BaseOpCode{
-	public $op;
-	public $condition;
-	public $if_true;
-	public $if_false;
-	public $if_else;
-	/**
-	 * Constructor
-	 */
-	function __construct($condition = null, $if_true = null, $if_false = null, $if_else){
-		parent::__construct();
-		$this->condition = $condition;
-		$this->if_true = $if_true;
-		$this->if_false = $if_false;
-		$this->if_else = $if_else;
-	}
-	/**
-	 * Destructor
-	 */
-	function __destruct(){
-		parent::__destruct();
-	}
+namespace Bayrell\Lang\OpCodes;
+class OpIf extends \Bayrell\Lang\OpCodes\BaseOpCode
+{
+	public $__op;
+	public $__condition;
+	public $__if_true;
+	public $__if_false;
+	public $__if_else;
 	/* ======================= Class Init Functions ======================= */
-	public function getClassName(){return "BayrellLang.OpCodes.OpIf";}
-	public static function getCurrentNamespace(){return "BayrellLang.OpCodes";}
-	public static function getCurrentClassName(){return "BayrellLang.OpCodes.OpIf";}
-	public static function getParentClassName(){return "BayrellLang.OpCodes.BaseOpCode";}
-	protected function _init(){
-		parent::_init();
+	function _init($__ctx)
+	{
+		parent::_init($__ctx);
+		$this->__op = "op_if";
+		$this->__condition = null;
+		$this->__if_true = null;
+		$this->__if_false = null;
+		$this->__if_else = null;
 	}
-	public function assignObject($obj){
-		if ($obj instanceof OpIf){
-			$this->op = rtl::_clone($obj->op);
-			$this->condition = rtl::_clone($obj->condition);
-			$this->if_true = rtl::_clone($obj->if_true);
-			$this->if_false = rtl::_clone($obj->if_false);
-			$this->if_else = rtl::_clone($obj->if_else);
+	function assignObject($__ctx,$o)
+	{
+		if ($o instanceof \Bayrell\Lang\OpCodes\OpIf)
+		{
+			$this->__op = $o->__op;
+			$this->__condition = $o->__condition;
+			$this->__if_true = $o->__if_true;
+			$this->__if_false = $o->__if_false;
+			$this->__if_else = $o->__if_else;
 		}
-		parent::assignObject($obj);
+		parent::assignObject($__ctx,$o);
 	}
-	public function assignValue($variable_name, $value, $sender = null){
-		if ($variable_name == "op")$this->op = rtl::convert($value,"string","op_if","");
-		else if ($variable_name == "condition")$this->condition = rtl::convert($value,"BayrellLang.OpCodes.BaseOpCode",null,"");
-		else if ($variable_name == "if_true")$this->if_true = rtl::convert($value,"Runtime.Vector",null,"BayrellLang.OpCodes.BaseOpCode");
-		else if ($variable_name == "if_false")$this->if_false = rtl::convert($value,"Runtime.Vector",null,"BayrellLang.OpCodes.BaseOpCode");
-		else if ($variable_name == "if_else")$this->if_else = rtl::convert($value,"Runtime.Vector",null,"BayrellLang.OpCodes.OpIfElse");
-		else parent::assignValue($variable_name, $value, $sender);
+	function assignValue($__ctx,$k,$v)
+	{
+		if ($k == "op")$this->__op = $v;
+		else if ($k == "condition")$this->__condition = $v;
+		else if ($k == "if_true")$this->__if_true = $v;
+		else if ($k == "if_false")$this->__if_false = $v;
+		else if ($k == "if_else")$this->__if_else = $v;
+		else parent::assignValue($__ctx,$k,$v);
 	}
-	public function takeValue($variable_name, $default_value = null){
-		if ($variable_name == "op") return $this->op;
-		else if ($variable_name == "condition") return $this->condition;
-		else if ($variable_name == "if_true") return $this->if_true;
-		else if ($variable_name == "if_false") return $this->if_false;
-		else if ($variable_name == "if_else") return $this->if_else;
-		return parent::takeValue($variable_name, $default_value);
+	function takeValue($__ctx,$k,$d=null)
+	{
+		if ($k == "op")return $this->__op;
+		else if ($k == "condition")return $this->__condition;
+		else if ($k == "if_true")return $this->__if_true;
+		else if ($k == "if_false")return $this->__if_false;
+		else if ($k == "if_else")return $this->__if_else;
+		return parent::takeValue($__ctx,$k,$d);
 	}
-	public static function getFieldsList($names, $flag=0){
-		if (($flag | 3)==3){
-			$names->push("op");
-			$names->push("condition");
-			$names->push("if_true");
-			$names->push("if_false");
-			$names->push("if_else");
+	function getClassName()
+	{
+		return "Bayrell.Lang.OpCodes.OpIf";
+	}
+	static function getCurrentNamespace()
+	{
+		return "Bayrell.Lang.OpCodes";
+	}
+	static function getCurrentClassName()
+	{
+		return "Bayrell.Lang.OpCodes.OpIf";
+	}
+	static function getParentClassName()
+	{
+		return "Bayrell.Lang.OpCodes.BaseOpCode";
+	}
+	static function getClassInfo($__ctx)
+	{
+		return new \Runtime\Annotations\IntrospectionInfo($__ctx, [
+			"kind"=>\Runtime\Annotations\IntrospectionInfo::ITEM_CLASS,
+			"class_name"=>"Bayrell.Lang.OpCodes.OpIf",
+			"name"=>"Bayrell.Lang.OpCodes.OpIf",
+			"annotations"=>\Runtime\Collection::from([
+			]),
+		]);
+	}
+	static function getFieldsList($__ctx,$f)
+	{
+		$a = [];
+		if (($f|3)==3)
+		{
+			$a[] = "op";
+			$a[] = "condition";
+			$a[] = "if_true";
+			$a[] = "if_false";
+			$a[] = "if_else";
 		}
+		return \Runtime\Collection::from($a);
 	}
-	public static function getFieldInfoByName($field_name){
+	static function getFieldInfoByName($__ctx,$field_name)
+	{
 		return null;
 	}
-	public static function getMethodsList($names){
+	static function getMethodsList($__ctx)
+	{
+		$a = [
+		];
+		return \Runtime\Collection::from($a);
 	}
-	public static function getMethodInfoByName($method_name){
+	static function getMethodInfoByName($__ctx,$field_name)
+	{
 		return null;
 	}
 }

@@ -2,7 +2,7 @@
 	"name": "bayrell/lang",
 	"type": "library",
 	"description": "Bayrell Language",
-	"version": "0.7.3",
+	"version": "0.8.0-alpha.9",
 	"license": "Apache-2.0",
 	"authors": [
 		{
@@ -11,7 +11,7 @@
 		}
 	],
 	"autoload": {
-		"psr-4": { "BayrellLang\\": "" }
+		"psr-4": { "Bayrell\\Lang\\": "" }
 	},
 	"require": {
 	}

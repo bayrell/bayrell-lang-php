@@ -1,6 +1,6 @@
 <?php
 /*!
- *  Bayrell Common Languages Transcompiler
+ *  Bayrell Language
  *
  *  (c) Copyright 2016-2018 "Ildar Bikmamatov" <support@bayrell.org>
  *
@@ -16,121 +16,111 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-namespace BayrellLang\OpCodes;
-use Runtime\rs;
-use Runtime\rtl;
-use Runtime\Map;
-use Runtime\Vector;
-use Runtime\Dict;
-use Runtime\Collection;
-use Runtime\IntrospectionInfo;
-use Runtime\UIStruct;
-use BayrellLang\OpCodes\BaseOpCode;
-use BayrellLang\OpCodes\OpHtmlAttribute;
-class OpHtmlTag extends BaseOpCode{
-	public $op;
-	public $tag_name;
-	public $attributes;
-	public $spreads;
-	public $childs;
-	public $is_plain;
-	/**
-	 * Find attribute by attr_name
-	 * @param string attr_name
-	 * @return OpHtmlAttribute
-	 */
-	function findAttribute($attr_name){
-		if ($this->attributes == null){
-			return null;
-		}
-		for ($i = 0; $i < $this->attributes->count(); $i++){
-			$item = $this->attributes->item($i);
-			if ($item->key == $attr_name){
-				return $item;
-			}
-		}
-		return null;
-	}
-	/**
-	 * Remove attribute by attr_name
-	 * @param string attr_name
-	 */
-	function removeAttribute($attr_name){
-		$this->attributes = $this->attributes->filter(function ($item) use (&$attr_name){
-			return $item->key != $attr_name;
-		});
-	}
-	/**
-	 * Set attribute by attr_name
-	 * @param string attr_name
-	 * @param mixed value
-	 */
-	function setAttribute($attr_name, $value){
-		if ($this->attributes == null){
-			return ;
-		}
-		for ($i = 0; $i < $this->attributes->count(); $i++){
-			$item = $this->attributes->item($i);
-			if ($item->key == $attr_name){
-				$item->value = $value;
-				return ;
-			}
-		}
-		$this->attributes->push(new OpHtmlAttribute((new Map())->set("key", $attr_name)->set("value", $value)));
-	}
+namespace Bayrell\Lang\OpCodes;
+class OpHtmlTag extends \Bayrell\Lang\OpCodes\BaseOpCode
+{
+	public $__op;
+	public $__tag_name;
+	public $__op_code_name;
+	public $__attrs;
+	public $__spreads;
+	public $__items;
 	/* ======================= Class Init Functions ======================= */
-	public function getClassName(){return "BayrellLang.OpCodes.OpHtmlTag";}
-	public static function getCurrentNamespace(){return "BayrellLang.OpCodes";}
-	public static function getCurrentClassName(){return "BayrellLang.OpCodes.OpHtmlTag";}
-	public static function getParentClassName(){return "BayrellLang.OpCodes.BaseOpCode";}
-	protected function _init(){
-		parent::_init();
+	function _init($__ctx)
+	{
+		parent::_init($__ctx);
+		$this->__op = "op_html_tag";
+		$this->__tag_name = "";
+		$this->__op_code_name = null;
+		$this->__attrs = null;
+		$this->__spreads = null;
+		$this->__items = null;
 	}
-	public function assignObject($obj){
-		if ($obj instanceof OpHtmlTag){
-			$this->op = rtl::_clone($obj->op);
-			$this->tag_name = rtl::_clone($obj->tag_name);
-			$this->attributes = rtl::_clone($obj->attributes);
-			$this->spreads = rtl::_clone($obj->spreads);
-			$this->childs = rtl::_clone($obj->childs);
-			$this->is_plain = rtl::_clone($obj->is_plain);
+	function assignObject($__ctx,$o)
+	{
+		if ($o instanceof \Bayrell\Lang\OpCodes\OpHtmlTag)
+		{
+			$this->__op = $o->__op;
+			$this->__tag_name = $o->__tag_name;
+			$this->__op_code_name = $o->__op_code_name;
+			$this->__attrs = $o->__attrs;
+			$this->__spreads = $o->__spreads;
+			$this->__items = $o->__items;
 		}
-		parent::assignObject($obj);
+		parent::assignObject($__ctx,$o);
 	}
-	public function assignValue($variable_name, $value, $sender = null){
-		if ($variable_name == "op")$this->op = rtl::convert($value,"string","op_html_tag","");
-		else if ($variable_name == "tag_name")$this->tag_name = rtl::convert($value,"string","","");
-		else if ($variable_name == "attributes")$this->attributes = rtl::convert($value,"Runtime.Vector",null,"BayrellLang.OpCodes.OpHtmlAttribute");
-		else if ($variable_name == "spreads")$this->spreads = rtl::convert($value,"Runtime.Vector",null,"mixed");
-		else if ($variable_name == "childs")$this->childs = rtl::convert($value,"Runtime.Vector",null,"BayrellLang.OpCodes.BaseOpCode");
-		else if ($variable_name == "is_plain")$this->is_plain = rtl::convert($value,"bool",false,"");
-		else parent::assignValue($variable_name, $value, $sender);
+	function assignValue($__ctx,$k,$v)
+	{
+		if ($k == "op")$this->__op = $v;
+		else if ($k == "tag_name")$this->__tag_name = $v;
+		else if ($k == "op_code_name")$this->__op_code_name = $v;
+		else if ($k == "attrs")$this->__attrs = $v;
+		else if ($k == "spreads")$this->__spreads = $v;
+		else if ($k == "items")$this->__items = $v;
+		else parent::assignValue($__ctx,$k,$v);
 	}
-	public function takeValue($variable_name, $default_value = null){
-		if ($variable_name == "op") return $this->op;
-		else if ($variable_name == "tag_name") return $this->tag_name;
-		else if ($variable_name == "attributes") return $this->attributes;
-		else if ($variable_name == "spreads") return $this->spreads;
-		else if ($variable_name == "childs") return $this->childs;
-		else if ($variable_name == "is_plain") return $this->is_plain;
-		return parent::takeValue($variable_name, $default_value);
+	function takeValue($__ctx,$k,$d=null)
+	{
+		if ($k == "op")return $this->__op;
+		else if ($k == "tag_name")return $this->__tag_name;
+		else if ($k == "op_code_name")return $this->__op_code_name;
+		else if ($k == "attrs")return $this->__attrs;
+		else if ($k == "spreads")return $this->__spreads;
+		else if ($k == "items")return $this->__items;
+		return parent::takeValue($__ctx,$k,$d);
 	}
-	public static function getFieldsList($names, $flag=0){
-		if (($flag | 3)==3){
-			$names->push("op");
-			$names->push("tag_name");
-			$names->push("attributes");
-			$names->push("spreads");
-			$names->push("childs");
-			$names->push("is_plain");
+	function getClassName()
+	{
+		return "Bayrell.Lang.OpCodes.OpHtmlTag";
+	}
+	static function getCurrentNamespace()
+	{
+		return "Bayrell.Lang.OpCodes";
+	}
+	static function getCurrentClassName()
+	{
+		return "Bayrell.Lang.OpCodes.OpHtmlTag";
+	}
+	static function getParentClassName()
+	{
+		return "Bayrell.Lang.OpCodes.BaseOpCode";
+	}
+	static function getClassInfo($__ctx)
+	{
+		return new \Runtime\Annotations\IntrospectionInfo($__ctx, [
+			"kind"=>\Runtime\Annotations\IntrospectionInfo::ITEM_CLASS,
+			"class_name"=>"Bayrell.Lang.OpCodes.OpHtmlTag",
+			"name"=>"Bayrell.Lang.OpCodes.OpHtmlTag",
+			"annotations"=>\Runtime\Collection::from([
+			]),
+		]);
+	}
+	static function getFieldsList($__ctx,$f)
+	{
+		$a = [];
+		if (($f|3)==3)
+		{
+			$a[] = "op";
+			$a[] = "tag_name";
+			$a[] = "op_code_name";
+			$a[] = "attrs";
+			$a[] = "spreads";
+			$a[] = "items";
 		}
+		return \Runtime\Collection::from($a);
 	}
-	public static function getFieldInfoByName($field_name){
+	static function getFieldInfoByName($__ctx,$field_name)
+	{
 		return null;
 	}
-	public static function getMethodsList($names){
+	static function getMethodsList($__ctx)
+	{
+		$a = [
+		];
+		return \Runtime\Collection::from($a);
 	}
-	public static function getMethodInfoByName($method_name){
+	static function getMethodInfoByName($__ctx,$field_name)
+	{
 		return null;
 	}
 }

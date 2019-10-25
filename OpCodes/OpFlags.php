@@ -1,6 +1,6 @@
 <?php
 /*!
- *  Bayrell Common Languages Transcompiler
+ *  Bayrell Language
  *
  *  (c) Copyright 2016-2018 "Ildar Bikmamatov" <support@bayrell.org>
  *
@@ -16,197 +16,182 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-namespace BayrellLang\OpCodes;
-use Runtime\rs;
-use Runtime\rtl;
-use Runtime\Map;
-use Runtime\Vector;
-use Runtime\Dict;
-use Runtime\Collection;
-use Runtime\IntrospectionInfo;
-use Runtime\UIStruct;
-use BayrellLang\OpCodes\BaseOpCode;
-class OpFlags extends BaseOpCode{
-	public $op;
-	public $p_async;
-	public $p_export;
-	public $p_static;
-	public $p_const;
-	public $p_public;
-	public $p_private;
-	public $p_protected;
-	public $p_declare;
-	public $p_serializable;
-	public $p_cloneable;
-	public $p_assignable;
-	public $p_memorize;
-	public $p_lambda;
+namespace Bayrell\Lang\OpCodes;
+class OpFlags extends \Runtime\CoreStruct
+{
+	public $__p_async;
+	public $__p_export;
+	public $__p_static;
+	public $__p_const;
+	public $__p_public;
+	public $__p_private;
+	public $__p_protected;
+	public $__p_declare;
+	public $__p_serializable;
+	public $__p_cloneable;
+	public $__p_assignable;
+	public $__p_memorize;
+	public $__p_lambda;
 	/**
 	 * Read is Flag
 	 */
-	function isFlag($name){
-		if (!OpFlags::hasFlag($name)){
+	function isFlag($__ctx, $name)
+	{
+		if (!\Bayrell\Lang\OpCodes\OpFlags::hasFlag($__ctx, $name))
+		{
 			return false;
 		}
-		return $this->takeValue($name);
-	}
-	/**
-	 * Returns name of variables to serialization
-	 * @return Vector<string>
-	 */
-	function getVariablesNames($names){
-		parent::getVariablesNames($names);
-		$names->push("async");
-		$names->push("export");
-		$names->push("static");
-		$names->push("const");
-		$names->push("public");
-		$names->push("private");
-		$names->push("declare");
-		$names->push("protected");
-		$names->push("serializable");
-		$names->push("cloneable");
-		$names->push("assignable");
-		$names->push("memorize");
-		$names->push("lambda");
-	}
-	/**
-	 * Returns instance of the value by variable name
-	 * @param string variable_name
-	 * @return var
-	 */
-	function takeValue($variable_name, $default_value = null){
-		if ($variable_name == "async"){
-			return $this->p_async;
-		}
-		else if ($variable_name == "export"){
-			return $this->p_export;
-		}
-		else if ($variable_name == "static"){
-			return $this->p_static;
-		}
-		else if ($variable_name == "const"){
-			return $this->p_const;
-		}
-		else if ($variable_name == "public"){
-			return $this->p_public;
-		}
-		else if ($variable_name == "private"){
-			return $this->p_private;
-		}
-		else if ($variable_name == "declare"){
-			return $this->p_declare;
-		}
-		else if ($variable_name == "protected"){
-			return $this->p_protected;
-		}
-		else if ($variable_name == "serializable"){
-			return $this->p_serializable;
-		}
-		else if ($variable_name == "cloneable"){
-			return $this->p_cloneable;
-		}
-		else if ($variable_name == "assignable"){
-			return $this->p_assignable;
-		}
-		else if ($variable_name == "memorize"){
-			return $this->p_memorize;
-		}
-		else if ($variable_name == "lambda"){
-			return $this->p_lambda;
-		}
-		return parent::takeValue($variable_name, $default_value);
-	}
-	/**
-	 * Set new value instance by variable name
-	 * @param string variable_name
-	 * @param var value
-	 */
-	function assignValue($variable_name, $value){
-		if ($variable_name == "async"){
-			$this->p_async = $value;
-		}
-		else if ($variable_name == "export"){
-			$this->p_export = $value;
-		}
-		else if ($variable_name == "static"){
-			$this->p_static = $value;
-		}
-		else if ($variable_name == "const"){
-			$this->p_const = $value;
-		}
-		else if ($variable_name == "public"){
-			$this->p_public = $value;
-		}
-		else if ($variable_name == "private"){
-			$this->p_private = $value;
-		}
-		else if ($variable_name == "declare"){
-			$this->p_declare = $value;
-		}
-		else if ($variable_name == "protected"){
-			$this->p_protected = $value;
-		}
-		else if ($variable_name == "serializable"){
-			$this->p_serializable = $value;
-		}
-		else if ($variable_name == "cloneable"){
-			$this->p_cloneable = $value;
-		}
-		else if ($variable_name == "assignable"){
-			$this->p_assignable = $value;
-		}
-		else if ($variable_name == "memorize"){
-			$this->p_memorize = $value;
-		}
-		else if ($variable_name == "lambda"){
-			$this->p_lambda = $value;
-		}
-		else {
-			parent::assignValue($variable_name, $value);
-		}
-	}
-	/**
-	 * Assign flag
-	 */
-	function assignFlag($flag_name){
-		if ((new \Runtime\Callback(self::class, "hasFlag"))($flag_name)){
-			$this->assignValue($flag_name, true);
-			return true;
-		}
-		return false;
+		return $this->takeValue($__ctx, "p_" . \Runtime\rtl::toStr($name));
 	}
 	/**
 	 * Get flags
 	 */
-	static function getFlags(){
-		return (new Vector())->push("async")->push("export")->push("static")->push("const")->push("public")->push("private")->push("declare")->push("protected")->push("serializable")->push("cloneable")->push("assignable")->push("memorize")->push("lambda");
+	static function getFlags($__ctx)
+	{
+		return \Runtime\Collection::from(["async","export","static","const","public","private","declare","protected","serializable","cloneable","assignable","memorize","lambda"]);
 	}
 	/**
 	 * Get flags
 	 */
-	static function hasFlag($flag_name){
-		if ($flag_name == "async" || $flag_name == "export" || $flag_name == "static" || $flag_name == "const" || $flag_name == "public" || $flag_name == "private" || $flag_name == "declare" || $flag_name == "protected" || $flag_name == "serializable" || $flag_name == "cloneable" || $flag_name == "assignable" || $flag_name == "memorize" || $flag_name == "lambda"){
+	static function hasFlag($__ctx, $flag_name)
+	{
+		if ($flag_name == "async" || $flag_name == "export" || $flag_name == "static" || $flag_name == "const" || $flag_name == "public" || $flag_name == "private" || $flag_name == "declare" || $flag_name == "protected" || $flag_name == "serializable" || $flag_name == "cloneable" || $flag_name == "assignable" || $flag_name == "memorize" || $flag_name == "lambda")
+		{
 			return true;
 		}
 		return false;
 	}
 	/* ======================= Class Init Functions ======================= */
-	public function getClassName(){return "BayrellLang.OpCodes.OpFlags";}
-	public static function getCurrentNamespace(){return "BayrellLang.OpCodes";}
-	public static function getCurrentClassName(){return "BayrellLang.OpCodes.OpFlags";}
-	public static function getParentClassName(){return "BayrellLang.OpCodes.BaseOpCode";}
-	protected function _init(){
-		parent::_init();
+	function _init($__ctx)
+	{
+		parent::_init($__ctx);
+		$this->__p_async = false;
+		$this->__p_export = false;
+		$this->__p_static = false;
+		$this->__p_const = false;
+		$this->__p_public = false;
+		$this->__p_private = false;
+		$this->__p_protected = false;
+		$this->__p_declare = false;
+		$this->__p_serializable = false;
+		$this->__p_cloneable = false;
+		$this->__p_assignable = false;
+		$this->__p_memorize = false;
+		$this->__p_lambda = false;
 	}
-	public static function getFieldsList($names, $flag=0){
+	function assignObject($__ctx,$o)
+	{
+		if ($o instanceof \Bayrell\Lang\OpCodes\OpFlags)
+		{
+			$this->__p_async = $o->__p_async;
+			$this->__p_export = $o->__p_export;
+			$this->__p_static = $o->__p_static;
+			$this->__p_const = $o->__p_const;
+			$this->__p_public = $o->__p_public;
+			$this->__p_private = $o->__p_private;
+			$this->__p_protected = $o->__p_protected;
+			$this->__p_declare = $o->__p_declare;
+			$this->__p_serializable = $o->__p_serializable;
+			$this->__p_cloneable = $o->__p_cloneable;
+			$this->__p_assignable = $o->__p_assignable;
+			$this->__p_memorize = $o->__p_memorize;
+			$this->__p_lambda = $o->__p_lambda;
+		}
+		parent::assignObject($__ctx,$o);
 	}
-	public static function getFieldInfoByName($field_name){
+	function assignValue($__ctx,$k,$v)
+	{
+		if ($k == "p_async")$this->__p_async = $v;
+		else if ($k == "p_export")$this->__p_export = $v;
+		else if ($k == "p_static")$this->__p_static = $v;
+		else if ($k == "p_const")$this->__p_const = $v;
+		else if ($k == "p_public")$this->__p_public = $v;
+		else if ($k == "p_private")$this->__p_private = $v;
+		else if ($k == "p_protected")$this->__p_protected = $v;
+		else if ($k == "p_declare")$this->__p_declare = $v;
+		else if ($k == "p_serializable")$this->__p_serializable = $v;
+		else if ($k == "p_cloneable")$this->__p_cloneable = $v;
+		else if ($k == "p_assignable")$this->__p_assignable = $v;
+		else if ($k == "p_memorize")$this->__p_memorize = $v;
+		else if ($k == "p_lambda")$this->__p_lambda = $v;
+		else parent::assignValue($__ctx,$k,$v);
+	}
+	function takeValue($__ctx,$k,$d=null)
+	{
+		if ($k == "p_async")return $this->__p_async;
+		else if ($k == "p_export")return $this->__p_export;
+		else if ($k == "p_static")return $this->__p_static;
+		else if ($k == "p_const")return $this->__p_const;
+		else if ($k == "p_public")return $this->__p_public;
+		else if ($k == "p_private")return $this->__p_private;
+		else if ($k == "p_protected")return $this->__p_protected;
+		else if ($k == "p_declare")return $this->__p_declare;
+		else if ($k == "p_serializable")return $this->__p_serializable;
+		else if ($k == "p_cloneable")return $this->__p_cloneable;
+		else if ($k == "p_assignable")return $this->__p_assignable;
+		else if ($k == "p_memorize")return $this->__p_memorize;
+		else if ($k == "p_lambda")return $this->__p_lambda;
+		return parent::takeValue($__ctx,$k,$d);
+	}
+	function getClassName()
+	{
+		return "Bayrell.Lang.OpCodes.OpFlags";
+	}
+	static function getCurrentNamespace()
+	{
+		return "Bayrell.Lang.OpCodes";
+	}
+	static function getCurrentClassName()
+	{
+		return "Bayrell.Lang.OpCodes.OpFlags";
+	}
+	static function getParentClassName()
+	{
+		return "Runtime.CoreStruct";
+	}
+	static function getClassInfo($__ctx)
+	{
+		return new \Runtime\Annotations\IntrospectionInfo($__ctx, [
+			"kind"=>\Runtime\Annotations\IntrospectionInfo::ITEM_CLASS,
+			"class_name"=>"Bayrell.Lang.OpCodes.OpFlags",
+			"name"=>"Bayrell.Lang.OpCodes.OpFlags",
+			"annotations"=>\Runtime\Collection::from([
+			]),
+		]);
+	}
+	static function getFieldsList($__ctx,$f)
+	{
+		$a = [];
+		if (($f|3)==3)
+		{
+			$a[] = "p_async";
+			$a[] = "p_export";
+			$a[] = "p_static";
+			$a[] = "p_const";
+			$a[] = "p_public";
+			$a[] = "p_private";
+			$a[] = "p_protected";
+			$a[] = "p_declare";
+			$a[] = "p_serializable";
+			$a[] = "p_cloneable";
+			$a[] = "p_assignable";
+			$a[] = "p_memorize";
+			$a[] = "p_lambda";
+		}
+		return \Runtime\Collection::from($a);
+	}
+	static function getFieldInfoByName($__ctx,$field_name)
+	{
 		return null;
 	}
-	public static function getMethodsList($names){
+	static function getMethodsList($__ctx)
+	{
+		$a = [
+		];
+		return \Runtime\Collection::from($a);
 	}
-	public static function getMethodInfoByName($method_name){
+	static function getMethodInfoByName($__ctx,$field_name)
+	{
 		return null;
 	}
 }
