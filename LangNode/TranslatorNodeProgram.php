@@ -2,7 +2,7 @@
 /*!
  *  Bayrell Language
  *
- *  (c) Copyright 2016-2019 "Ildar Bikmamatov" <support@bayrell.org>
+ *  (c) Copyright 2016-2020 "Ildar Bikmamatov" <support@bayrell.org>
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -22,29 +22,29 @@ class TranslatorNodeProgram extends \Bayrell\Lang\LangES6\TranslatorES6Program
 	/**
 	 * Translate program
 	 */
-	static function translateProgramHeader($__ctx, $t, $op_code)
+	static function translateProgramHeader($ctx, $t, $op_code)
 	{
 		$content = "\"use strict;\"";
-		$content .= \Runtime\rtl::toStr($t->s($__ctx, "var use = require('bayrell').use;"));
+		$content .= \Runtime\rtl::toStr($t->s($ctx, "var use = require('bayrell').use;"));
 		return \Runtime\Collection::from([$t,$content]);
 	}
 	/**
 	 * OpDeclareClassFooter
 	 */
-	static function OpDeclareClassFooter($__ctx, $t, $op_code)
+	static function OpDeclareClassFooter($ctx, $t, $op_code)
 	{
 		$content = "";
 		$name = "";
 		$content .= \Runtime\rtl::toStr("use.add(" . \Runtime\rtl::toStr($t->current_class_full_name) . \Runtime\rtl::toStr(");"));
-		$content .= \Runtime\rtl::toStr($t->s($__ctx, "if (module.exports == undefined) module.exports = {};"));
-		$arr = \Runtime\rs::split($__ctx, "\\.", $t->current_namespace_name);
-		for ($i = 0;$i < $arr->count($__ctx);$i++)
+		$content .= \Runtime\rtl::toStr($t->s($ctx, "if (module.exports == undefined) module.exports = {};"));
+		$arr = \Runtime\rs::split($ctx, "\\.", $t->current_namespace_name);
+		for ($i = 0;$i < $arr->count($ctx);$i++)
 		{
-			$name = $name . \Runtime\rtl::toStr((($i == 0) ? "" : ".")) . \Runtime\rtl::toStr($arr->item($__ctx, $i));
+			$name = $name . \Runtime\rtl::toStr((($i == 0) ? "" : ".")) . \Runtime\rtl::toStr($arr->item($ctx, $i));
 			$s = "if (module.exports." . \Runtime\rtl::toStr($name) . \Runtime\rtl::toStr(" == undefined) module.exports.") . \Runtime\rtl::toStr($name) . \Runtime\rtl::toStr(" = {};");
-			$content .= \Runtime\rtl::toStr(($content == 0) ? $s : $t->s($__ctx, $s));
+			$content .= \Runtime\rtl::toStr(($content == 0) ? $s : $t->s($ctx, $s));
 		}
-		$content .= \Runtime\rtl::toStr($t->s($__ctx, "module.exports." . \Runtime\rtl::toStr($t->current_class_full_name) . \Runtime\rtl::toStr(" = ") . \Runtime\rtl::toStr($t->current_class_full_name) . \Runtime\rtl::toStr(";")));
+		$content .= \Runtime\rtl::toStr($t->s($ctx, "module.exports." . \Runtime\rtl::toStr($t->current_class_full_name) . \Runtime\rtl::toStr(" = ") . \Runtime\rtl::toStr($t->current_class_full_name) . \Runtime\rtl::toStr(";")));
 		return \Runtime\Collection::from([$t,$content]);
 	}
 	/* ======================= Class Init Functions ======================= */
@@ -64,9 +64,9 @@ class TranslatorNodeProgram extends \Bayrell\Lang\LangES6\TranslatorES6Program
 	{
 		return "Bayrell.Lang.LangES6.TranslatorES6Program";
 	}
-	static function getClassInfo($__ctx)
+	static function getClassInfo($ctx)
 	{
-		return new \Runtime\Annotations\IntrospectionInfo($__ctx, [
+		return new \Runtime\Annotations\IntrospectionInfo($ctx, [
 			"kind"=>\Runtime\Annotations\IntrospectionInfo::ITEM_CLASS,
 			"class_name"=>"Bayrell.Lang.LangNode.TranslatorNodeProgram",
 			"name"=>"Bayrell.Lang.LangNode.TranslatorNodeProgram",
@@ -74,22 +74,22 @@ class TranslatorNodeProgram extends \Bayrell\Lang\LangES6\TranslatorES6Program
 			]),
 		]);
 	}
-	static function getFieldsList($__ctx,$f)
+	static function getFieldsList($ctx,$f)
 	{
 		$a = [];
 		return \Runtime\Collection::from($a);
 	}
-	static function getFieldInfoByName($__ctx,$field_name)
+	static function getFieldInfoByName($ctx,$field_name)
 	{
 		return null;
 	}
-	static function getMethodsList($__ctx)
+	static function getMethodsList($ctx)
 	{
 		$a = [
 		];
 		return \Runtime\Collection::from($a);
 	}
-	static function getMethodInfoByName($__ctx,$field_name)
+	static function getMethodInfoByName($ctx,$field_name)
 	{
 		return null;
 	}

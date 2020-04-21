@@ -21,18 +21,19 @@ class OpHtmlValue extends \Bayrell\Lang\OpCodes\BaseOpCode
 {
 	const KIND_RAW="raw";
 	const KIND_JSON="json";
+	const KIND_HTML="html";
 	public $__op;
 	public $__kind;
 	public $__value;
 	/* ======================= Class Init Functions ======================= */
-	function _init($__ctx)
+	function _init($ctx)
 	{
-		parent::_init($__ctx);
+		parent::_init($ctx);
 		$this->__op = "op_html_value";
 		$this->__kind = "";
 		$this->__value = null;
 	}
-	function assignObject($__ctx,$o)
+	function assignObject($ctx,$o)
 	{
 		if ($o instanceof \Bayrell\Lang\OpCodes\OpHtmlValue)
 		{
@@ -40,21 +41,21 @@ class OpHtmlValue extends \Bayrell\Lang\OpCodes\BaseOpCode
 			$this->__kind = $o->__kind;
 			$this->__value = $o->__value;
 		}
-		parent::assignObject($__ctx,$o);
+		parent::assignObject($ctx,$o);
 	}
-	function assignValue($__ctx,$k,$v)
+	function assignValue($ctx,$k,$v)
 	{
 		if ($k == "op")$this->__op = $v;
 		else if ($k == "kind")$this->__kind = $v;
 		else if ($k == "value")$this->__value = $v;
-		else parent::assignValue($__ctx,$k,$v);
+		else parent::assignValue($ctx,$k,$v);
 	}
-	function takeValue($__ctx,$k,$d=null)
+	function takeValue($ctx,$k,$d=null)
 	{
 		if ($k == "op")return $this->__op;
 		else if ($k == "kind")return $this->__kind;
 		else if ($k == "value")return $this->__value;
-		return parent::takeValue($__ctx,$k,$d);
+		return parent::takeValue($ctx,$k,$d);
 	}
 	function getClassName()
 	{
@@ -72,9 +73,9 @@ class OpHtmlValue extends \Bayrell\Lang\OpCodes\BaseOpCode
 	{
 		return "Bayrell.Lang.OpCodes.BaseOpCode";
 	}
-	static function getClassInfo($__ctx)
+	static function getClassInfo($ctx)
 	{
-		return new \Runtime\Annotations\IntrospectionInfo($__ctx, [
+		return new \Runtime\Annotations\IntrospectionInfo($ctx, [
 			"kind"=>\Runtime\Annotations\IntrospectionInfo::ITEM_CLASS,
 			"class_name"=>"Bayrell.Lang.OpCodes.OpHtmlValue",
 			"name"=>"Bayrell.Lang.OpCodes.OpHtmlValue",
@@ -82,7 +83,7 @@ class OpHtmlValue extends \Bayrell\Lang\OpCodes\BaseOpCode
 			]),
 		]);
 	}
-	static function getFieldsList($__ctx,$f)
+	static function getFieldsList($ctx,$f)
 	{
 		$a = [];
 		if (($f|3)==3)
@@ -93,17 +94,59 @@ class OpHtmlValue extends \Bayrell\Lang\OpCodes\BaseOpCode
 		}
 		return \Runtime\Collection::from($a);
 	}
-	static function getFieldInfoByName($__ctx,$field_name)
+	static function getFieldInfoByName($ctx,$field_name)
 	{
+		if ($field_name == "KIND_RAW") return new \Runtime\Annotations\IntrospectionInfo($ctx, [
+			"kind"=>\Runtime\Annotations\IntrospectionInfo::ITEM_FIELD,
+			"class_name"=>"Bayrell.Lang.OpCodes.OpHtmlValue",
+			"name"=> $field_name,
+			"annotations"=>\Runtime\Collection::from([
+			]),
+		]);
+		if ($field_name == "KIND_JSON") return new \Runtime\Annotations\IntrospectionInfo($ctx, [
+			"kind"=>\Runtime\Annotations\IntrospectionInfo::ITEM_FIELD,
+			"class_name"=>"Bayrell.Lang.OpCodes.OpHtmlValue",
+			"name"=> $field_name,
+			"annotations"=>\Runtime\Collection::from([
+			]),
+		]);
+		if ($field_name == "KIND_HTML") return new \Runtime\Annotations\IntrospectionInfo($ctx, [
+			"kind"=>\Runtime\Annotations\IntrospectionInfo::ITEM_FIELD,
+			"class_name"=>"Bayrell.Lang.OpCodes.OpHtmlValue",
+			"name"=> $field_name,
+			"annotations"=>\Runtime\Collection::from([
+			]),
+		]);
+		if ($field_name == "op") return new \Runtime\Annotations\IntrospectionInfo($ctx, [
+			"kind"=>\Runtime\Annotations\IntrospectionInfo::ITEM_FIELD,
+			"class_name"=>"Bayrell.Lang.OpCodes.OpHtmlValue",
+			"name"=> $field_name,
+			"annotations"=>\Runtime\Collection::from([
+			]),
+		]);
+		if ($field_name == "kind") return new \Runtime\Annotations\IntrospectionInfo($ctx, [
+			"kind"=>\Runtime\Annotations\IntrospectionInfo::ITEM_FIELD,
+			"class_name"=>"Bayrell.Lang.OpCodes.OpHtmlValue",
+			"name"=> $field_name,
+			"annotations"=>\Runtime\Collection::from([
+			]),
+		]);
+		if ($field_name == "value") return new \Runtime\Annotations\IntrospectionInfo($ctx, [
+			"kind"=>\Runtime\Annotations\IntrospectionInfo::ITEM_FIELD,
+			"class_name"=>"Bayrell.Lang.OpCodes.OpHtmlValue",
+			"name"=> $field_name,
+			"annotations"=>\Runtime\Collection::from([
+			]),
+		]);
 		return null;
 	}
-	static function getMethodsList($__ctx)
+	static function getMethodsList($ctx)
 	{
 		$a = [
 		];
 		return \Runtime\Collection::from($a);
 	}
-	static function getMethodInfoByName($__ctx,$field_name)
+	static function getMethodInfoByName($ctx,$field_name)
 	{
 		return null;
 	}

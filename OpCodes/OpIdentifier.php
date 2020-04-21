@@ -21,6 +21,7 @@ class OpIdentifier extends \Bayrell\Lang\OpCodes\BaseOpCode
 {
 	const KIND_VARIABLE="var";
 	const KIND_SYS_TYPE="sys";
+	const KIND_SYS_FUNCTION="sys_fn";
 	const KIND_FUNCTION="fn";
 	const KIND_CONTEXT="ctx";
 	const KIND_MODULE="module";
@@ -30,14 +31,14 @@ class OpIdentifier extends \Bayrell\Lang\OpCodes\BaseOpCode
 	public $__value;
 	public $__kind;
 	/* ======================= Class Init Functions ======================= */
-	function _init($__ctx)
+	function _init($ctx)
 	{
-		parent::_init($__ctx);
+		parent::_init($ctx);
 		$this->__op = "op_identifier";
 		$this->__value = "";
 		$this->__kind = "";
 	}
-	function assignObject($__ctx,$o)
+	function assignObject($ctx,$o)
 	{
 		if ($o instanceof \Bayrell\Lang\OpCodes\OpIdentifier)
 		{
@@ -45,21 +46,21 @@ class OpIdentifier extends \Bayrell\Lang\OpCodes\BaseOpCode
 			$this->__value = $o->__value;
 			$this->__kind = $o->__kind;
 		}
-		parent::assignObject($__ctx,$o);
+		parent::assignObject($ctx,$o);
 	}
-	function assignValue($__ctx,$k,$v)
+	function assignValue($ctx,$k,$v)
 	{
 		if ($k == "op")$this->__op = $v;
 		else if ($k == "value")$this->__value = $v;
 		else if ($k == "kind")$this->__kind = $v;
-		else parent::assignValue($__ctx,$k,$v);
+		else parent::assignValue($ctx,$k,$v);
 	}
-	function takeValue($__ctx,$k,$d=null)
+	function takeValue($ctx,$k,$d=null)
 	{
 		if ($k == "op")return $this->__op;
 		else if ($k == "value")return $this->__value;
 		else if ($k == "kind")return $this->__kind;
-		return parent::takeValue($__ctx,$k,$d);
+		return parent::takeValue($ctx,$k,$d);
 	}
 	function getClassName()
 	{
@@ -77,9 +78,9 @@ class OpIdentifier extends \Bayrell\Lang\OpCodes\BaseOpCode
 	{
 		return "Bayrell.Lang.OpCodes.BaseOpCode";
 	}
-	static function getClassInfo($__ctx)
+	static function getClassInfo($ctx)
 	{
-		return new \Runtime\Annotations\IntrospectionInfo($__ctx, [
+		return new \Runtime\Annotations\IntrospectionInfo($ctx, [
 			"kind"=>\Runtime\Annotations\IntrospectionInfo::ITEM_CLASS,
 			"class_name"=>"Bayrell.Lang.OpCodes.OpIdentifier",
 			"name"=>"Bayrell.Lang.OpCodes.OpIdentifier",
@@ -87,7 +88,7 @@ class OpIdentifier extends \Bayrell\Lang\OpCodes\BaseOpCode
 			]),
 		]);
 	}
-	static function getFieldsList($__ctx,$f)
+	static function getFieldsList($ctx,$f)
 	{
 		$a = [];
 		if (($f|3)==3)
@@ -98,17 +99,94 @@ class OpIdentifier extends \Bayrell\Lang\OpCodes\BaseOpCode
 		}
 		return \Runtime\Collection::from($a);
 	}
-	static function getFieldInfoByName($__ctx,$field_name)
+	static function getFieldInfoByName($ctx,$field_name)
 	{
+		if ($field_name == "KIND_VARIABLE") return new \Runtime\Annotations\IntrospectionInfo($ctx, [
+			"kind"=>\Runtime\Annotations\IntrospectionInfo::ITEM_FIELD,
+			"class_name"=>"Bayrell.Lang.OpCodes.OpIdentifier",
+			"name"=> $field_name,
+			"annotations"=>\Runtime\Collection::from([
+			]),
+		]);
+		if ($field_name == "KIND_SYS_TYPE") return new \Runtime\Annotations\IntrospectionInfo($ctx, [
+			"kind"=>\Runtime\Annotations\IntrospectionInfo::ITEM_FIELD,
+			"class_name"=>"Bayrell.Lang.OpCodes.OpIdentifier",
+			"name"=> $field_name,
+			"annotations"=>\Runtime\Collection::from([
+			]),
+		]);
+		if ($field_name == "KIND_SYS_FUNCTION") return new \Runtime\Annotations\IntrospectionInfo($ctx, [
+			"kind"=>\Runtime\Annotations\IntrospectionInfo::ITEM_FIELD,
+			"class_name"=>"Bayrell.Lang.OpCodes.OpIdentifier",
+			"name"=> $field_name,
+			"annotations"=>\Runtime\Collection::from([
+			]),
+		]);
+		if ($field_name == "KIND_FUNCTION") return new \Runtime\Annotations\IntrospectionInfo($ctx, [
+			"kind"=>\Runtime\Annotations\IntrospectionInfo::ITEM_FIELD,
+			"class_name"=>"Bayrell.Lang.OpCodes.OpIdentifier",
+			"name"=> $field_name,
+			"annotations"=>\Runtime\Collection::from([
+			]),
+		]);
+		if ($field_name == "KIND_CONTEXT") return new \Runtime\Annotations\IntrospectionInfo($ctx, [
+			"kind"=>\Runtime\Annotations\IntrospectionInfo::ITEM_FIELD,
+			"class_name"=>"Bayrell.Lang.OpCodes.OpIdentifier",
+			"name"=> $field_name,
+			"annotations"=>\Runtime\Collection::from([
+			]),
+		]);
+		if ($field_name == "KIND_MODULE") return new \Runtime\Annotations\IntrospectionInfo($ctx, [
+			"kind"=>\Runtime\Annotations\IntrospectionInfo::ITEM_FIELD,
+			"class_name"=>"Bayrell.Lang.OpCodes.OpIdentifier",
+			"name"=> $field_name,
+			"annotations"=>\Runtime\Collection::from([
+			]),
+		]);
+		if ($field_name == "KIND_CONSTANT") return new \Runtime\Annotations\IntrospectionInfo($ctx, [
+			"kind"=>\Runtime\Annotations\IntrospectionInfo::ITEM_FIELD,
+			"class_name"=>"Bayrell.Lang.OpCodes.OpIdentifier",
+			"name"=> $field_name,
+			"annotations"=>\Runtime\Collection::from([
+			]),
+		]);
+		if ($field_name == "KIND_CLASSREF") return new \Runtime\Annotations\IntrospectionInfo($ctx, [
+			"kind"=>\Runtime\Annotations\IntrospectionInfo::ITEM_FIELD,
+			"class_name"=>"Bayrell.Lang.OpCodes.OpIdentifier",
+			"name"=> $field_name,
+			"annotations"=>\Runtime\Collection::from([
+			]),
+		]);
+		if ($field_name == "op") return new \Runtime\Annotations\IntrospectionInfo($ctx, [
+			"kind"=>\Runtime\Annotations\IntrospectionInfo::ITEM_FIELD,
+			"class_name"=>"Bayrell.Lang.OpCodes.OpIdentifier",
+			"name"=> $field_name,
+			"annotations"=>\Runtime\Collection::from([
+			]),
+		]);
+		if ($field_name == "value") return new \Runtime\Annotations\IntrospectionInfo($ctx, [
+			"kind"=>\Runtime\Annotations\IntrospectionInfo::ITEM_FIELD,
+			"class_name"=>"Bayrell.Lang.OpCodes.OpIdentifier",
+			"name"=> $field_name,
+			"annotations"=>\Runtime\Collection::from([
+			]),
+		]);
+		if ($field_name == "kind") return new \Runtime\Annotations\IntrospectionInfo($ctx, [
+			"kind"=>\Runtime\Annotations\IntrospectionInfo::ITEM_FIELD,
+			"class_name"=>"Bayrell.Lang.OpCodes.OpIdentifier",
+			"name"=> $field_name,
+			"annotations"=>\Runtime\Collection::from([
+			]),
+		]);
 		return null;
 	}
-	static function getMethodsList($__ctx)
+	static function getMethodsList($ctx)
 	{
 		$a = [
 		];
 		return \Runtime\Collection::from($a);
 	}
-	static function getMethodInfoByName($__ctx,$field_name)
+	static function getMethodInfoByName($ctx,$field_name)
 	{
 		return null;
 	}

@@ -2,7 +2,7 @@
 /*!
  *  Bayrell Language
  *
- *  (c) Copyright 2016-2019 "Ildar Bikmamatov" <support@bayrell.org>
+ *  (c) Copyright 2016-2020 "Ildar Bikmamatov" <support@bayrell.org>
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -22,17 +22,17 @@ class LangUtils
 	/**
 	 * Parse file and convert to BaseOpCode
 	 */
-	static function parse($__ctx, $parser, $text)
+	static function parse($ctx, $parser, $text)
 	{
-		$res = $parser->staticMethod("parse")($__ctx, $parser, $text);
+		$res = $parser::parse($ctx, $parser, $text);
 		return $res[1];
 	}
 	/**
 	 * Translate BaseOpCode to string
 	 */
-	static function translate($__ctx, $translator, $op_code)
+	static function translate($ctx, $translator, $op_code)
 	{
-		$res = $translator->staticMethod("translate")($__ctx, $translator, $op_code);
+		$res = $translator::translate($ctx, $translator, $op_code);
 		return $res[1];
 	}
 	/* ======================= Class Init Functions ======================= */
@@ -52,9 +52,9 @@ class LangUtils
 	{
 		return "";
 	}
-	static function getClassInfo($__ctx)
+	static function getClassInfo($ctx)
 	{
-		return new \Runtime\Annotations\IntrospectionInfo($__ctx, [
+		return new \Runtime\Annotations\IntrospectionInfo($ctx, [
 			"kind"=>\Runtime\Annotations\IntrospectionInfo::ITEM_CLASS,
 			"class_name"=>"Bayrell.Lang.LangUtils",
 			"name"=>"Bayrell.Lang.LangUtils",
@@ -62,22 +62,22 @@ class LangUtils
 			]),
 		]);
 	}
-	static function getFieldsList($__ctx,$f)
+	static function getFieldsList($ctx,$f)
 	{
 		$a = [];
 		return \Runtime\Collection::from($a);
 	}
-	static function getFieldInfoByName($__ctx,$field_name)
+	static function getFieldInfoByName($ctx,$field_name)
 	{
 		return null;
 	}
-	static function getMethodsList($__ctx)
+	static function getMethodsList($ctx)
 	{
 		$a = [
 		];
 		return \Runtime\Collection::from($a);
 	}
-	static function getMethodInfoByName($__ctx,$field_name)
+	static function getMethodInfoByName($ctx,$field_name)
 	{
 		return null;
 	}

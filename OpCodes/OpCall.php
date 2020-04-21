@@ -25,16 +25,16 @@ class OpCall extends \Bayrell\Lang\OpCodes\BaseOpCode
 	public $__is_await;
 	public $__is_context;
 	/* ======================= Class Init Functions ======================= */
-	function _init($__ctx)
+	function _init($ctx)
 	{
-		parent::_init($__ctx);
+		parent::_init($ctx);
 		$this->__op = "op_call";
 		$this->__obj = null;
 		$this->__args = null;
 		$this->__is_await = false;
 		$this->__is_context = true;
 	}
-	function assignObject($__ctx,$o)
+	function assignObject($ctx,$o)
 	{
 		if ($o instanceof \Bayrell\Lang\OpCodes\OpCall)
 		{
@@ -44,25 +44,25 @@ class OpCall extends \Bayrell\Lang\OpCodes\BaseOpCode
 			$this->__is_await = $o->__is_await;
 			$this->__is_context = $o->__is_context;
 		}
-		parent::assignObject($__ctx,$o);
+		parent::assignObject($ctx,$o);
 	}
-	function assignValue($__ctx,$k,$v)
+	function assignValue($ctx,$k,$v)
 	{
 		if ($k == "op")$this->__op = $v;
 		else if ($k == "obj")$this->__obj = $v;
 		else if ($k == "args")$this->__args = $v;
 		else if ($k == "is_await")$this->__is_await = $v;
 		else if ($k == "is_context")$this->__is_context = $v;
-		else parent::assignValue($__ctx,$k,$v);
+		else parent::assignValue($ctx,$k,$v);
 	}
-	function takeValue($__ctx,$k,$d=null)
+	function takeValue($ctx,$k,$d=null)
 	{
 		if ($k == "op")return $this->__op;
 		else if ($k == "obj")return $this->__obj;
 		else if ($k == "args")return $this->__args;
 		else if ($k == "is_await")return $this->__is_await;
 		else if ($k == "is_context")return $this->__is_context;
-		return parent::takeValue($__ctx,$k,$d);
+		return parent::takeValue($ctx,$k,$d);
 	}
 	function getClassName()
 	{
@@ -80,9 +80,9 @@ class OpCall extends \Bayrell\Lang\OpCodes\BaseOpCode
 	{
 		return "Bayrell.Lang.OpCodes.BaseOpCode";
 	}
-	static function getClassInfo($__ctx)
+	static function getClassInfo($ctx)
 	{
-		return new \Runtime\Annotations\IntrospectionInfo($__ctx, [
+		return new \Runtime\Annotations\IntrospectionInfo($ctx, [
 			"kind"=>\Runtime\Annotations\IntrospectionInfo::ITEM_CLASS,
 			"class_name"=>"Bayrell.Lang.OpCodes.OpCall",
 			"name"=>"Bayrell.Lang.OpCodes.OpCall",
@@ -90,7 +90,7 @@ class OpCall extends \Bayrell\Lang\OpCodes\BaseOpCode
 			]),
 		]);
 	}
-	static function getFieldsList($__ctx,$f)
+	static function getFieldsList($ctx,$f)
 	{
 		$a = [];
 		if (($f|3)==3)
@@ -103,17 +103,52 @@ class OpCall extends \Bayrell\Lang\OpCodes\BaseOpCode
 		}
 		return \Runtime\Collection::from($a);
 	}
-	static function getFieldInfoByName($__ctx,$field_name)
+	static function getFieldInfoByName($ctx,$field_name)
 	{
+		if ($field_name == "op") return new \Runtime\Annotations\IntrospectionInfo($ctx, [
+			"kind"=>\Runtime\Annotations\IntrospectionInfo::ITEM_FIELD,
+			"class_name"=>"Bayrell.Lang.OpCodes.OpCall",
+			"name"=> $field_name,
+			"annotations"=>\Runtime\Collection::from([
+			]),
+		]);
+		if ($field_name == "obj") return new \Runtime\Annotations\IntrospectionInfo($ctx, [
+			"kind"=>\Runtime\Annotations\IntrospectionInfo::ITEM_FIELD,
+			"class_name"=>"Bayrell.Lang.OpCodes.OpCall",
+			"name"=> $field_name,
+			"annotations"=>\Runtime\Collection::from([
+			]),
+		]);
+		if ($field_name == "args") return new \Runtime\Annotations\IntrospectionInfo($ctx, [
+			"kind"=>\Runtime\Annotations\IntrospectionInfo::ITEM_FIELD,
+			"class_name"=>"Bayrell.Lang.OpCodes.OpCall",
+			"name"=> $field_name,
+			"annotations"=>\Runtime\Collection::from([
+			]),
+		]);
+		if ($field_name == "is_await") return new \Runtime\Annotations\IntrospectionInfo($ctx, [
+			"kind"=>\Runtime\Annotations\IntrospectionInfo::ITEM_FIELD,
+			"class_name"=>"Bayrell.Lang.OpCodes.OpCall",
+			"name"=> $field_name,
+			"annotations"=>\Runtime\Collection::from([
+			]),
+		]);
+		if ($field_name == "is_context") return new \Runtime\Annotations\IntrospectionInfo($ctx, [
+			"kind"=>\Runtime\Annotations\IntrospectionInfo::ITEM_FIELD,
+			"class_name"=>"Bayrell.Lang.OpCodes.OpCall",
+			"name"=> $field_name,
+			"annotations"=>\Runtime\Collection::from([
+			]),
+		]);
 		return null;
 	}
-	static function getMethodsList($__ctx)
+	static function getMethodsList($ctx)
 	{
 		$a = [
 		];
 		return \Runtime\Collection::from($a);
 	}
-	static function getMethodInfoByName($__ctx,$field_name)
+	static function getMethodInfoByName($ctx,$field_name)
 	{
 		return null;
 	}

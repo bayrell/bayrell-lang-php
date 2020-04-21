@@ -24,15 +24,15 @@ class OpMath extends \Bayrell\Lang\OpCodes\BaseOpCode
 	public $__value2;
 	public $__math;
 	/* ======================= Class Init Functions ======================= */
-	function _init($__ctx)
+	function _init($ctx)
 	{
-		parent::_init($__ctx);
+		parent::_init($ctx);
 		$this->__op = "op_math";
 		$this->__value1 = null;
 		$this->__value2 = null;
 		$this->__math = "";
 	}
-	function assignObject($__ctx,$o)
+	function assignObject($ctx,$o)
 	{
 		if ($o instanceof \Bayrell\Lang\OpCodes\OpMath)
 		{
@@ -41,23 +41,23 @@ class OpMath extends \Bayrell\Lang\OpCodes\BaseOpCode
 			$this->__value2 = $o->__value2;
 			$this->__math = $o->__math;
 		}
-		parent::assignObject($__ctx,$o);
+		parent::assignObject($ctx,$o);
 	}
-	function assignValue($__ctx,$k,$v)
+	function assignValue($ctx,$k,$v)
 	{
 		if ($k == "op")$this->__op = $v;
 		else if ($k == "value1")$this->__value1 = $v;
 		else if ($k == "value2")$this->__value2 = $v;
 		else if ($k == "math")$this->__math = $v;
-		else parent::assignValue($__ctx,$k,$v);
+		else parent::assignValue($ctx,$k,$v);
 	}
-	function takeValue($__ctx,$k,$d=null)
+	function takeValue($ctx,$k,$d=null)
 	{
 		if ($k == "op")return $this->__op;
 		else if ($k == "value1")return $this->__value1;
 		else if ($k == "value2")return $this->__value2;
 		else if ($k == "math")return $this->__math;
-		return parent::takeValue($__ctx,$k,$d);
+		return parent::takeValue($ctx,$k,$d);
 	}
 	function getClassName()
 	{
@@ -75,9 +75,9 @@ class OpMath extends \Bayrell\Lang\OpCodes\BaseOpCode
 	{
 		return "Bayrell.Lang.OpCodes.BaseOpCode";
 	}
-	static function getClassInfo($__ctx)
+	static function getClassInfo($ctx)
 	{
-		return new \Runtime\Annotations\IntrospectionInfo($__ctx, [
+		return new \Runtime\Annotations\IntrospectionInfo($ctx, [
 			"kind"=>\Runtime\Annotations\IntrospectionInfo::ITEM_CLASS,
 			"class_name"=>"Bayrell.Lang.OpCodes.OpMath",
 			"name"=>"Bayrell.Lang.OpCodes.OpMath",
@@ -85,7 +85,7 @@ class OpMath extends \Bayrell\Lang\OpCodes\BaseOpCode
 			]),
 		]);
 	}
-	static function getFieldsList($__ctx,$f)
+	static function getFieldsList($ctx,$f)
 	{
 		$a = [];
 		if (($f|3)==3)
@@ -97,17 +97,45 @@ class OpMath extends \Bayrell\Lang\OpCodes\BaseOpCode
 		}
 		return \Runtime\Collection::from($a);
 	}
-	static function getFieldInfoByName($__ctx,$field_name)
+	static function getFieldInfoByName($ctx,$field_name)
 	{
+		if ($field_name == "op") return new \Runtime\Annotations\IntrospectionInfo($ctx, [
+			"kind"=>\Runtime\Annotations\IntrospectionInfo::ITEM_FIELD,
+			"class_name"=>"Bayrell.Lang.OpCodes.OpMath",
+			"name"=> $field_name,
+			"annotations"=>\Runtime\Collection::from([
+			]),
+		]);
+		if ($field_name == "value1") return new \Runtime\Annotations\IntrospectionInfo($ctx, [
+			"kind"=>\Runtime\Annotations\IntrospectionInfo::ITEM_FIELD,
+			"class_name"=>"Bayrell.Lang.OpCodes.OpMath",
+			"name"=> $field_name,
+			"annotations"=>\Runtime\Collection::from([
+			]),
+		]);
+		if ($field_name == "value2") return new \Runtime\Annotations\IntrospectionInfo($ctx, [
+			"kind"=>\Runtime\Annotations\IntrospectionInfo::ITEM_FIELD,
+			"class_name"=>"Bayrell.Lang.OpCodes.OpMath",
+			"name"=> $field_name,
+			"annotations"=>\Runtime\Collection::from([
+			]),
+		]);
+		if ($field_name == "math") return new \Runtime\Annotations\IntrospectionInfo($ctx, [
+			"kind"=>\Runtime\Annotations\IntrospectionInfo::ITEM_FIELD,
+			"class_name"=>"Bayrell.Lang.OpCodes.OpMath",
+			"name"=> $field_name,
+			"annotations"=>\Runtime\Collection::from([
+			]),
+		]);
 		return null;
 	}
-	static function getMethodsList($__ctx)
+	static function getMethodsList($ctx)
 	{
 		$a = [
 		];
 		return \Runtime\Collection::from($a);
 	}
-	static function getMethodInfoByName($__ctx,$field_name)
+	static function getMethodInfoByName($ctx,$field_name)
 	{
 		return null;
 	}

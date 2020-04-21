@@ -32,9 +32,9 @@ class OpAssign extends \Bayrell\Lang\OpCodes\BaseOpCode
 	public $__names;
 	public $__expression;
 	/* ======================= Class Init Functions ======================= */
-	function _init($__ctx)
+	function _init($ctx)
 	{
-		parent::_init($__ctx);
+		parent::_init($ctx);
 		$this->__kind = "";
 		$this->__var_name = "";
 		$this->__flags = null;
@@ -45,7 +45,7 @@ class OpAssign extends \Bayrell\Lang\OpCodes\BaseOpCode
 		$this->__names = null;
 		$this->__expression = null;
 	}
-	function assignObject($__ctx,$o)
+	function assignObject($ctx,$o)
 	{
 		if ($o instanceof \Bayrell\Lang\OpCodes\OpAssign)
 		{
@@ -59,9 +59,9 @@ class OpAssign extends \Bayrell\Lang\OpCodes\BaseOpCode
 			$this->__names = $o->__names;
 			$this->__expression = $o->__expression;
 		}
-		parent::assignObject($__ctx,$o);
+		parent::assignObject($ctx,$o);
 	}
-	function assignValue($__ctx,$k,$v)
+	function assignValue($ctx,$k,$v)
 	{
 		if ($k == "kind")$this->__kind = $v;
 		else if ($k == "var_name")$this->__var_name = $v;
@@ -72,9 +72,9 @@ class OpAssign extends \Bayrell\Lang\OpCodes\BaseOpCode
 		else if ($k == "values")$this->__values = $v;
 		else if ($k == "names")$this->__names = $v;
 		else if ($k == "expression")$this->__expression = $v;
-		else parent::assignValue($__ctx,$k,$v);
+		else parent::assignValue($ctx,$k,$v);
 	}
-	function takeValue($__ctx,$k,$d=null)
+	function takeValue($ctx,$k,$d=null)
 	{
 		if ($k == "kind")return $this->__kind;
 		else if ($k == "var_name")return $this->__var_name;
@@ -85,7 +85,7 @@ class OpAssign extends \Bayrell\Lang\OpCodes\BaseOpCode
 		else if ($k == "values")return $this->__values;
 		else if ($k == "names")return $this->__names;
 		else if ($k == "expression")return $this->__expression;
-		return parent::takeValue($__ctx,$k,$d);
+		return parent::takeValue($ctx,$k,$d);
 	}
 	function getClassName()
 	{
@@ -103,9 +103,9 @@ class OpAssign extends \Bayrell\Lang\OpCodes\BaseOpCode
 	{
 		return "Bayrell.Lang.OpCodes.BaseOpCode";
 	}
-	static function getClassInfo($__ctx)
+	static function getClassInfo($ctx)
 	{
-		return new \Runtime\Annotations\IntrospectionInfo($__ctx, [
+		return new \Runtime\Annotations\IntrospectionInfo($ctx, [
 			"kind"=>\Runtime\Annotations\IntrospectionInfo::ITEM_CLASS,
 			"class_name"=>"Bayrell.Lang.OpCodes.OpAssign",
 			"name"=>"Bayrell.Lang.OpCodes.OpAssign",
@@ -113,7 +113,7 @@ class OpAssign extends \Bayrell\Lang\OpCodes\BaseOpCode
 			]),
 		]);
 	}
-	static function getFieldsList($__ctx,$f)
+	static function getFieldsList($ctx,$f)
 	{
 		$a = [];
 		if (($f|3)==3)
@@ -130,17 +130,101 @@ class OpAssign extends \Bayrell\Lang\OpCodes\BaseOpCode
 		}
 		return \Runtime\Collection::from($a);
 	}
-	static function getFieldInfoByName($__ctx,$field_name)
+	static function getFieldInfoByName($ctx,$field_name)
 	{
+		if ($field_name == "KIND_ASSIGN") return new \Runtime\Annotations\IntrospectionInfo($ctx, [
+			"kind"=>\Runtime\Annotations\IntrospectionInfo::ITEM_FIELD,
+			"class_name"=>"Bayrell.Lang.OpCodes.OpAssign",
+			"name"=> $field_name,
+			"annotations"=>\Runtime\Collection::from([
+			]),
+		]);
+		if ($field_name == "KIND_DECLARE") return new \Runtime\Annotations\IntrospectionInfo($ctx, [
+			"kind"=>\Runtime\Annotations\IntrospectionInfo::ITEM_FIELD,
+			"class_name"=>"Bayrell.Lang.OpCodes.OpAssign",
+			"name"=> $field_name,
+			"annotations"=>\Runtime\Collection::from([
+			]),
+		]);
+		if ($field_name == "KIND_STRUCT") return new \Runtime\Annotations\IntrospectionInfo($ctx, [
+			"kind"=>\Runtime\Annotations\IntrospectionInfo::ITEM_FIELD,
+			"class_name"=>"Bayrell.Lang.OpCodes.OpAssign",
+			"name"=> $field_name,
+			"annotations"=>\Runtime\Collection::from([
+			]),
+		]);
+		if ($field_name == "kind") return new \Runtime\Annotations\IntrospectionInfo($ctx, [
+			"kind"=>\Runtime\Annotations\IntrospectionInfo::ITEM_FIELD,
+			"class_name"=>"Bayrell.Lang.OpCodes.OpAssign",
+			"name"=> $field_name,
+			"annotations"=>\Runtime\Collection::from([
+			]),
+		]);
+		if ($field_name == "var_name") return new \Runtime\Annotations\IntrospectionInfo($ctx, [
+			"kind"=>\Runtime\Annotations\IntrospectionInfo::ITEM_FIELD,
+			"class_name"=>"Bayrell.Lang.OpCodes.OpAssign",
+			"name"=> $field_name,
+			"annotations"=>\Runtime\Collection::from([
+			]),
+		]);
+		if ($field_name == "flags") return new \Runtime\Annotations\IntrospectionInfo($ctx, [
+			"kind"=>\Runtime\Annotations\IntrospectionInfo::ITEM_FIELD,
+			"class_name"=>"Bayrell.Lang.OpCodes.OpAssign",
+			"name"=> $field_name,
+			"annotations"=>\Runtime\Collection::from([
+			]),
+		]);
+		if ($field_name == "pattern") return new \Runtime\Annotations\IntrospectionInfo($ctx, [
+			"kind"=>\Runtime\Annotations\IntrospectionInfo::ITEM_FIELD,
+			"class_name"=>"Bayrell.Lang.OpCodes.OpAssign",
+			"name"=> $field_name,
+			"annotations"=>\Runtime\Collection::from([
+			]),
+		]);
+		if ($field_name == "annotations") return new \Runtime\Annotations\IntrospectionInfo($ctx, [
+			"kind"=>\Runtime\Annotations\IntrospectionInfo::ITEM_FIELD,
+			"class_name"=>"Bayrell.Lang.OpCodes.OpAssign",
+			"name"=> $field_name,
+			"annotations"=>\Runtime\Collection::from([
+			]),
+		]);
+		if ($field_name == "comments") return new \Runtime\Annotations\IntrospectionInfo($ctx, [
+			"kind"=>\Runtime\Annotations\IntrospectionInfo::ITEM_FIELD,
+			"class_name"=>"Bayrell.Lang.OpCodes.OpAssign",
+			"name"=> $field_name,
+			"annotations"=>\Runtime\Collection::from([
+			]),
+		]);
+		if ($field_name == "values") return new \Runtime\Annotations\IntrospectionInfo($ctx, [
+			"kind"=>\Runtime\Annotations\IntrospectionInfo::ITEM_FIELD,
+			"class_name"=>"Bayrell.Lang.OpCodes.OpAssign",
+			"name"=> $field_name,
+			"annotations"=>\Runtime\Collection::from([
+			]),
+		]);
+		if ($field_name == "names") return new \Runtime\Annotations\IntrospectionInfo($ctx, [
+			"kind"=>\Runtime\Annotations\IntrospectionInfo::ITEM_FIELD,
+			"class_name"=>"Bayrell.Lang.OpCodes.OpAssign",
+			"name"=> $field_name,
+			"annotations"=>\Runtime\Collection::from([
+			]),
+		]);
+		if ($field_name == "expression") return new \Runtime\Annotations\IntrospectionInfo($ctx, [
+			"kind"=>\Runtime\Annotations\IntrospectionInfo::ITEM_FIELD,
+			"class_name"=>"Bayrell.Lang.OpCodes.OpAssign",
+			"name"=> $field_name,
+			"annotations"=>\Runtime\Collection::from([
+			]),
+		]);
 		return null;
 	}
-	static function getMethodsList($__ctx)
+	static function getMethodsList($ctx)
 	{
 		$a = [
 		];
 		return \Runtime\Collection::from($a);
 	}
-	static function getMethodInfoByName($__ctx,$field_name)
+	static function getMethodInfoByName($ctx,$field_name)
 	{
 		return null;
 	}

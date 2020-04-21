@@ -2,7 +2,7 @@
 /*!
  *  Bayrell Language
  *
- *  (c) Copyright 2016-2019 "Ildar Bikmamatov" <support@bayrell.org>
+ *  (c) Copyright 2016-2020 "Ildar Bikmamatov" <support@bayrell.org>
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -22,41 +22,41 @@ class TranslatorPHPExpression
 	/**
 	 * Returns string
 	 */
-	static function toString($__ctx, $s)
+	static function toString($ctx, $s)
 	{
-		$s = \Runtime\re::replace($__ctx, "\\\\", "\\\\", $s);
-		$s = \Runtime\re::replace($__ctx, "\"", "\\\"", $s);
-		$s = \Runtime\re::replace($__ctx, "\n", "\\n", $s);
-		$s = \Runtime\re::replace($__ctx, "\r", "\\r", $s);
-		$s = \Runtime\re::replace($__ctx, "\t", "\\t", $s);
+		$s = \Runtime\re::replace($ctx, "\\\\", "\\\\", $s);
+		$s = \Runtime\re::replace($ctx, "\"", "\\\"", $s);
+		$s = \Runtime\re::replace($ctx, "\n", "\\n", $s);
+		$s = \Runtime\re::replace($ctx, "\r", "\\r", $s);
+		$s = \Runtime\re::replace($ctx, "\t", "\\t", $s);
 		return "\"" . \Runtime\rtl::toStr($s) . \Runtime\rtl::toStr("\"");
 	}
 	/**
 	 * To pattern
 	 */
-	static function toPattern($__ctx, $t, $pattern)
+	static function toPattern($ctx, $t, $pattern)
 	{
-		$names = static::findModuleNames($__ctx, $t, $pattern->entity_name->names);
-		$e = \Runtime\rs::join($__ctx, ".", $names);
-		$a = ($pattern->template != null) ? $pattern->template->map($__ctx, function ($__ctx, $pattern) use (&$t)
+		$names = static::findModuleNames($ctx, $t, $pattern->entity_name->names);
+		$e = \Runtime\rs::join($ctx, ".", $names);
+		$a = ($pattern->template != null) ? $pattern->template->map($ctx, function ($ctx, $pattern) use (&$t)
 		{
-			return static::toPattern($__ctx, $t, $pattern);
+			return static::toPattern($ctx, $t, $pattern);
 		}) : null;
-		$b = ($a != null) ? ",\"t\":[" . \Runtime\rtl::toStr(\Runtime\rs::join($__ctx, ",", $a)) . \Runtime\rtl::toStr("]") : "";
-		return "[\"e\"=>" . \Runtime\rtl::toStr(static::toString($__ctx, $e)) . \Runtime\rtl::toStr($b) . \Runtime\rtl::toStr("]");
+		$b = ($a != null) ? ",\"t\":[" . \Runtime\rtl::toStr(\Runtime\rs::join($ctx, ",", $a)) . \Runtime\rtl::toStr("]") : "";
+		return "[\"e\"=>" . \Runtime\rtl::toStr(static::toString($ctx, $e)) . \Runtime\rtl::toStr($b) . \Runtime\rtl::toStr("]");
 	}
 	/**
 	 * Returns string
 	 */
-	static function rtlToStr($__ctx, $t, $s)
+	static function rtlToStr($ctx, $t, $s)
 	{
-		$module_name = static::getModuleName($__ctx, $t, "rtl");
+		$module_name = static::getModuleName($ctx, $t, "rtl");
 		return $module_name . \Runtime\rtl::toStr("::toStr(") . \Runtime\rtl::toStr($s) . \Runtime\rtl::toStr(")");
 	}
 	/**
 	 * Find module name
 	 */
-	static function findModuleName($__ctx, $t, $module_name)
+	static function findModuleName($ctx, $t, $module_name)
 	{
 		if ($module_name == "Collection")
 		{
@@ -86,24 +86,24 @@ class TranslatorPHPExpression
 		{
 			return "ArrayAccess";
 		}
-		else if ($t->modules->has($__ctx, $module_name))
+		else if ($t->modules->has($ctx, $module_name))
 		{
-			return $t->modules->item($__ctx, $module_name);
+			return $t->modules->item($ctx, $module_name);
 		}
 		return $module_name;
 	}
 	/**
 	 * Returns module name
 	 */
-	static function findModuleNames($__ctx, $t, $names)
+	static function findModuleNames($ctx, $t, $names)
 	{
-		if ($names->count($__ctx) > 0)
+		if ($names->count($ctx) > 0)
 		{
-			$module_name = $names->first($__ctx);
-			$module_name = static::findModuleName($__ctx, $t, $module_name);
+			$module_name = $names->first($ctx);
+			$module_name = static::findModuleName($ctx, $t, $module_name);
 			if ($module_name != "")
 			{
-				$names = $names->removeFirstIm($__ctx)->prependCollectionIm($__ctx, \Runtime\rs::split($__ctx, "\\.", $module_name));
+				$names = $names->removeFirstIm($ctx)->prependCollectionIm($ctx, \Runtime\rs::split($ctx, "\\.", $module_name));
 			}
 		}
 		return $names;
@@ -111,37 +111,49 @@ class TranslatorPHPExpression
 	/**
 	 * Return module name
 	 */
-	static function getModuleName($__ctx, $t, $module_name)
+	static function getModuleName($ctx, $t, $module_name)
 	{
-		$module_name = static::findModuleName($__ctx, $t, $module_name);
-		$module_name = \Runtime\rs::replace($__ctx, "\\.", "\\", $module_name);
+		$module_name = static::findModuleName($ctx, $t, $module_name);
+		$module_name = \Runtime\rs::replace($ctx, "\\.", "\\", $module_name);
 		return "\\" . \Runtime\rtl::toStr($module_name);
 	}
 	/**
 	 * Return module name
 	 */
-	static function getModuleNames($__ctx, $t, $names)
+	static function getModuleNames($ctx, $t, $names)
 	{
-		return "\\" . \Runtime\rtl::toStr(\Runtime\rs::join($__ctx, "\\", static::findModuleNames($__ctx, $t, $names)));
+		return "\\" . \Runtime\rtl::toStr(\Runtime\rs::join($ctx, "\\", static::findModuleNames($ctx, $t, $names)));
 	}
 	/**
 	 * OpTypeIdentifier
 	 */
-	static function OpTypeIdentifier($__ctx, $t, $op_code)
+	static function OpTypeIdentifier($ctx, $t, $op_code)
 	{
-		$names = static::findModuleNames($__ctx, $t, $op_code->entity_name->names);
-		$s = "\\" . \Runtime\rtl::toStr(\Runtime\rs::join($__ctx, "\\", $names));
+		$names = static::findModuleNames($ctx, $t, $op_code->entity_name->names);
+		$s = "\\" . \Runtime\rtl::toStr(\Runtime\rs::join($ctx, "\\", $names));
 		return \Runtime\Collection::from([$t,$s]);
 	}
 	/**
 	 * OpIdentifier
 	 */
-	static function OpIdentifier($__ctx, $t, $op_code)
+	static function OpIdentifier($ctx, $t, $op_code)
 	{
-		if ($t->modules->has($__ctx, $op_code->value) || $op_code->kind == \Bayrell\Lang\OpCodes\OpIdentifier::KIND_SYS_TYPE)
+		if ($op_code->value == "@")
+		{
+			return \Runtime\Collection::from([$t,"$ctx"]);
+		}
+		if ($op_code->value == "_")
+		{
+			return \Runtime\Collection::from([$t,"($ctx->staticMethod('translate'))"]);
+		}
+		if ($op_code->value == "log")
+		{
+			return \Runtime\Collection::from([$t,"var_dump"]);
+		}
+		if ($t->modules->has($ctx, $op_code->value) || $op_code->kind == \Bayrell\Lang\OpCodes\OpIdentifier::KIND_SYS_TYPE)
 		{
 			$module_name = $op_code->value;
-			$new_module_name = static::getModuleName($__ctx, $t, $module_name);
+			$new_module_name = static::getModuleName($ctx, $t, $module_name);
 			return \Runtime\Collection::from([$t,$new_module_name]);
 		}
 		else if ($op_code->kind == \Bayrell\Lang\OpCodes\OpIdentifier::KIND_VARIABLE)
@@ -158,135 +170,133 @@ class TranslatorPHPExpression
 			}
 			return \Runtime\Collection::from([$t,$content]);
 		}
-		else if ($op_code->kind == \Bayrell\Lang\OpCodes\OpIdentifier::KIND_CONTEXT && $op_code->value == "@")
-		{
-			return \Runtime\Collection::from([$t,"$__ctx"]);
-		}
-		else if ($op_code->kind == \Bayrell\Lang\OpCodes\OpIdentifier::KIND_CONTEXT && $op_code->value == "_")
-		{
-			return \Runtime\Collection::from([$t,"$__ctx->translate"]);
-		}
 		$content = $op_code->value;
 		return \Runtime\Collection::from([$t,$content]);
 	}
 	/**
 	 * OpNumber
 	 */
-	static function OpNumber($__ctx, $t, $op_code)
+	static function OpNumber($ctx, $t, $op_code)
 	{
 		$content = $op_code->value;
 		if ($op_code->negative)
 		{
 			$content = "-" . \Runtime\rtl::toStr($content);
-			$t = $t->copy($__ctx, ["opcode_level"=>15]);
+			$t = $t->copy($ctx, ["opcode_level"=>15]);
 		}
 		return \Runtime\Collection::from([$t,$content]);
 	}
 	/**
 	 * OpString
 	 */
-	static function OpString($__ctx, $t, $op_code)
+	static function OpString($ctx, $t, $op_code)
 	{
-		return \Runtime\Collection::from([$t,static::toString($__ctx, $op_code->value)]);
+		return \Runtime\Collection::from([$t,static::toString($ctx, $op_code->value)]);
 	}
 	/**
 	 * OpCollection
 	 */
-	static function OpCollection($__ctx, $t, $op_code)
+	static function OpCollection($ctx, $t, $op_code)
 	{
 		$content = "";
-		$values = $op_code->values->map($__ctx, function ($__ctx, $op_code) use (&$t)
+		$values = $op_code->values->map($ctx, function ($ctx, $op_code) use (&$t)
 		{
-			$res = static::Expression($__ctx, $t, $op_code);
+			$res = static::Expression($ctx, $t, $op_code);
 			$t = $res[0];
 			$s = $res[1];
 			return $s;
 		});
-		$module_name = static::getModuleName($__ctx, $t, "Collection");
-		$content = $module_name . \Runtime\rtl::toStr("::from([") . \Runtime\rtl::toStr(\Runtime\rs::join($__ctx, ",", $values)) . \Runtime\rtl::toStr("])");
+		$values = $values->filter($ctx, function ($ctx, $s)
+		{
+			return $s != "";
+		});
+		$module_name = static::getModuleName($ctx, $t, "Collection");
+		$content = $module_name . \Runtime\rtl::toStr("::from([") . \Runtime\rtl::toStr(\Runtime\rs::join($ctx, ",", $values)) . \Runtime\rtl::toStr("])");
 		return \Runtime\Collection::from([$t,$content]);
 	}
 	/**
 	 * OpDict
 	 */
-	static function OpDict($__ctx, $t, $op_code, $flag_array=false)
+	static function OpDict($ctx, $t, $op_code, $flag_array=false)
 	{
 		$content = "";
-		$values = $op_code->values->transition($__ctx, function ($__ctx, $op_code, $key) use (&$t)
+		$values = $op_code->values->transition($ctx, function ($ctx, $op_code, $key) use (&$t)
 		{
-			$res = static::Expression($__ctx, $t, $op_code);
+			$res = static::Expression($ctx, $t, $op_code);
 			$t = $res[0];
 			$s = $res[1];
-			return static::toString($__ctx, $key) . \Runtime\rtl::toStr("=>") . \Runtime\rtl::toStr($s);
+			return static::toString($ctx, $key) . \Runtime\rtl::toStr("=>") . \Runtime\rtl::toStr($s);
 		});
-		$module_name = static::getModuleName($__ctx, $t, "Dict");
+		$values = $values->filter($ctx, function ($ctx, $s)
+		{
+			return $s != "";
+		});
+		$module_name = static::getModuleName($ctx, $t, "Dict");
 		if (!$flag_array)
 		{
-			$content = $module_name . \Runtime\rtl::toStr("::from([") . \Runtime\rtl::toStr(\Runtime\rs::join($__ctx, ",", $values)) . \Runtime\rtl::toStr("])");
+			$content = $module_name . \Runtime\rtl::toStr("::from([") . \Runtime\rtl::toStr(\Runtime\rs::join($ctx, ",", $values)) . \Runtime\rtl::toStr("])");
 		}
 		else
 		{
-			$content = "[" . \Runtime\rtl::toStr(\Runtime\rs::join($__ctx, ",", $values)) . \Runtime\rtl::toStr("]");
+			$content = "[" . \Runtime\rtl::toStr(\Runtime\rs::join($ctx, ",", $values)) . \Runtime\rtl::toStr("]");
 		}
 		return \Runtime\Collection::from([$t,$content]);
 	}
 	/**
 	 * Dynamic
 	 */
-	static function Dynamic($__ctx, $t, $op_code, $next_op_code=null)
+	static function Dynamic($ctx, $t, $op_code, $next_op_code=null)
 	{
 		if ($op_code instanceof \Bayrell\Lang\OpCodes\OpIdentifier)
 		{
-			return static::OpIdentifier($__ctx, $t, $op_code);
+			return static::OpIdentifier($ctx, $t, $op_code);
 		}
 		else if ($op_code instanceof \Bayrell\Lang\OpCodes\OpAttr)
 		{
-			$attrs = new \Runtime\Vector($__ctx);
+			$attrs = new \Runtime\Vector($ctx);
 			$op_code_item = $op_code;
 			$op_code_next = $op_code;
 			$prev_kind = "";
 			$s = "";
 			while ($op_code_next instanceof \Bayrell\Lang\OpCodes\OpAttr)
 			{
-				$attrs->push($__ctx, $op_code_next);
+				$attrs->push($ctx, $op_code_next);
 				$op_code_item = $op_code_next;
 				$op_code_next = $op_code_next->obj;
 			}
-			$attrs = $attrs->reverseIm($__ctx);
+			$attrs = $attrs->reverseIm($ctx);
 			if ($op_code_next instanceof \Bayrell\Lang\OpCodes\OpCall)
 			{
 				$prev_kind = "var";
-				$res = static::OpCall($__ctx, $t, $op_code_next);
+				$res = static::OpCall($ctx, $t, $op_code_next);
 				$t = $res[0];
 				$s = $res[1];
 			}
 			else if ($op_code_next instanceof \Bayrell\Lang\OpCodes\OpNew)
 			{
 				$prev_kind = "var";
-				$res = static::OpNew($__ctx, $t, $op_code_next);
+				$res = static::OpNew($ctx, $t, $op_code_next);
 				$t = $res[0];
 				$s = "(" . \Runtime\rtl::toStr($res[1]) . \Runtime\rtl::toStr(")");
 			}
 			else if ($op_code_next instanceof \Bayrell\Lang\OpCodes\OpIdentifier)
 			{
-				if ($t->modules->has($__ctx, $op_code_next->value) || $op_code_next->kind == \Bayrell\Lang\OpCodes\OpIdentifier::KIND_SYS_TYPE)
-				{
-					$prev_kind = "static";
-					$res = static::OpIdentifier($__ctx, $t, $op_code_next);
-					$t = $res[0];
-					$s = $res[1];
-				}
-				else if ($op_code_next->kind == \Bayrell\Lang\OpCodes\OpIdentifier::KIND_CLASSREF)
+				if ($op_code_next->kind == \Bayrell\Lang\OpCodes\OpIdentifier::KIND_CLASSREF)
 				{
 					if ($op_code_next->value == "static")
 					{
 						$s = "static";
 						$prev_kind = "static";
 					}
+					else if ($op_code_next->value == "parent")
+					{
+						$s = "parent";
+						$prev_kind = "static";
+					}
 					else if ($op_code_next->value == "self")
 					{
 						$prev_kind = "static";
-						$s = static::getModuleName($__ctx, $t, $t->current_class_full_name);
+						$s = static::getModuleName($ctx, $t, $t->current_class_full_name);
 					}
 					else if ($op_code_next->value == "this")
 					{
@@ -294,27 +304,23 @@ class TranslatorPHPExpression
 						$s = "$this";
 					}
 				}
-				else if ($op_code_next->kind == \Bayrell\Lang\OpCodes\OpIdentifier::KIND_CONTEXT && $op_code_next->value == "@")
-				{
-					$prev_kind = "var";
-					$s = "$__ctx";
-				}
-				else if ($op_code_next->kind == \Bayrell\Lang\OpCodes\OpIdentifier::KIND_CONTEXT && $op_code_next->value == "_")
-				{
-					$prev_kind = "var";
-					$s = "$__ctx->translate";
-				}
 				else
 				{
+					$res = static::OpIdentifier($ctx, $t, $op_code_next);
+					$t = $res[0];
+					$s = $res[1];
 					$prev_kind = "var";
-					$s = "$" . \Runtime\rtl::toStr($op_code_next->value);
+					if ($t->modules->has($ctx, $op_code_next->value) || $op_code_next->kind == \Bayrell\Lang\OpCodes\OpIdentifier::KIND_SYS_TYPE)
+					{
+						$prev_kind = "static";
+					}
 				}
 			}
-			$attrs_sz = $attrs->count($__ctx);
-			for ($i = 0;$i < $attrs->count($__ctx);$i++)
+			$attrs_sz = $attrs->count($ctx);
+			for ($i = 0;$i < $attrs->count($ctx);$i++)
 			{
-				$attr = $attrs->item($__ctx, $i);
-				$next_attr = $attrs->get($__ctx, $i + 1, null);
+				$attr = $attrs->item($ctx, $i);
+				$next_attr = $attrs->get($ctx, $i + 1, null);
 				if ($attr->kind == \Bayrell\Lang\OpCodes\OpAttr::KIND_ATTR)
 				{
 					$s .= \Runtime\rtl::toStr("->" . \Runtime\rtl::toStr($attr->value->value));
@@ -328,7 +334,7 @@ class TranslatorPHPExpression
 						{
 							$s .= \Runtime\rtl::toStr("::" . \Runtime\rtl::toStr($attr_val));
 						}
-						else if (\Runtime\rs::strtoupper($__ctx, $attr_val) == $attr_val)
+						else if (\Runtime\rs::strtoupper($ctx, $attr_val) == $attr_val)
 						{
 							$s .= \Runtime\rtl::toStr("::" . \Runtime\rtl::toStr($attr_val));
 						}
@@ -339,13 +345,13 @@ class TranslatorPHPExpression
 					}
 					else
 					{
-						$s .= \Runtime\rtl::toStr("->staticMethod(" . \Runtime\rtl::toStr(static::toString($__ctx, $attr->value->value)) . \Runtime\rtl::toStr(")"));
+						$s = $s . \Runtime\rtl::toStr("::") . \Runtime\rtl::toStr($attr->value->value);
 					}
 					$prev_kind = "static";
 				}
 				else if ($attr->kind == \Bayrell\Lang\OpCodes\OpAttr::KIND_DYNAMIC)
 				{
-					$res = static::Expression($__ctx, $t, $attr->value);
+					$res = static::Expression($ctx, $t, $attr->value);
 					$t = $res[0];
 					$s .= \Runtime\rtl::toStr("[" . \Runtime\rtl::toStr($res[1]) . \Runtime\rtl::toStr("]"));
 				}
@@ -358,21 +364,17 @@ class TranslatorPHPExpression
 		}
 		else if ($op_code instanceof \Bayrell\Lang\OpCodes\OpCall)
 		{
-			return static::OpCall($__ctx, $t, $op_code);
-		}
-		else if ($op_code instanceof \Bayrell\Lang\OpCodes\OpPipe)
-		{
-			return static::OpPipe($__ctx, $t, $op_code);
+			return static::OpCall($ctx, $t, $op_code);
 		}
 		return \Runtime\Collection::from([$t,""]);
 	}
 	/**
 	 * OpInc
 	 */
-	static function OpInc($__ctx, $t, $op_code)
+	static function OpInc($ctx, $t, $op_code)
 	{
 		$content = "";
-		$res = static::Expression($__ctx, $t, $op_code->value);
+		$res = static::Expression($ctx, $t, $op_code->value);
 		$t = $res[0];
 		$s = $res[1];
 		if ($op_code->kind == \Bayrell\Lang\OpCodes\OpInc::KIND_PRE_INC)
@@ -396,9 +398,9 @@ class TranslatorPHPExpression
 	/**
 	 * OpMath
 	 */
-	static function OpMath($__ctx, $t, $op_code)
+	static function OpMath($ctx, $t, $op_code)
 	{
-		$res = static::Expression($__ctx, $t, $op_code->value1);
+		$res = static::Expression($ctx, $t, $op_code->value1);
 		$t = $res[0];
 		$opcode_level1 = $res[0]->opcode_level;
 		$s1 = $res[1];
@@ -563,19 +565,19 @@ class TranslatorPHPExpression
 		$content = "";
 		if ($op_code->math == "!" || $op_code->math == "not")
 		{
-			$content = $op . \Runtime\rtl::toStr($t->o($__ctx, $s1, $opcode_level1, $opcode_level));
+			$content = $op . \Runtime\rtl::toStr($t->o($ctx, $s1, $opcode_level1, $opcode_level));
 		}
 		else
 		{
-			$res = static::Expression($__ctx, $t, $op_code->value2);
+			$res = static::Expression($ctx, $t, $op_code->value2);
 			$t = $res[0];
 			$opcode_level2 = $res[0]->opcode_level;
 			$s2 = $res[1];
-			$op1 = $t->o($__ctx, $s1, $opcode_level1, $opcode_level);
-			$op2 = $t->o($__ctx, $s2, $opcode_level2, $opcode_level);
+			$op1 = $t->o($ctx, $s1, $opcode_level1, $opcode_level);
+			$op2 = $t->o($ctx, $s2, $opcode_level2, $opcode_level);
 			if ($op_math == "~")
 			{
-				$content = $op1 . \Runtime\rtl::toStr(" . ") . \Runtime\rtl::toStr(static::rtlToStr($__ctx, $t, $op2));
+				$content = $op1 . \Runtime\rtl::toStr(" . ") . \Runtime\rtl::toStr(static::rtlToStr($ctx, $t, $op2));
 			}
 			else if ($op_math == "implements")
 			{
@@ -586,29 +588,29 @@ class TranslatorPHPExpression
 				$content = $op1 . \Runtime\rtl::toStr(" ") . \Runtime\rtl::toStr($op) . \Runtime\rtl::toStr(" ") . \Runtime\rtl::toStr($op2);
 			}
 		}
-		$t = $t->copy($__ctx, ["opcode_level"=>$opcode_level]);
+		$t = $t->copy($ctx, ["opcode_level"=>$opcode_level]);
 		return \Runtime\Collection::from([$t,$content]);
 	}
 	/**
 	 * OpNew
 	 */
-	static function OpNew($__ctx, $t, $op_code)
+	static function OpNew($ctx, $t, $op_code)
 	{
 		$content = "new ";
-		$res = static::OpTypeIdentifier($__ctx, $t, $op_code->value);
+		$res = static::OpTypeIdentifier($ctx, $t, $op_code->value);
 		$t = $res[0];
 		$content .= \Runtime\rtl::toStr($res[1]);
 		$flag = false;
 		$content .= \Runtime\rtl::toStr("(");
 		if ($t->current_function == null || $t->current_function->is_context)
 		{
-			$content .= \Runtime\rtl::toStr("$__ctx");
+			$content .= \Runtime\rtl::toStr("$ctx");
 			$flag = true;
 		}
-		for ($i = 0;$i < $op_code->args->count($__ctx);$i++)
+		for ($i = 0;$i < $op_code->args->count($ctx);$i++)
 		{
-			$item = $op_code->args->item($__ctx, $i);
-			$res = $t->expression->staticMethod("Expression")($__ctx, $t, $item);
+			$item = $op_code->args->item($ctx, $i);
+			$res = $t->expression::Expression($ctx, $t, $item);
 			$t = $res[0];
 			$s = $res[1];
 			$content .= \Runtime\rtl::toStr((($flag) ? ", " : "") . \Runtime\rtl::toStr($s));
@@ -620,11 +622,11 @@ class TranslatorPHPExpression
 	/**
 	 * OpCall
 	 */
-	static function OpCall($__ctx, $t, $op_code)
+	static function OpCall($ctx, $t, $op_code)
 	{
 		$s = "";
 		$flag = false;
-		$res = static::Dynamic($__ctx, $t, $op_code->obj, $op_code);
+		$res = static::Dynamic($ctx, $t, $op_code->obj, $op_code);
 		$t = $res[0];
 		$s = $res[1];
 		if ($s == "parent")
@@ -641,15 +643,20 @@ class TranslatorPHPExpression
 			$s .= \Runtime\rtl::toStr("(");
 		}
 		$content = $s;
-		if (($t->current_function == null || $t->current_function->is_context) && $op_code->is_context)
+		if ($op_code->obj instanceof \Bayrell\Lang\OpCodes\OpIdentifier && $op_code->obj->value == "_")
 		{
-			$content .= \Runtime\rtl::toStr((($flag) ? ", " : "") . \Runtime\rtl::toStr("$__ctx"));
+			$content .= \Runtime\rtl::toStr((($flag) ? ", " : "") . \Runtime\rtl::toStr("$ctx, $ctx"));
 			$flag = true;
 		}
-		for ($i = 0;$i < $op_code->args->count($__ctx);$i++)
+		else if (($t->current_function == null || $t->current_function->is_context) && $op_code->is_context)
 		{
-			$item = $op_code->args->item($__ctx, $i);
-			$res = static::Expression($__ctx, $t, $item);
+			$content .= \Runtime\rtl::toStr((($flag) ? ", " : "") . \Runtime\rtl::toStr("$ctx"));
+			$flag = true;
+		}
+		for ($i = 0;$i < $op_code->args->count($ctx);$i++)
+		{
+			$item = $op_code->args->item($ctx, $i);
+			$res = static::Expression($ctx, $t, $item);
 			$t = $res[0];
 			$s = $res[1];
 			$content .= \Runtime\rtl::toStr((($flag) ? ", " : "") . \Runtime\rtl::toStr($s));
@@ -659,224 +666,280 @@ class TranslatorPHPExpression
 		return \Runtime\Collection::from([$t,$content]);
 	}
 	/**
-	 * OpPipe
-	 */
-	static function OpPipe($__ctx, $t, $op_code)
-	{
-		$content = "";
-		$var_name = "";
-		$res = static::Expression($__ctx, $t, $op_code->obj, $op_code);
-		$t = $res[0];
-		if ($op_code->obj instanceof \Bayrell\Lang\OpCodes\OpIdentifier)
-		{
-			$var_name = $res[1];
-		}
-		else
-		{
-			$res = $t->staticMethod("addSaveOpCode")($__ctx, $t, \Runtime\Dict::from(["op_code"=>$op_code->obj,"var_content"=>$res[1]]));
-			$t = $res[0];
-			$var_name = $res[1];
-		}
-		if ($op_code->kind == \Bayrell\Lang\OpCodes\OpPipe::KIND_METHOD)
-		{
-			$content = "(" . \Runtime\rtl::toStr($var_name) . \Runtime\rtl::toStr("->staticMethod(") . \Runtime\rtl::toStr(static::toString($__ctx, $op_code->method_name->value)) . \Runtime\rtl::toStr("))");
-		}
-		else
-		{
-			$res = static::OpTypeIdentifier($__ctx, $t, $op_code->class_name);
-			$t = $res[0];
-			$content = $res[1] . \Runtime\rtl::toStr("::") . \Runtime\rtl::toStr($op_code->method_name->value);
-		}
-		$flag = false;
-		$content .= \Runtime\rtl::toStr("(");
-		if ($t->current_function->is_context && $op_code->is_context)
-		{
-			$content .= \Runtime\rtl::toStr("$__ctx");
-			$flag = true;
-		}
-		for ($i = 0;$i < $op_code->args->count($__ctx);$i++)
-		{
-			$item = $op_code->args->item($__ctx, $i);
-			$res = static::Expression($__ctx, $t, $item);
-			$t = $res[0];
-			$s1 = $res[1];
-			$content .= \Runtime\rtl::toStr((($flag) ? ", " : "") . \Runtime\rtl::toStr($s1));
-			$flag = true;
-		}
-		$content .= \Runtime\rtl::toStr((($flag) ? ", " : "") . \Runtime\rtl::toStr($var_name));
-		$content .= \Runtime\rtl::toStr(")");
-		return \Runtime\Collection::from([$t,$content]);
-	}
-	/**
 	 * OpClassOf
 	 */
-	static function OpClassOf($__ctx, $t, $op_code)
+	static function OpClassOf($ctx, $t, $op_code)
 	{
-		$names = static::findModuleNames($__ctx, $t, $op_code->entity_name->names);
-		$s = \Runtime\rs::join($__ctx, ".", $names);
-		return \Runtime\Collection::from([$t,static::toString($__ctx, $s)]);
+		$names = static::findModuleNames($ctx, $t, $op_code->entity_name->names);
+		$s = \Runtime\rs::join($ctx, ".", $names);
+		return \Runtime\Collection::from([$t,static::toString($ctx, $s)]);
 	}
 	/**
 	 * OpTernary
 	 */
-	static function OpTernary($__ctx, $t, $op_code)
+	static function OpTernary($ctx, $t, $op_code)
 	{
 		$content = "";
-		$t = $t->copy($__ctx, ["opcode_level"=>100]);
-		$res = static::Expression($__ctx, $t, $op_code->condition);
+		$t = $t->copy($ctx, ["opcode_level"=>100]);
+		$res = static::Expression($ctx, $t, $op_code->condition);
 		$t = $res[0];
 		$condition = $res[1];
-		$res = static::Expression($__ctx, $t, $op_code->if_true);
+		$res = static::Expression($ctx, $t, $op_code->if_true);
 		$t = $res[0];
 		$if_true = $res[1];
-		$res = static::Expression($__ctx, $t, $op_code->if_false);
+		$res = static::Expression($ctx, $t, $op_code->if_false);
 		$t = $res[0];
 		$if_false = $res[1];
 		$content .= \Runtime\rtl::toStr("(" . \Runtime\rtl::toStr($condition) . \Runtime\rtl::toStr(") ? ") . \Runtime\rtl::toStr($if_true) . \Runtime\rtl::toStr(" : ") . \Runtime\rtl::toStr($if_false));
-		$t = $t->copy($__ctx, ["opcode_level"=>11]);
+		$t = $t->copy($ctx, ["opcode_level"=>11]);
 		/* OpTernary */
 		return \Runtime\Collection::from([$t,$content]);
 	}
 	/**
-	 * OpTypeConvert
+	 * OpPipe
 	 */
-	static function OpTypeConvert($__ctx, $t, $op_code)
+	static function OpPipe($ctx, $t, $op_code)
 	{
 		$content = "";
-		$res = static::Expression($__ctx, $t, $op_code->value);
+		$var_name = "";
+		$value = "";
+		$res = $t::incSaveOpCode($ctx, $t);
+		$t = $res[0];
+		$var_name = $res[1];
+		$items = new \Runtime\Vector($ctx);
+		$op_code_item = $op_code;
+		while ($op_code_item instanceof \Bayrell\Lang\OpCodes\OpPipe)
+		{
+			$items->push($ctx, $op_code_item);
+			$op_code_item = $op_code_item->obj;
+		}
+		$items = $items->reverseIm($ctx);
+		/* First item */
+		$res = $t->expression::Expression($ctx, $t, $op_code_item);
 		$t = $res[0];
 		$value = $res[1];
-		$content = "\\Runtime\\rtl::to(" . \Runtime\rtl::toStr($value) . \Runtime\rtl::toStr(", ") . \Runtime\rtl::toStr(static::toPattern($__ctx, $t, $op_code->pattern)) . \Runtime\rtl::toStr(")");
+		$res = $t::addSaveOpCode($ctx, $t, \Runtime\Dict::from(["content"=>$t->s($ctx, $var_name . \Runtime\rtl::toStr(" = new \\Runtime\\Monad($ctx, ") . \Runtime\rtl::toStr($value) . \Runtime\rtl::toStr(");"))]));
+		$t = $res[0];
+		/* Output items */
+		for ($i = 0;$i < $items->count($ctx);$i++)
+		{
+			$s1 = "";
+			$s2 = "";
+			$op_item = $items->item($ctx, $i);
+			if ($op_item->kind == \Bayrell\Lang\OpCodes\OpPipe::KIND_ATTR)
+			{
+				$res = static::Expression($ctx, $t, $op_item->value);
+				$t = $res[0];
+				$value = $res[1];
+				$s1 = $var_name . \Runtime\rtl::toStr("->attr($ctx, ") . \Runtime\rtl::toStr($value) . \Runtime\rtl::toStr(")");
+			}
+			else if ($op_item->kind == \Bayrell\Lang\OpCodes\OpPipe::KIND_METHOD)
+			{
+				$value_attrs = "";
+				$value = static::toString($ctx, $op_item->value->obj->value);
+				if ($op_item->value->args != null)
+				{
+					$flag = false;
+					/*if ((t.current_function == null or t.current_function.is_context) and op_item.value.is_context)
+					{
+						value_attrs ~= "$ctx";
+						flag = true;
+					}*/
+					for ($i = 0;$i < $op_item->value->args->count($ctx);$i++)
+					{
+						$item = $op_item->value->args->item($ctx, $i);
+						$res = static::Expression($ctx, $t, $item);
+						$t = $res[0];
+						$s = $res[1];
+						$value_attrs .= \Runtime\rtl::toStr((($flag) ? ", " : "") . \Runtime\rtl::toStr($s));
+						$flag = true;
+					}
+				}
+				if ($op_item->value->args != null)
+				{
+					$value_attrs = "\\Runtime\\Collection::from([" . \Runtime\rtl::toStr($value_attrs) . \Runtime\rtl::toStr("])");
+				}
+				else
+				{
+					$value_attrs = "null";
+				}
+				if (!$op_item->is_async || $op_item->is_async && $t->current_function->isFlag($ctx, "async"))
+				{
+					$s1 = $var_name . \Runtime\rtl::toStr("->callMethod($ctx, ") . \Runtime\rtl::toStr($value) . \Runtime\rtl::toStr(", ") . \Runtime\rtl::toStr($value_attrs) . \Runtime\rtl::toStr(")");
+				}
+			}
+			else if ($op_item->kind == \Bayrell\Lang\OpCodes\OpPipe::KIND_MONAD)
+			{
+				$res = static::Dynamic($ctx, $t, $op_item->value);
+				$t = $res[0];
+				$value = $res[1];
+				$s1 = $var_name . \Runtime\rtl::toStr("->monad($ctx, ") . \Runtime\rtl::toStr($value) . \Runtime\rtl::toStr(")");
+			}
+			else if ($op_item->kind == \Bayrell\Lang\OpCodes\OpPipe::KIND_CALL)
+			{
+				$res = static::Dynamic($ctx, $t, $op_item->value);
+				$t = $res[0];
+				$value = $res[1];
+				$s1 = $var_name . \Runtime\rtl::toStr("->call($ctx, ") . \Runtime\rtl::toStr($value) . \Runtime\rtl::toStr(")");
+			}
+			if ($s1 != "")
+			{
+				$res = $t::addSaveOpCode($ctx, $t, \Runtime\Dict::from(["content"=>$t->s($ctx, $var_name . \Runtime\rtl::toStr(" = ") . \Runtime\rtl::toStr($s1) . \Runtime\rtl::toStr(";"))]));
+				$t = $res[0];
+			}
+		}
+		return \Runtime\Collection::from([$t,$var_name . \Runtime\rtl::toStr("->value($ctx)")]);
+	}
+	/**
+	 * OpTypeConvert
+	 */
+	static function OpTypeConvert($ctx, $t, $op_code)
+	{
+		$content = "";
+		$res = static::Expression($ctx, $t, $op_code->value);
+		$t = $res[0];
+		$value = $res[1];
+		$content = "\\Runtime\\rtl::to(" . \Runtime\rtl::toStr($value) . \Runtime\rtl::toStr(", ") . \Runtime\rtl::toStr(static::toPattern($ctx, $t, $op_code->pattern)) . \Runtime\rtl::toStr(")");
 		return \Runtime\Collection::from([$t,$content]);
 	}
 	/**
 	 * OpTernary
 	 */
-	static function OpDeclareFunction($__ctx, $t, $op_code)
+	static function OpDeclareFunction($ctx, $t, $op_code)
 	{
 		$content = "";
 		/* Set function name */
 		$save_f = $t->current_function;
-		$t = $t->copy($__ctx, ["current_function"=>$op_code]);
-		$res = $t->operator->staticMethod("OpDeclareFunctionArgs")($__ctx, $t, $op_code);
+		$t = $t->copy($ctx, ["current_function"=>$op_code]);
+		$res = $t->operator::OpDeclareFunctionArgs($ctx, $t, $op_code);
 		$args = $res[1];
 		$content .= \Runtime\rtl::toStr("function (" . \Runtime\rtl::toStr($args) . \Runtime\rtl::toStr(")"));
-		if ($op_code->vars != null && $op_code->vars->count($__ctx) > 0)
+		if ($op_code->vars != null && $op_code->vars->count($ctx) > 0)
 		{
-			$vars = $op_code->vars->map($__ctx, function ($__ctx, $s)
+			$vars = $op_code->vars->map($ctx, function ($ctx, $s)
 			{
 				return "&$" . \Runtime\rtl::toStr($s);
 			});
-			$content .= \Runtime\rtl::toStr(" use (" . \Runtime\rtl::toStr(\Runtime\rs::join($__ctx, ",", $vars)) . \Runtime\rtl::toStr(")"));
+			$content .= \Runtime\rtl::toStr(" use (" . \Runtime\rtl::toStr(\Runtime\rs::join($ctx, ",", $vars)) . \Runtime\rtl::toStr(")"));
 		}
-		$res = $t->operator->staticMethod("OpDeclareFunctionBody")($__ctx, $t, $op_code);
+		$res = $t->operator::OpDeclareFunctionBody($ctx, $t, $op_code);
 		$content .= \Runtime\rtl::toStr($res[1]);
 		/* Restore function */
-		$t = $t->copy($__ctx, ["current_function"=>$save_f]);
+		$t = $t->copy($ctx, ["current_function"=>$save_f]);
 		/* OpTernary */
 		return \Runtime\Collection::from([$t,$content]);
 	}
 	/**
 	 * Expression
 	 */
-	static function Expression($__ctx, $t, $op_code)
+	static function Expression($ctx, $t, $op_code)
 	{
 		$content = "";
-		$t = $t->copy($__ctx, ["opcode_level"=>100]);
+		$t = $t->copy($ctx, ["opcode_level"=>100]);
 		if ($op_code instanceof \Bayrell\Lang\OpCodes\OpIdentifier)
 		{
-			$res = static::OpIdentifier($__ctx, $t, $op_code);
+			$res = static::OpIdentifier($ctx, $t, $op_code);
 			$t = $res[0];
 			$content = $res[1];
 		}
 		else if ($op_code instanceof \Bayrell\Lang\OpCodes\OpTypeIdentifier)
 		{
-			$res = static::OpTypeIdentifier($__ctx, $t, $op_code);
+			$res = static::OpTypeIdentifier($ctx, $t, $op_code);
 			$t = $res[0];
 			$content = $res[1];
 		}
 		else if ($op_code instanceof \Bayrell\Lang\OpCodes\OpNumber)
 		{
-			$res = static::OpNumber($__ctx, $t, $op_code);
+			$res = static::OpNumber($ctx, $t, $op_code);
 			$t = $res[0];
 			$content = $res[1];
 		}
 		else if ($op_code instanceof \Bayrell\Lang\OpCodes\OpString)
 		{
-			$res = static::OpString($__ctx, $t, $op_code);
+			$res = static::OpString($ctx, $t, $op_code);
 			$t = $res[0];
 			$content = $res[1];
 		}
 		else if ($op_code instanceof \Bayrell\Lang\OpCodes\OpCollection)
 		{
-			$res = static::OpCollection($__ctx, $t, $op_code);
+			$res = static::OpCollection($ctx, $t, $op_code);
 			$t = $res[0];
 			$content = $res[1];
 		}
 		else if ($op_code instanceof \Bayrell\Lang\OpCodes\OpDict)
 		{
-			$res = static::OpDict($__ctx, $t, $op_code);
+			$res = static::OpDict($ctx, $t, $op_code);
 			$t = $res[0];
 			$content = $res[1];
 		}
 		else if ($op_code instanceof \Bayrell\Lang\OpCodes\OpInc)
 		{
-			$t = $t->copy($__ctx, ["opcode_level"=>16]);
-			$res = static::OpInc($__ctx, $t, $op_code);
+			$t = $t->copy($ctx, ["opcode_level"=>16]);
+			$res = static::OpInc($ctx, $t, $op_code);
 			$t = $res[0];
 			$content = $res[1];
 		}
 		else if ($op_code instanceof \Bayrell\Lang\OpCodes\OpMath)
 		{
-			$res = static::OpMath($__ctx, $t, $op_code);
+			$res = static::OpMath($ctx, $t, $op_code);
 			$t = $res[0];
 			$content = $res[1];
 		}
 		else if ($op_code instanceof \Bayrell\Lang\OpCodes\OpNew)
 		{
-			$res = static::OpNew($__ctx, $t, $op_code);
+			$res = static::OpNew($ctx, $t, $op_code);
 			$t = $res[0];
 			$content = $res[1];
 		}
-		else if ($op_code instanceof \Bayrell\Lang\OpCodes\OpAttr || $op_code instanceof \Bayrell\Lang\OpCodes\OpPipe)
+		else if ($op_code instanceof \Bayrell\Lang\OpCodes\OpAttr)
 		{
-			$res = static::Dynamic($__ctx, $t, $op_code);
+			$res = static::Dynamic($ctx, $t, $op_code);
 			$t = $res[0];
 			$content = $res[1];
 		}
 		else if ($op_code instanceof \Bayrell\Lang\OpCodes\OpCall)
 		{
-			$res = static::OpCall($__ctx, $t, $op_code);
+			$res = static::OpCall($ctx, $t, $op_code);
 			$t = $res[0];
 			$content = $res[1];
 		}
 		else if ($op_code instanceof \Bayrell\Lang\OpCodes\OpClassOf)
 		{
-			$res = static::OpClassOf($__ctx, $t, $op_code);
+			$res = static::OpClassOf($ctx, $t, $op_code);
 			$t = $res[0];
 			$content = $res[1];
 		}
+		else if ($op_code instanceof \Bayrell\Lang\OpCodes\OpPipe)
+		{
+			return static::OpPipe($ctx, $t, $op_code);
+		}
 		else if ($op_code instanceof \Bayrell\Lang\OpCodes\OpTernary)
 		{
-			$res = static::OpTernary($__ctx, $t, $op_code);
+			$res = static::OpTernary($ctx, $t, $op_code);
 			$t = $res[0];
 			$content = $res[1];
 		}
 		else if ($op_code instanceof \Bayrell\Lang\OpCodes\OpTypeConvert)
 		{
-			$res = static::OpTypeConvert($__ctx, $t, $op_code);
+			$res = static::OpTypeConvert($ctx, $t, $op_code);
 			$t = $res[0];
 			$content = $res[1];
 		}
 		else if ($op_code instanceof \Bayrell\Lang\OpCodes\OpDeclareFunction)
 		{
-			$res = static::OpDeclareFunction($__ctx, $t, $op_code);
+			$res = static::OpDeclareFunction($ctx, $t, $op_code);
 			$t = $res[0];
 			$content = $res[1];
 		}
 		else if ($op_code instanceof \Bayrell\Lang\OpCodes\OpHtmlItems)
 		{
-			$res = $t->html->staticMethod("OpHtmlItems")($__ctx, $t, $op_code);
+			$res = $t->html::OpHtmlItems($ctx, $t, $op_code);
+			$t = $res[0];
+			$content = $res[1];
+		}
+		else if ($op_code instanceof \Bayrell\Lang\OpCodes\OpPreprocessorIfDef)
+		{
+			$res = $t->operator::OpPreprocessorIfDef($ctx, $t, $op_code, \Bayrell\Lang\OpCodes\OpPreprocessorIfDef::KIND_EXPRESSION);
 			$t = $res[0];
 			$content = $res[1];
 		}
@@ -899,9 +962,9 @@ class TranslatorPHPExpression
 	{
 		return "";
 	}
-	static function getClassInfo($__ctx)
+	static function getClassInfo($ctx)
 	{
-		return new \Runtime\Annotations\IntrospectionInfo($__ctx, [
+		return new \Runtime\Annotations\IntrospectionInfo($ctx, [
 			"kind"=>\Runtime\Annotations\IntrospectionInfo::ITEM_CLASS,
 			"class_name"=>"Bayrell.Lang.LangPHP.TranslatorPHPExpression",
 			"name"=>"Bayrell.Lang.LangPHP.TranslatorPHPExpression",
@@ -909,22 +972,22 @@ class TranslatorPHPExpression
 			]),
 		]);
 	}
-	static function getFieldsList($__ctx,$f)
+	static function getFieldsList($ctx,$f)
 	{
 		$a = [];
 		return \Runtime\Collection::from($a);
 	}
-	static function getFieldInfoByName($__ctx,$field_name)
+	static function getFieldInfoByName($ctx,$field_name)
 	{
 		return null;
 	}
-	static function getMethodsList($__ctx)
+	static function getMethodsList($ctx)
 	{
 		$a = [
 		];
 		return \Runtime\Collection::from($a);
 	}
-	static function getMethodInfoByName($__ctx,$field_name)
+	static function getMethodInfoByName($ctx,$field_name)
 	{
 		return null;
 	}

@@ -19,13 +19,29 @@
 namespace Bayrell\Lang\Exceptions;
 class ParserError extends \Bayrell\Lang\Exceptions\ParserUnknownError
 {
-	function __construct($__ctx, $s, $caret, $file="", $code, $context, $prev=null)
+	function __construct($ctx, $s, $caret, $file="", $code, $context, $prev=null)
 	{
-		parent::__construct($__ctx, $s, $code, $context, $prev);
+		parent::__construct($ctx, $s, $code, $context, $prev);
 		$this->error_line = $caret->y + 1;
 		$this->error_pos = $caret->x + 1;
 		$this->error_file = $file;
-		$this->updateError($__ctx);
+		$this->updateError($ctx);
+	}
+	function buildMessage($ctx)
+	{
+		$error_str = $this->error_str;
+		$file = $this->getFileName($ctx);
+		$line = $this->getErrorLine($ctx);
+		$pos = $this->getErrorPos($ctx);
+		if ($line != -1)
+		{
+			$error_str .= \Runtime\rtl::toStr(" at Ln:" . \Runtime\rtl::toStr($line) . \Runtime\rtl::toStr((($pos != "") ? ", Pos:" . \Runtime\rtl::toStr($pos) : "")));
+		}
+		if ($file != "")
+		{
+			$error_str .= \Runtime\rtl::toStr(" in file:'" . \Runtime\rtl::toStr($file) . \Runtime\rtl::toStr("'"));
+		}
+		return $error_str;
 	}
 	/* ======================= Class Init Functions ======================= */
 	function getClassName()
@@ -44,9 +60,9 @@ class ParserError extends \Bayrell\Lang\Exceptions\ParserUnknownError
 	{
 		return "Bayrell.Lang.Exceptions.ParserUnknownError";
 	}
-	static function getClassInfo($__ctx)
+	static function getClassInfo($ctx)
 	{
-		return new \Runtime\Annotations\IntrospectionInfo($__ctx, [
+		return new \Runtime\Annotations\IntrospectionInfo($ctx, [
 			"kind"=>\Runtime\Annotations\IntrospectionInfo::ITEM_CLASS,
 			"class_name"=>"Bayrell.Lang.Exceptions.ParserError",
 			"name"=>"Bayrell.Lang.Exceptions.ParserError",
@@ -54,22 +70,22 @@ class ParserError extends \Bayrell\Lang\Exceptions\ParserUnknownError
 			]),
 		]);
 	}
-	static function getFieldsList($__ctx,$f)
+	static function getFieldsList($ctx,$f)
 	{
 		$a = [];
 		return \Runtime\Collection::from($a);
 	}
-	static function getFieldInfoByName($__ctx,$field_name)
+	static function getFieldInfoByName($ctx,$field_name)
 	{
 		return null;
 	}
-	static function getMethodsList($__ctx)
+	static function getMethodsList($ctx)
 	{
 		$a = [
 		];
 		return \Runtime\Collection::from($a);
 	}
-	static function getMethodInfoByName($__ctx,$field_name)
+	static function getMethodInfoByName($ctx,$field_name)
 	{
 		return null;
 	}

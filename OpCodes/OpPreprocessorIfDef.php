@@ -1,6 +1,6 @@
 <?php
 /*!
- *  Bayrell Language
+ *  Bayrell Common Languages Transcompiler
  *
  *  (c) Copyright 2016-2018 "Ildar Bikmamatov" <support@bayrell.org>
  *
@@ -17,51 +17,50 @@
  *  limitations under the License.
  */
 namespace Bayrell\Lang\OpCodes;
-class OpTryCatchItem extends \Bayrell\Lang\OpCodes\BaseOpCode
+class OpPreprocessorIfDef extends \Bayrell\Lang\OpCodes\BaseOpCode
 {
+	const KIND_PROGRAM="program";
+	const KIND_CLASS_BODY="class_body";
+	const KIND_OPERATOR="operator";
+	const KIND_EXPRESSION="expression";
 	public $__op;
-	public $__name;
-	public $__pattern;
-	public $__value;
+	public $__condition;
+	public $__items;
 	/* ======================= Class Init Functions ======================= */
 	function _init($ctx)
 	{
 		parent::_init($ctx);
-		$this->__op = "op_try_catch_item";
-		$this->__name = "";
-		$this->__pattern = null;
-		$this->__value = null;
+		$this->__op = "op_preprocessor_ifdef";
+		$this->__condition = null;
+		$this->__items = null;
 	}
 	function assignObject($ctx,$o)
 	{
-		if ($o instanceof \Bayrell\Lang\OpCodes\OpTryCatchItem)
+		if ($o instanceof \Bayrell\Lang\OpCodes\OpPreprocessorIfDef)
 		{
 			$this->__op = $o->__op;
-			$this->__name = $o->__name;
-			$this->__pattern = $o->__pattern;
-			$this->__value = $o->__value;
+			$this->__condition = $o->__condition;
+			$this->__items = $o->__items;
 		}
 		parent::assignObject($ctx,$o);
 	}
 	function assignValue($ctx,$k,$v)
 	{
 		if ($k == "op")$this->__op = $v;
-		else if ($k == "name")$this->__name = $v;
-		else if ($k == "pattern")$this->__pattern = $v;
-		else if ($k == "value")$this->__value = $v;
+		else if ($k == "condition")$this->__condition = $v;
+		else if ($k == "items")$this->__items = $v;
 		else parent::assignValue($ctx,$k,$v);
 	}
 	function takeValue($ctx,$k,$d=null)
 	{
 		if ($k == "op")return $this->__op;
-		else if ($k == "name")return $this->__name;
-		else if ($k == "pattern")return $this->__pattern;
-		else if ($k == "value")return $this->__value;
+		else if ($k == "condition")return $this->__condition;
+		else if ($k == "items")return $this->__items;
 		return parent::takeValue($ctx,$k,$d);
 	}
 	function getClassName()
 	{
-		return "Bayrell.Lang.OpCodes.OpTryCatchItem";
+		return "Bayrell.Lang.OpCodes.OpPreprocessorIfDef";
 	}
 	static function getCurrentNamespace()
 	{
@@ -69,7 +68,7 @@ class OpTryCatchItem extends \Bayrell\Lang\OpCodes\BaseOpCode
 	}
 	static function getCurrentClassName()
 	{
-		return "Bayrell.Lang.OpCodes.OpTryCatchItem";
+		return "Bayrell.Lang.OpCodes.OpPreprocessorIfDef";
 	}
 	static function getParentClassName()
 	{
@@ -79,8 +78,8 @@ class OpTryCatchItem extends \Bayrell\Lang\OpCodes\BaseOpCode
 	{
 		return new \Runtime\Annotations\IntrospectionInfo($ctx, [
 			"kind"=>\Runtime\Annotations\IntrospectionInfo::ITEM_CLASS,
-			"class_name"=>"Bayrell.Lang.OpCodes.OpTryCatchItem",
-			"name"=>"Bayrell.Lang.OpCodes.OpTryCatchItem",
+			"class_name"=>"Bayrell.Lang.OpCodes.OpPreprocessorIfDef",
+			"name"=>"Bayrell.Lang.OpCodes.OpPreprocessorIfDef",
 			"annotations"=>\Runtime\Collection::from([
 			]),
 		]);
@@ -91,38 +90,58 @@ class OpTryCatchItem extends \Bayrell\Lang\OpCodes\BaseOpCode
 		if (($f|3)==3)
 		{
 			$a[] = "op";
-			$a[] = "name";
-			$a[] = "pattern";
-			$a[] = "value";
+			$a[] = "condition";
+			$a[] = "items";
 		}
 		return \Runtime\Collection::from($a);
 	}
 	static function getFieldInfoByName($ctx,$field_name)
 	{
+		if ($field_name == "KIND_PROGRAM") return new \Runtime\Annotations\IntrospectionInfo($ctx, [
+			"kind"=>\Runtime\Annotations\IntrospectionInfo::ITEM_FIELD,
+			"class_name"=>"Bayrell.Lang.OpCodes.OpPreprocessorIfDef",
+			"name"=> $field_name,
+			"annotations"=>\Runtime\Collection::from([
+			]),
+		]);
+		if ($field_name == "KIND_CLASS_BODY") return new \Runtime\Annotations\IntrospectionInfo($ctx, [
+			"kind"=>\Runtime\Annotations\IntrospectionInfo::ITEM_FIELD,
+			"class_name"=>"Bayrell.Lang.OpCodes.OpPreprocessorIfDef",
+			"name"=> $field_name,
+			"annotations"=>\Runtime\Collection::from([
+			]),
+		]);
+		if ($field_name == "KIND_OPERATOR") return new \Runtime\Annotations\IntrospectionInfo($ctx, [
+			"kind"=>\Runtime\Annotations\IntrospectionInfo::ITEM_FIELD,
+			"class_name"=>"Bayrell.Lang.OpCodes.OpPreprocessorIfDef",
+			"name"=> $field_name,
+			"annotations"=>\Runtime\Collection::from([
+			]),
+		]);
+		if ($field_name == "KIND_EXPRESSION") return new \Runtime\Annotations\IntrospectionInfo($ctx, [
+			"kind"=>\Runtime\Annotations\IntrospectionInfo::ITEM_FIELD,
+			"class_name"=>"Bayrell.Lang.OpCodes.OpPreprocessorIfDef",
+			"name"=> $field_name,
+			"annotations"=>\Runtime\Collection::from([
+			]),
+		]);
 		if ($field_name == "op") return new \Runtime\Annotations\IntrospectionInfo($ctx, [
 			"kind"=>\Runtime\Annotations\IntrospectionInfo::ITEM_FIELD,
-			"class_name"=>"Bayrell.Lang.OpCodes.OpTryCatchItem",
+			"class_name"=>"Bayrell.Lang.OpCodes.OpPreprocessorIfDef",
 			"name"=> $field_name,
 			"annotations"=>\Runtime\Collection::from([
 			]),
 		]);
-		if ($field_name == "name") return new \Runtime\Annotations\IntrospectionInfo($ctx, [
+		if ($field_name == "condition") return new \Runtime\Annotations\IntrospectionInfo($ctx, [
 			"kind"=>\Runtime\Annotations\IntrospectionInfo::ITEM_FIELD,
-			"class_name"=>"Bayrell.Lang.OpCodes.OpTryCatchItem",
+			"class_name"=>"Bayrell.Lang.OpCodes.OpPreprocessorIfDef",
 			"name"=> $field_name,
 			"annotations"=>\Runtime\Collection::from([
 			]),
 		]);
-		if ($field_name == "pattern") return new \Runtime\Annotations\IntrospectionInfo($ctx, [
+		if ($field_name == "items") return new \Runtime\Annotations\IntrospectionInfo($ctx, [
 			"kind"=>\Runtime\Annotations\IntrospectionInfo::ITEM_FIELD,
-			"class_name"=>"Bayrell.Lang.OpCodes.OpTryCatchItem",
-			"name"=> $field_name,
-			"annotations"=>\Runtime\Collection::from([
-			]),
-		]);
-		if ($field_name == "value") return new \Runtime\Annotations\IntrospectionInfo($ctx, [
-			"kind"=>\Runtime\Annotations\IntrospectionInfo::ITEM_FIELD,
-			"class_name"=>"Bayrell.Lang.OpCodes.OpTryCatchItem",
+			"class_name"=>"Bayrell.Lang.OpCodes.OpPreprocessorIfDef",
 			"name"=> $field_name,
 			"annotations"=>\Runtime\Collection::from([
 			]),

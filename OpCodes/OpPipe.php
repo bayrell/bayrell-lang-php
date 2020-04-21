@@ -2,7 +2,7 @@
 /*!
  *  Bayrell Language
  *
- *  (c) Copyright 2016-2019 "Ildar Bikmamatov" <support@bayrell.org>
+ *  (c) Copyright 2016-2020 "Ildar Bikmamatov" <support@bayrell.org>
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -19,67 +19,55 @@
 namespace Bayrell\Lang\OpCodes;
 class OpPipe extends \Bayrell\Lang\OpCodes\BaseOpCode
 {
+	const KIND_ATTR="attr";
+	const KIND_ASYNC="async";
+	const KIND_CALL="method";
 	const KIND_METHOD="method";
-	const KIND_LAMBDA="lambda";
+	const KIND_MONAD="monad";
 	public $__op;
 	public $__kind;
-	public $__class_name;
-	public $__method_name;
 	public $__obj;
-	public $__args;
-	public $__is_await;
-	public $__is_context;
+	public $__value;
+	public $__is_async;
 	/* ======================= Class Init Functions ======================= */
-	function _init($__ctx)
+	function _init($ctx)
 	{
-		parent::_init($__ctx);
+		parent::_init($ctx);
 		$this->__op = "op_pipe";
 		$this->__kind = "";
-		$this->__class_name = "";
-		$this->__method_name = "";
 		$this->__obj = null;
-		$this->__args = null;
-		$this->__is_await = false;
-		$this->__is_context = true;
+		$this->__value = null;
+		$this->__is_async = false;
 	}
-	function assignObject($__ctx,$o)
+	function assignObject($ctx,$o)
 	{
 		if ($o instanceof \Bayrell\Lang\OpCodes\OpPipe)
 		{
 			$this->__op = $o->__op;
 			$this->__kind = $o->__kind;
-			$this->__class_name = $o->__class_name;
-			$this->__method_name = $o->__method_name;
 			$this->__obj = $o->__obj;
-			$this->__args = $o->__args;
-			$this->__is_await = $o->__is_await;
-			$this->__is_context = $o->__is_context;
+			$this->__value = $o->__value;
+			$this->__is_async = $o->__is_async;
 		}
-		parent::assignObject($__ctx,$o);
+		parent::assignObject($ctx,$o);
 	}
-	function assignValue($__ctx,$k,$v)
+	function assignValue($ctx,$k,$v)
 	{
 		if ($k == "op")$this->__op = $v;
 		else if ($k == "kind")$this->__kind = $v;
-		else if ($k == "class_name")$this->__class_name = $v;
-		else if ($k == "method_name")$this->__method_name = $v;
 		else if ($k == "obj")$this->__obj = $v;
-		else if ($k == "args")$this->__args = $v;
-		else if ($k == "is_await")$this->__is_await = $v;
-		else if ($k == "is_context")$this->__is_context = $v;
-		else parent::assignValue($__ctx,$k,$v);
+		else if ($k == "value")$this->__value = $v;
+		else if ($k == "is_async")$this->__is_async = $v;
+		else parent::assignValue($ctx,$k,$v);
 	}
-	function takeValue($__ctx,$k,$d=null)
+	function takeValue($ctx,$k,$d=null)
 	{
 		if ($k == "op")return $this->__op;
 		else if ($k == "kind")return $this->__kind;
-		else if ($k == "class_name")return $this->__class_name;
-		else if ($k == "method_name")return $this->__method_name;
 		else if ($k == "obj")return $this->__obj;
-		else if ($k == "args")return $this->__args;
-		else if ($k == "is_await")return $this->__is_await;
-		else if ($k == "is_context")return $this->__is_context;
-		return parent::takeValue($__ctx,$k,$d);
+		else if ($k == "value")return $this->__value;
+		else if ($k == "is_async")return $this->__is_async;
+		return parent::takeValue($ctx,$k,$d);
 	}
 	function getClassName()
 	{
@@ -97,9 +85,9 @@ class OpPipe extends \Bayrell\Lang\OpCodes\BaseOpCode
 	{
 		return "Bayrell.Lang.OpCodes.BaseOpCode";
 	}
-	static function getClassInfo($__ctx)
+	static function getClassInfo($ctx)
 	{
-		return new \Runtime\Annotations\IntrospectionInfo($__ctx, [
+		return new \Runtime\Annotations\IntrospectionInfo($ctx, [
 			"kind"=>\Runtime\Annotations\IntrospectionInfo::ITEM_CLASS,
 			"class_name"=>"Bayrell.Lang.OpCodes.OpPipe",
 			"name"=>"Bayrell.Lang.OpCodes.OpPipe",
@@ -107,33 +95,100 @@ class OpPipe extends \Bayrell\Lang\OpCodes\BaseOpCode
 			]),
 		]);
 	}
-	static function getFieldsList($__ctx,$f)
+	static function getFieldsList($ctx,$f)
 	{
 		$a = [];
 		if (($f|3)==3)
 		{
 			$a[] = "op";
 			$a[] = "kind";
-			$a[] = "class_name";
-			$a[] = "method_name";
 			$a[] = "obj";
-			$a[] = "args";
-			$a[] = "is_await";
-			$a[] = "is_context";
+			$a[] = "value";
+			$a[] = "is_async";
 		}
 		return \Runtime\Collection::from($a);
 	}
-	static function getFieldInfoByName($__ctx,$field_name)
+	static function getFieldInfoByName($ctx,$field_name)
 	{
+		if ($field_name == "KIND_ATTR") return new \Runtime\Annotations\IntrospectionInfo($ctx, [
+			"kind"=>\Runtime\Annotations\IntrospectionInfo::ITEM_FIELD,
+			"class_name"=>"Bayrell.Lang.OpCodes.OpPipe",
+			"name"=> $field_name,
+			"annotations"=>\Runtime\Collection::from([
+			]),
+		]);
+		if ($field_name == "KIND_ASYNC") return new \Runtime\Annotations\IntrospectionInfo($ctx, [
+			"kind"=>\Runtime\Annotations\IntrospectionInfo::ITEM_FIELD,
+			"class_name"=>"Bayrell.Lang.OpCodes.OpPipe",
+			"name"=> $field_name,
+			"annotations"=>\Runtime\Collection::from([
+			]),
+		]);
+		if ($field_name == "KIND_CALL") return new \Runtime\Annotations\IntrospectionInfo($ctx, [
+			"kind"=>\Runtime\Annotations\IntrospectionInfo::ITEM_FIELD,
+			"class_name"=>"Bayrell.Lang.OpCodes.OpPipe",
+			"name"=> $field_name,
+			"annotations"=>\Runtime\Collection::from([
+			]),
+		]);
+		if ($field_name == "KIND_METHOD") return new \Runtime\Annotations\IntrospectionInfo($ctx, [
+			"kind"=>\Runtime\Annotations\IntrospectionInfo::ITEM_FIELD,
+			"class_name"=>"Bayrell.Lang.OpCodes.OpPipe",
+			"name"=> $field_name,
+			"annotations"=>\Runtime\Collection::from([
+			]),
+		]);
+		if ($field_name == "KIND_MONAD") return new \Runtime\Annotations\IntrospectionInfo($ctx, [
+			"kind"=>\Runtime\Annotations\IntrospectionInfo::ITEM_FIELD,
+			"class_name"=>"Bayrell.Lang.OpCodes.OpPipe",
+			"name"=> $field_name,
+			"annotations"=>\Runtime\Collection::from([
+			]),
+		]);
+		if ($field_name == "op") return new \Runtime\Annotations\IntrospectionInfo($ctx, [
+			"kind"=>\Runtime\Annotations\IntrospectionInfo::ITEM_FIELD,
+			"class_name"=>"Bayrell.Lang.OpCodes.OpPipe",
+			"name"=> $field_name,
+			"annotations"=>\Runtime\Collection::from([
+			]),
+		]);
+		if ($field_name == "kind") return new \Runtime\Annotations\IntrospectionInfo($ctx, [
+			"kind"=>\Runtime\Annotations\IntrospectionInfo::ITEM_FIELD,
+			"class_name"=>"Bayrell.Lang.OpCodes.OpPipe",
+			"name"=> $field_name,
+			"annotations"=>\Runtime\Collection::from([
+			]),
+		]);
+		if ($field_name == "obj") return new \Runtime\Annotations\IntrospectionInfo($ctx, [
+			"kind"=>\Runtime\Annotations\IntrospectionInfo::ITEM_FIELD,
+			"class_name"=>"Bayrell.Lang.OpCodes.OpPipe",
+			"name"=> $field_name,
+			"annotations"=>\Runtime\Collection::from([
+			]),
+		]);
+		if ($field_name == "value") return new \Runtime\Annotations\IntrospectionInfo($ctx, [
+			"kind"=>\Runtime\Annotations\IntrospectionInfo::ITEM_FIELD,
+			"class_name"=>"Bayrell.Lang.OpCodes.OpPipe",
+			"name"=> $field_name,
+			"annotations"=>\Runtime\Collection::from([
+			]),
+		]);
+		if ($field_name == "is_async") return new \Runtime\Annotations\IntrospectionInfo($ctx, [
+			"kind"=>\Runtime\Annotations\IntrospectionInfo::ITEM_FIELD,
+			"class_name"=>"Bayrell.Lang.OpCodes.OpPipe",
+			"name"=> $field_name,
+			"annotations"=>\Runtime\Collection::from([
+			]),
+		]);
 		return null;
 	}
-	static function getMethodsList($__ctx)
+	static function getMethodsList($ctx)
 	{
 		$a = [
 		];
 		return \Runtime\Collection::from($a);
 	}
-	static function getMethodInfoByName($__ctx,$field_name)
+	static function getMethodInfoByName($ctx,$field_name)
 	{
 		return null;
 	}

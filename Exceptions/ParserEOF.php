@@ -19,9 +19,9 @@
 namespace Bayrell\Lang\Exceptions;
 class ParserEOF extends \Bayrell\Lang\Exceptions\ParserUnknownError
 {
-	function __construct($__ctx, $context, $prev=null)
+	function __construct($ctx, $context, $prev=null)
 	{
-		parent::__construct($__ctx, "ERROR_PARSER_EOF", \Bayrell\Lang\LangConstant::ERROR_PARSER_EOF, $context, $prev);
+		parent::__construct($ctx, "ERROR_PARSER_EOF", \Bayrell\Lang\LangConstant::ERROR_PARSER_EOF, $context, $prev);
 	}
 	/* ======================= Class Init Functions ======================= */
 	function getClassName()
@@ -40,9 +40,9 @@ class ParserEOF extends \Bayrell\Lang\Exceptions\ParserUnknownError
 	{
 		return "Bayrell.Lang.Exceptions.ParserUnknownError";
 	}
-	static function getClassInfo($__ctx)
+	static function getClassInfo($ctx)
 	{
-		return new \Runtime\Annotations\IntrospectionInfo($__ctx, [
+		return new \Runtime\Annotations\IntrospectionInfo($ctx, [
 			"kind"=>\Runtime\Annotations\IntrospectionInfo::ITEM_CLASS,
 			"class_name"=>"Bayrell.Lang.Exceptions.ParserEOF",
 			"name"=>"Bayrell.Lang.Exceptions.ParserEOF",
@@ -50,22 +50,22 @@ class ParserEOF extends \Bayrell\Lang\Exceptions\ParserUnknownError
 			]),
 		]);
 	}
-	static function getFieldsList($__ctx,$f)
+	static function getFieldsList($ctx,$f)
 	{
 		$a = [];
 		return \Runtime\Collection::from($a);
 	}
-	static function getFieldInfoByName($__ctx,$field_name)
+	static function getFieldInfoByName($ctx,$field_name)
 	{
 		return null;
 	}
-	static function getMethodsList($__ctx)
+	static function getMethodsList($ctx)
 	{
 		$a = [
 		];
 		return \Runtime\Collection::from($a);
 	}
-	static function getMethodInfoByName($__ctx,$field_name)
+	static function getMethodInfoByName($ctx,$field_name)
 	{
 		return null;
 	}

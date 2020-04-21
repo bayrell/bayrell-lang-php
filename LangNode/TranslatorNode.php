@@ -2,7 +2,7 @@
 /*!
  *  Bayrell Language
  *
- *  (c) Copyright 2016-2019 "Ildar Bikmamatov" <support@bayrell.org>
+ *  (c) Copyright 2016-2020 "Ildar Bikmamatov" <support@bayrell.org>
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -27,29 +27,29 @@ class TranslatorNode extends \Bayrell\Lang\CoreTranslator
 	/**
 	 * Reset translator
 	 */
-	static function reset($__ctx, $t)
+	static function reset($ctx, $t)
 	{
-		return $t->copy($__ctx, \Runtime\Dict::from(["value"=>"","current_namespace_name"=>"","modules"=>new \Runtime\Dict($__ctx),"async_await"=>new \Bayrell\Lang\LangES6\TranslatorES6AsyncAwait($__ctx),"expression"=>new \Bayrell\Lang\LangNode\TranslatorNodeExpression($__ctx),"html"=>new \Bayrell\Lang\LangES6\TranslatorES6Html($__ctx),"operator"=>new \Bayrell\Lang\LangES6\TranslatorES6Operator($__ctx),"program"=>new \Bayrell\Lang\LangNode\TranslatorNodeProgram($__ctx),"save_vars"=>new \Runtime\Collection($__ctx),"save_op_codes"=>new \Runtime\Collection($__ctx),"save_op_code_inc"=>0,"preprocessor_flags"=>\Runtime\Dict::from(["NODEJS"=>true,"JAVASCRIPT"=>true])]));
+		return $t->copy($ctx, \Runtime\Dict::from(["value"=>"","current_namespace_name"=>"","modules"=>new \Runtime\Dict($ctx),"async_await"=>new \Bayrell\Lang\LangES6\TranslatorES6AsyncAwait($ctx),"expression"=>new \Bayrell\Lang\LangNode\TranslatorNodeExpression($ctx),"html"=>new \Bayrell\Lang\LangES6\TranslatorES6Html($ctx),"operator"=>new \Bayrell\Lang\LangES6\TranslatorES6Operator($ctx),"program"=>new \Bayrell\Lang\LangNode\TranslatorNodeProgram($ctx),"save_vars"=>new \Runtime\Collection($ctx),"save_op_codes"=>new \Runtime\Collection($ctx),"save_op_code_inc"=>0,"preprocessor_flags"=>\Runtime\Dict::from(["BACKEND"=>true,"NODEJS"=>true,"JAVASCRIPT"=>true])]));
 	}
 	/**
 	 * Translate BaseOpCode
 	 */
-	static function translate($__ctx, $t, $op_code)
+	static function translate($ctx, $t, $op_code)
 	{
-		$t = static::reset($__ctx, $t);
-		return $t->program->staticMethod("translateProgram")($__ctx, $t, $op_code);
+		$t = static::reset($ctx, $t);
+		return $t->program::translateProgram($ctx, $t, $op_code);
 	}
 	/* ======================= Class Init Functions ======================= */
-	function _init($__ctx)
+	function _init($ctx)
 	{
-		parent::_init($__ctx);
+		parent::_init($ctx);
 		$this->__async_await = null;
 		$this->__expression = null;
 		$this->__html = null;
 		$this->__operator = null;
 		$this->__program = null;
 	}
-	function assignObject($__ctx,$o)
+	function assignObject($ctx,$o)
 	{
 		if ($o instanceof \Bayrell\Lang\LangNode\TranslatorNode)
 		{
@@ -59,25 +59,25 @@ class TranslatorNode extends \Bayrell\Lang\CoreTranslator
 			$this->__operator = $o->__operator;
 			$this->__program = $o->__program;
 		}
-		parent::assignObject($__ctx,$o);
+		parent::assignObject($ctx,$o);
 	}
-	function assignValue($__ctx,$k,$v)
+	function assignValue($ctx,$k,$v)
 	{
 		if ($k == "async_await")$this->__async_await = $v;
 		else if ($k == "expression")$this->__expression = $v;
 		else if ($k == "html")$this->__html = $v;
 		else if ($k == "operator")$this->__operator = $v;
 		else if ($k == "program")$this->__program = $v;
-		else parent::assignValue($__ctx,$k,$v);
+		else parent::assignValue($ctx,$k,$v);
 	}
-	function takeValue($__ctx,$k,$d=null)
+	function takeValue($ctx,$k,$d=null)
 	{
 		if ($k == "async_await")return $this->__async_await;
 		else if ($k == "expression")return $this->__expression;
 		else if ($k == "html")return $this->__html;
 		else if ($k == "operator")return $this->__operator;
 		else if ($k == "program")return $this->__program;
-		return parent::takeValue($__ctx,$k,$d);
+		return parent::takeValue($ctx,$k,$d);
 	}
 	function getClassName()
 	{
@@ -95,9 +95,9 @@ class TranslatorNode extends \Bayrell\Lang\CoreTranslator
 	{
 		return "Bayrell.Lang.CoreTranslator";
 	}
-	static function getClassInfo($__ctx)
+	static function getClassInfo($ctx)
 	{
-		return new \Runtime\Annotations\IntrospectionInfo($__ctx, [
+		return new \Runtime\Annotations\IntrospectionInfo($ctx, [
 			"kind"=>\Runtime\Annotations\IntrospectionInfo::ITEM_CLASS,
 			"class_name"=>"Bayrell.Lang.LangNode.TranslatorNode",
 			"name"=>"Bayrell.Lang.LangNode.TranslatorNode",
@@ -105,7 +105,7 @@ class TranslatorNode extends \Bayrell\Lang\CoreTranslator
 			]),
 		]);
 	}
-	static function getFieldsList($__ctx,$f)
+	static function getFieldsList($ctx,$f)
 	{
 		$a = [];
 		if (($f|3)==3)
@@ -118,17 +118,52 @@ class TranslatorNode extends \Bayrell\Lang\CoreTranslator
 		}
 		return \Runtime\Collection::from($a);
 	}
-	static function getFieldInfoByName($__ctx,$field_name)
+	static function getFieldInfoByName($ctx,$field_name)
 	{
+		if ($field_name == "async_await") return new \Runtime\Annotations\IntrospectionInfo($ctx, [
+			"kind"=>\Runtime\Annotations\IntrospectionInfo::ITEM_FIELD,
+			"class_name"=>"Bayrell.Lang.LangNode.TranslatorNode",
+			"name"=> $field_name,
+			"annotations"=>\Runtime\Collection::from([
+			]),
+		]);
+		if ($field_name == "expression") return new \Runtime\Annotations\IntrospectionInfo($ctx, [
+			"kind"=>\Runtime\Annotations\IntrospectionInfo::ITEM_FIELD,
+			"class_name"=>"Bayrell.Lang.LangNode.TranslatorNode",
+			"name"=> $field_name,
+			"annotations"=>\Runtime\Collection::from([
+			]),
+		]);
+		if ($field_name == "html") return new \Runtime\Annotations\IntrospectionInfo($ctx, [
+			"kind"=>\Runtime\Annotations\IntrospectionInfo::ITEM_FIELD,
+			"class_name"=>"Bayrell.Lang.LangNode.TranslatorNode",
+			"name"=> $field_name,
+			"annotations"=>\Runtime\Collection::from([
+			]),
+		]);
+		if ($field_name == "operator") return new \Runtime\Annotations\IntrospectionInfo($ctx, [
+			"kind"=>\Runtime\Annotations\IntrospectionInfo::ITEM_FIELD,
+			"class_name"=>"Bayrell.Lang.LangNode.TranslatorNode",
+			"name"=> $field_name,
+			"annotations"=>\Runtime\Collection::from([
+			]),
+		]);
+		if ($field_name == "program") return new \Runtime\Annotations\IntrospectionInfo($ctx, [
+			"kind"=>\Runtime\Annotations\IntrospectionInfo::ITEM_FIELD,
+			"class_name"=>"Bayrell.Lang.LangNode.TranslatorNode",
+			"name"=> $field_name,
+			"annotations"=>\Runtime\Collection::from([
+			]),
+		]);
 		return null;
 	}
-	static function getMethodsList($__ctx)
+	static function getMethodsList($ctx)
 	{
 		$a = [
 		];
 		return \Runtime\Collection::from($a);
 	}
-	static function getMethodInfoByName($__ctx,$field_name)
+	static function getMethodInfoByName($ctx,$field_name)
 	{
 		return null;
 	}

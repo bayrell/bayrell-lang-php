@@ -2,7 +2,7 @@
 /*!
  *  Bayrell Language
  *
- *  (c) Copyright 2016-2019 "Ildar Bikmamatov" <support@bayrell.org>
+ *  (c) Copyright 2016-2020 "Ildar Bikmamatov" <support@bayrell.org>
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -22,195 +22,321 @@ class TranslatorES6Html
 	/**
 	 * Is component
 	 */
-	static function isComponent($__ctx, $tag_name)
+	static function isComponent($ctx, $tag_name)
 	{
-		$ch1 = \Runtime\rs::substr($__ctx, $tag_name, 0, 1);
-		$ch2 = \Runtime\rs::strtoupper($__ctx, $ch1);
+		if ($tag_name == "")
+		{
+			return false;
+		}
+		$ch1 = \Runtime\rs::substr($ctx, $tag_name, 0, 1);
+		$ch2 = \Runtime\rs::strtoupper($ctx, $ch1);
 		return $ch1 == "{" || $ch1 == $ch2;
+	}
+	/**
+	 * Translator html value
+	 */
+	static function OpHtmlAttr($ctx, $t, $attr, $item_pos)
+	{
+		$op_code = $attr->value;
+		if ($attr instanceof \Bayrell\Lang\OpCodes\OpString)
+		{
+			return \Runtime\Collection::from([$t,$t->expression::toString($ctx, $op_code->value)]);
+		}
+		if ($op_code instanceof \Bayrell\Lang\OpCodes\OpHtmlValue)
+		{
+			if ($op_code->kind == \Bayrell\Lang\OpCodes\OpHtmlValue::KIND_RAW)
+			{
+				$res = $t->expression::Expression($ctx, $t, $op_code->value);
+				$t = $res[0];
+				$value = $res[1];
+				return \Runtime\Collection::from([$t,$value]);
+			}
+			else if ($op_code->kind == \Bayrell\Lang\OpCodes\OpHtmlValue::KIND_JSON)
+			{
+				$res = $t->expression::Expression($ctx, $t, $op_code->value);
+				$t = $res[0];
+				$value = $res[1];
+				$value = $t->expression::useModuleName($ctx, $t, "RenderHelper") . \Runtime\rtl::toStr(".json_encode(ctx, ") . \Runtime\rtl::toStr($value) . \Runtime\rtl::toStr(")");
+				return \Runtime\Collection::from([$t,$value]);
+			}
+		}
+		$res = $t->expression::Expression($ctx, $t, $op_code);
+		$t = $res[0];
+		$value = $res[1];
+		$value = $t->o($ctx, $value, $res[0]->opcode_level, 13);
+		return \Runtime\Collection::from([$t,$value]);
 	}
 	/**
 	 * Translator html template
 	 */
-	static function OpHtmlAttrs($__ctx, $t, $attrs)
+	static function OpHtmlAttrs($ctx, $t, $attrs, $item_pos)
 	{
+		$attr_class = new \Runtime\Vector($ctx);
 		$attr_s = "null";
-		$attrs = $attrs->map($__ctx, function ($__ctx, $attr) use (&$t)
+		$attr_key_value = "";
+		$has_attr_key = false;
+		$v_model = "";
+		$model = $attrs->findItem($ctx, \Runtime\lib::equalAttr($ctx, "key", "@model"));
+		if (!$model)
 		{
-			$attr_key = $attr->key;
-			$ch = \Runtime\rs::substr($__ctx, $attr_key, 0, 1);
-			if ($attr_key == "@class" && $attr->value instanceof \Bayrell\Lang\OpCodes\OpString)
+			$bind = $attrs->findItem($ctx, \Runtime\lib::equalAttr($ctx, "key", "@bind"));
+			if ($bind)
 			{
-				return "\"class\":" . \Runtime\rtl::toStr("this.getCssName(__ctx, ") . \Runtime\rtl::toStr($t->expression->staticMethod("toString")($__ctx, $attr->value->value)) . \Runtime\rtl::toStr(")");
+				$res = $t->expression::Expression($ctx, $t, $bind->value);
+				$t = $res[0];
+				$v_model = "model[" . \Runtime\rtl::toStr($res[1]) . \Runtime\rtl::toStr("]");
 			}
-			if (\Runtime\rs::substr($__ctx, $attr_key, 0, 7) == "@event:")
+		}
+		$attrs = $attrs->map($ctx, function ($ctx, $attr) use (&$t,&$v_model,&$attr_class,&$attr_key_value,&$has_attr_key,&$item_pos)
+		{
+			$res = static::OpHtmlAttr($ctx, $t, $attr);
+			$t = $res[0];
+			$attr_value = $res[1];
+			$attr_key = $attr->key;
+			$ch = \Runtime\rs::substr($ctx, $attr_key, 0, 1);
+			if ($attr_key == "@class")
 			{
-				$event_name = \Runtime\rs::substr($__ctx, $attr_key, 7);
-				$event_name = $t->expression->staticMethod("findModuleName")($__ctx, $t, $event_name);
+				$attr_class->push($ctx, "this.getCssName(ctx, " . \Runtime\rtl::toStr($attr_value) . \Runtime\rtl::toStr(")"));
+				if (!$has_attr_key && $attr->value instanceof \Bayrell\Lang\OpCodes\OpString)
+				{
+					$arr = \Runtime\rs::split($ctx, " ", $attr->value->value);
+					$attr_key_value = $t->expression::toString($ctx, $arr[0] . \Runtime\rtl::toStr("-") . \Runtime\rtl::toStr($item_pos));
+					$has_attr_key = true;
+				}
+				return "";
+			}
+			else if ($attr_key == "class")
+			{
+				$attr_class->push($ctx, $attr_value);
+				return "";
+			}
+			else if ($attr_key == "@key")
+			{
+				$has_attr_key = true;
+				$res = static::OpHtmlAttr($ctx, $t, $attr);
+				$t = $res[0];
+				$attr_value = $res[1];
+				$attr_key_value = $attr_value;
+				return "";
+			}
+			if (\Runtime\rs::substr($ctx, $attr_key, 0, 7) == "@event:")
+			{
+				$event_name = \Runtime\rs::substr($ctx, $attr_key, 7);
+				$event_name = $t->expression::findModuleName($ctx, $t, $event_name);
 				$attr_key = "@event:" . \Runtime\rtl::toStr($event_name);
 			}
-			if ($attr->value instanceof \Bayrell\Lang\OpCodes\OpHtmlValue)
+			if (\Runtime\rs::substr($ctx, $attr_key, 0, 12) == "@eventAsync:")
 			{
-				if ($attr->value->kind == \Bayrell\Lang\OpCodes\OpHtmlValue::KIND_RAW)
-				{
-					$res = $t->expression->staticMethod("Expression")($__ctx, $t, $attr->value->value);
-					$t = $res[0];
-					return $t->expression->staticMethod("toString")($__ctx, $attr_key) . \Runtime\rtl::toStr(":") . \Runtime\rtl::toStr($res[1]);
-				}
-				else if ($attr->value->kind == \Bayrell\Lang\OpCodes\OpHtmlValue::KIND_JSON)
-				{
-					$res = $t->expression->staticMethod("Expression")($__ctx, $t, $attr->value->value);
-					$t = $res[0];
-					$value = $res[1];
-					$value = "static::json_encode(__ctx, " . \Runtime\rtl::toStr($value) . \Runtime\rtl::toStr(")");
-					return $t->expression->staticMethod("toString")($__ctx, $attr_key) . \Runtime\rtl::toStr(":") . \Runtime\rtl::toStr($value);
-				}
+				$event_name = \Runtime\rs::substr($ctx, $attr_key, 12);
+				$event_name = $t->expression::findModuleName($ctx, $t, $event_name);
+				$attr_key = "@eventAsync:" . \Runtime\rtl::toStr($event_name);
 			}
-			$res = $t->expression->staticMethod("Expression")($__ctx, $t, $attr->value);
-			$t = $res[0];
-			$value = $res[1];
-			return $t->expression->staticMethod("toString")($__ctx, $attr_key) . \Runtime\rtl::toStr(":") . \Runtime\rtl::toStr($res[1]);
+			if ($attr_key == "@bind" && $v_model != "")
+			{
+				$s = "";
+				$s = $t->expression::toString($ctx, $attr_key) . \Runtime\rtl::toStr(":") . \Runtime\rtl::toStr($attr_value) . \Runtime\rtl::toStr(",");
+				$s .= \Runtime\rtl::toStr($t->expression::toString($ctx, "@model") . \Runtime\rtl::toStr(":") . \Runtime\rtl::toStr($v_model));
+				return $s;
+			}
+			return $t->expression::toString($ctx, $attr_key) . \Runtime\rtl::toStr(":") . \Runtime\rtl::toStr($attr_value);
 		});
-		$attrs = $attrs->filter($__ctx, function ($__ctx, $s)
+		$attrs = $attrs->filter($ctx, function ($ctx, $s)
 		{
 			return $s != "";
 		});
-		if ($attrs->count($__ctx) > 0)
+		if ($attr_class->count($ctx) > 0)
 		{
-			$attr_s = "{" . \Runtime\rtl::toStr(\Runtime\rs::join($__ctx, ",", $attrs)) . \Runtime\rtl::toStr("}");
+			$attrs = $attrs->pushIm($ctx, "\"class\":" . \Runtime\rtl::toStr(\Runtime\rs::join($ctx, " + \" \" + ", $attr_class)));
+		}
+		if ($attr_key_value != "")
+		{
+			$attrs = $attrs->pushIm($ctx, "\"@key\":" . \Runtime\rtl::toStr($attr_key_value));
+		}
+		if ($attrs->count($ctx) > 0)
+		{
+			$attr_s = "{" . \Runtime\rtl::toStr(\Runtime\rs::join($ctx, ",", $attrs)) . \Runtime\rtl::toStr("}");
 		}
 		return \Runtime\Collection::from([$t,$attr_s]);
 	}
 	/**
 	 * Translator html template
 	 */
-	static function OpHtmlTag($__ctx, $t, $op_code, $item_pos)
+	static function OpHtmlTag($ctx, $t, $op_code, $item_pos, $var_name)
 	{
-		$is_component = static::isComponent($__ctx, $op_code->tag_name);
 		$content = "";
-		if ($is_component)
+		$content2 = "";
+		$str_var_name = $t->expression::toString($ctx, $var_name);
+		if ($op_code instanceof \Bayrell\Lang\OpCodes\OpHtmlContent)
 		{
-			$content = $t->s($__ctx, "/* Component '" . \Runtime\rtl::toStr($op_code->tag_name) . \Runtime\rtl::toStr("' */"));
+			$item_value = $t->expression::toString($ctx, $op_code->value);
+			$content .= \Runtime\rtl::toStr($t->s($ctx, "[__vnull, " . \Runtime\rtl::toStr($var_name) . \Runtime\rtl::toStr("_childs] = ") . \Runtime\rtl::toStr("RenderDriver.insert(") . \Runtime\rtl::toStr($var_name) . \Runtime\rtl::toStr(", ") . \Runtime\rtl::toStr($var_name) . \Runtime\rtl::toStr("_childs") . \Runtime\rtl::toStr(", \"text\", {\"content\": ") . \Runtime\rtl::toStr($item_value) . \Runtime\rtl::toStr("}, ") . \Runtime\rtl::toStr($item_pos) . \Runtime\rtl::toStr(");")));
 		}
-		else
+		else if ($op_code instanceof \Bayrell\Lang\OpCodes\OpHtmlValue)
 		{
-			$content = $t->s($__ctx, "/* Element '" . \Runtime\rtl::toStr($op_code->tag_name) . \Runtime\rtl::toStr("' */"));
-		}
-		$res = $t->staticMethod("incSaveOpCode")($__ctx, $t);
-		$t = $res[0];
-		$var_name = $res[1];
-		$tag_name = $t->expression->staticMethod("toString")($__ctx, $op_code->tag_name);
-		$res = static::OpHtmlAttrs($__ctx, $t, $op_code->attrs);
-		$t = $res[0];
-		$attrs = $res[1];
-		$var_name_content = $var_name . \Runtime\rtl::toStr("_content");
-		if ($op_code->items != null && $op_code->items->items->count($__ctx) > 0)
-		{
-			$content .= \Runtime\rtl::toStr($t->s($__ctx, "var " . \Runtime\rtl::toStr($var_name_content) . \Runtime\rtl::toStr(" = (control) =>")));
-			$content .= \Runtime\rtl::toStr($t->s($__ctx, "{"));
-			$t = $t->levelInc($__ctx);
-			$f = \Runtime\rtl::method($__ctx, static::getCurrentClassName($__ctx), "OpHtmlItems");
-			$res = $t->staticMethod("saveOpCodeCall")($__ctx, $t, $f, \Runtime\Collection::from([$op_code->items]));
-			$t = $res[0];
-			$content .= \Runtime\rtl::toStr($res[1]);
-			$content .= \Runtime\rtl::toStr($t->s($__ctx, "return " . \Runtime\rtl::toStr($res[2]) . \Runtime\rtl::toStr(";")));
-			$t = $t->levelDec($__ctx);
-			$content .= \Runtime\rtl::toStr($t->s($__ctx, "};"));
-		}
-		else
-		{
-			$var_name_content = "null";
-		}
-		if ($is_component)
-		{
-			if ($op_code->op_code_name)
+			if ($op_code->kind == \Bayrell\Lang\OpCodes\OpHtmlValue::KIND_RAW)
 			{
-				$res = $t->expression->staticMethod("Expression")($__ctx, $t, $op_code->op_code_name);
-				$t = $res[0];
-				$tag_name = $res[1];
-			}
-			$content .= \Runtime\rtl::toStr($t->s($__ctx, "var " . \Runtime\rtl::toStr($var_name) . \Runtime\rtl::toStr("_elem = Runtime.UI.Drivers.RenderDriver.component(") . \Runtime\rtl::toStr("layout,") . \Runtime\rtl::toStr($tag_name) . \Runtime\rtl::toStr(",") . \Runtime\rtl::toStr($attrs) . \Runtime\rtl::toStr(",") . \Runtime\rtl::toStr($var_name_content) . \Runtime\rtl::toStr(",") . \Runtime\rtl::toStr("control,") . \Runtime\rtl::toStr($item_pos) . \Runtime\rtl::toStr(");")));
-		}
-		else
-		{
-			$content .= \Runtime\rtl::toStr($t->s($__ctx, "var " . \Runtime\rtl::toStr($var_name) . \Runtime\rtl::toStr("_elem = Runtime.UI.Drivers.RenderDriver.elem(") . \Runtime\rtl::toStr("layout,") . \Runtime\rtl::toStr($tag_name) . \Runtime\rtl::toStr(",") . \Runtime\rtl::toStr($attrs) . \Runtime\rtl::toStr(",") . \Runtime\rtl::toStr($var_name_content) . \Runtime\rtl::toStr(",") . \Runtime\rtl::toStr("control,") . \Runtime\rtl::toStr($item_pos) . \Runtime\rtl::toStr(");")));
-		}
-		$res = $t->staticMethod("addSaveOpCode")($__ctx, $t, \Runtime\Dict::from(["op_code"=>$op_code,"var_name"=>$var_name,"content"=>$content]));
-		$t = $res[0];
-		return \Runtime\Collection::from([$t,$var_name . \Runtime\rtl::toStr("_elem")]);
-	}
-	/**
-	 * Translator html items
-	 */
-	static function OpHtmlItems($__ctx, $t, $op_code)
-	{
-		if ($op_code->items->count($__ctx) == 0)
-		{
-			return \Runtime\Collection::from([$t,""]);
-		}
-		$res = $t->staticMethod("incSaveOpCode")($__ctx, $t);
-		$t = $res[0];
-		$var_name = $res[1];
-		$content = $t->s($__ctx, "/* Items */");
-		$content .= \Runtime\rtl::toStr($t->s($__ctx, "var " . \Runtime\rtl::toStr($var_name) . \Runtime\rtl::toStr(" = [];")));
-		for ($i = 0;$i < $op_code->items->count($__ctx);$i++)
-		{
-			$item = $op_code->items->item($__ctx, $i);
-			$item_value = "";
-			$is_text = false;
-			$is_raw = false;
-			if ($item instanceof \Bayrell\Lang\OpCodes\OpHtmlContent)
-			{
-				$item_value = $t->expression->staticMethod("toString")($__ctx, $item->value);
-				$is_text = true;
-			}
-			else if ($item instanceof \Bayrell\Lang\OpCodes\OpHtmlTag)
-			{
-				$res = static::OpHtmlTag($__ctx, $t, $item, $i);
+				$res = $t->expression::Expression($ctx, $t, $op_code->value);
 				$t = $res[0];
 				$item_value = $res[1];
+				$content .= \Runtime\rtl::toStr($t->s($ctx, "[__vnull, " . \Runtime\rtl::toStr($var_name) . \Runtime\rtl::toStr("_childs] = ") . \Runtime\rtl::toStr("RenderDriver.insert(") . \Runtime\rtl::toStr($var_name) . \Runtime\rtl::toStr(", ") . \Runtime\rtl::toStr($var_name) . \Runtime\rtl::toStr("_childs") . \Runtime\rtl::toStr(", \"raw\", {\"content\": ") . \Runtime\rtl::toStr($item_value) . \Runtime\rtl::toStr("}, ") . \Runtime\rtl::toStr($item_pos) . \Runtime\rtl::toStr(");")));
 			}
-			else if ($item instanceof \Bayrell\Lang\OpCodes\OpHtmlValue)
+			else if ($op_code->kind == \Bayrell\Lang\OpCodes\OpHtmlValue::KIND_HTML)
 			{
-				if ($item->kind == \Bayrell\Lang\OpCodes\OpHtmlValue::KIND_RAW)
+				$res = $t->expression::Expression($ctx, $t, $op_code->value);
+				$t = $res[0];
+				$item_value = $res[1];
+				$content .= \Runtime\rtl::toStr($t->s($ctx, "[__vnull, " . \Runtime\rtl::toStr($var_name) . \Runtime\rtl::toStr("_childs] = ") . \Runtime\rtl::toStr("RenderDriver.insert(") . \Runtime\rtl::toStr($var_name) . \Runtime\rtl::toStr(", ") . \Runtime\rtl::toStr($var_name) . \Runtime\rtl::toStr("_childs") . \Runtime\rtl::toStr(", \"html\", {\"content\": ") . \Runtime\rtl::toStr($item_value) . \Runtime\rtl::toStr("}, ") . \Runtime\rtl::toStr($item_pos) . \Runtime\rtl::toStr(");")));
+			}
+			else if ($op_code->kind == \Bayrell\Lang\OpCodes\OpHtmlValue::KIND_JSON)
+			{
+				$res = $t->expression::Expression($ctx, $t, $op_code->value);
+				$t = $res[0];
+				$item_value = $res[1];
+				$item_value = "this.json_encode(ctx, " . \Runtime\rtl::toStr($item_value) . \Runtime\rtl::toStr(")");
+				$content .= \Runtime\rtl::toStr($t->s($ctx, "[__vnull, " . \Runtime\rtl::toStr($var_name) . \Runtime\rtl::toStr("_childs] = ") . \Runtime\rtl::toStr("RenderDriver.insert(") . \Runtime\rtl::toStr($var_name) . \Runtime\rtl::toStr(", ") . \Runtime\rtl::toStr($var_name) . \Runtime\rtl::toStr("_childs") . \Runtime\rtl::toStr(", \"text\", {\"content\": ") . \Runtime\rtl::toStr($item_value) . \Runtime\rtl::toStr("}, ") . \Runtime\rtl::toStr($item_pos) . \Runtime\rtl::toStr(");")));
+			}
+		}
+		else if ($op_code instanceof \Bayrell\Lang\OpCodes\OpHtmlTag)
+		{
+			$new_var_name = "";
+			$has_childs = $op_code->items != null && $op_code->items->items != null && $op_code->items->items->count($ctx) > 0;
+			$is_component = static::isComponent($ctx, $op_code->tag_name);
+			$res = static::OpHtmlAttrs($ctx, $t, $op_code->attrs, $item_pos);
+			$t = $res[0];
+			$attrs = $res[1];
+			if ($op_code->tag_name == "")
+			{
+				if ($has_childs)
 				{
-					$res = $t->expression->staticMethod("Expression")($__ctx, $t, $item->value);
+					$res = $t::incSaveOpCode($ctx, $t);
 					$t = $res[0];
-					$item_value = $res[1];
-					$is_raw = true;
+					$new_var_name = $res[1];
+					$content .= \Runtime\rtl::toStr($t->s2($ctx, ""));
+					$content .= \Runtime\rtl::toStr($t->s($ctx, "/* Items */"));
+					$content .= \Runtime\rtl::toStr($t->s($ctx, "var " . \Runtime\rtl::toStr($new_var_name) . \Runtime\rtl::toStr("; var ") . \Runtime\rtl::toStr($new_var_name) . \Runtime\rtl::toStr("_childs = [];")));
+					$content .= \Runtime\rtl::toStr($t->s($ctx, "[" . \Runtime\rtl::toStr($new_var_name) . \Runtime\rtl::toStr(", ") . \Runtime\rtl::toStr($var_name) . \Runtime\rtl::toStr("_childs] = ") . \Runtime\rtl::toStr("RenderDriver.insert(") . \Runtime\rtl::toStr($var_name) . \Runtime\rtl::toStr(", ") . \Runtime\rtl::toStr($var_name) . \Runtime\rtl::toStr("_childs") . \Runtime\rtl::toStr(", \"empty\", null, ") . \Runtime\rtl::toStr($item_pos) . \Runtime\rtl::toStr(");")));
 				}
-				else if ($item->kind == \Bayrell\Lang\OpCodes\OpHtmlValue::KIND_JSON)
+				else
 				{
-					$res = $t->expression->staticMethod("Expression")($__ctx, $t, $item->value);
+					$content .= \Runtime\rtl::toStr($t->s($ctx, "[__vnull, " . \Runtime\rtl::toStr($var_name) . \Runtime\rtl::toStr("_childs] = ") . \Runtime\rtl::toStr("RenderDriver.insert(") . \Runtime\rtl::toStr($var_name) . \Runtime\rtl::toStr(", ") . \Runtime\rtl::toStr($var_name) . \Runtime\rtl::toStr("_childs") . \Runtime\rtl::toStr(", \"empty\", null, ") . \Runtime\rtl::toStr($item_pos) . \Runtime\rtl::toStr(");")));
+				}
+			}
+			else if ($is_component)
+			{
+				$tag_name = "";
+				if ($op_code->op_code_name)
+				{
+					$res = $t->expression::Expression($ctx, $t, $op_code->op_code_name);
 					$t = $res[0];
-					$item_value = $res[1];
-					$item_value = "this.json_encode(__ctx, " . \Runtime\rtl::toStr($item_value) . \Runtime\rtl::toStr(")");
-					$is_text = true;
+					$tag_name = $res[1];
+				}
+				else
+				{
+					$tag_name = $t->expression::toString($ctx, $t->expression::findModuleName($ctx, $t, $op_code->tag_name));
+				}
+				if ($has_childs)
+				{
+					$res = static::OpHtmlItems($ctx, $t, $op_code->items);
+					$t = $res[0];
+					$f = $res[1];
+					$content .= \Runtime\rtl::toStr($t->s2($ctx, ""));
+					$content .= \Runtime\rtl::toStr($t->s($ctx, "/* Component '" . \Runtime\rtl::toStr($op_code->tag_name) . \Runtime\rtl::toStr("' */")));
+					$content .= \Runtime\rtl::toStr($t->s($ctx, "[__vnull, " . \Runtime\rtl::toStr($var_name) . \Runtime\rtl::toStr("_childs] = ") . \Runtime\rtl::toStr("RenderDriver.insert(") . \Runtime\rtl::toStr($var_name) . \Runtime\rtl::toStr(", ") . \Runtime\rtl::toStr($var_name) . \Runtime\rtl::toStr("_childs") . \Runtime\rtl::toStr(", \"component\", {\"name\": ") . \Runtime\rtl::toStr($tag_name) . \Runtime\rtl::toStr(",\"attrs\": ") . \Runtime\rtl::toStr($attrs) . \Runtime\rtl::toStr(", \"layout\": layout, \"content\": ") . \Runtime\rtl::toStr($f) . \Runtime\rtl::toStr("}, ") . \Runtime\rtl::toStr($item_pos) . \Runtime\rtl::toStr(");")));
+					$has_childs = false;
+				}
+				else
+				{
+					$content .= \Runtime\rtl::toStr($t->s($ctx, "[__vnull, " . \Runtime\rtl::toStr($var_name) . \Runtime\rtl::toStr("_childs] = ") . \Runtime\rtl::toStr("RenderDriver.insert(") . \Runtime\rtl::toStr($var_name) . \Runtime\rtl::toStr(", ") . \Runtime\rtl::toStr($var_name) . \Runtime\rtl::toStr("_childs") . \Runtime\rtl::toStr(", \"component\", {\"name\": ") . \Runtime\rtl::toStr($tag_name) . \Runtime\rtl::toStr(",\"attrs\": ") . \Runtime\rtl::toStr($attrs) . \Runtime\rtl::toStr(", \"layout\": layout}, ") . \Runtime\rtl::toStr($item_pos) . \Runtime\rtl::toStr(");")));
 				}
 			}
 			else
 			{
-				$res = $t->expression->staticMethod("Expression")($__ctx, $t, $item);
+				$tag_name = $t->expression::toString($ctx, $op_code->tag_name);
+				if ($has_childs)
+				{
+					$res = $t::incSaveOpCode($ctx, $t);
+					$t = $res[0];
+					$new_var_name = $res[1];
+					$content .= \Runtime\rtl::toStr($t->s2($ctx, ""));
+					$content .= \Runtime\rtl::toStr($t->s($ctx, "/* Element '" . \Runtime\rtl::toStr($op_code->tag_name) . \Runtime\rtl::toStr("' */")));
+					$content .= \Runtime\rtl::toStr($t->s($ctx, "var " . \Runtime\rtl::toStr($new_var_name) . \Runtime\rtl::toStr("; var ") . \Runtime\rtl::toStr($new_var_name) . \Runtime\rtl::toStr("_childs = [];")));
+					$content .= \Runtime\rtl::toStr($t->s($ctx, "[" . \Runtime\rtl::toStr($new_var_name) . \Runtime\rtl::toStr(", ") . \Runtime\rtl::toStr($var_name) . \Runtime\rtl::toStr("_childs] = ") . \Runtime\rtl::toStr("RenderDriver.insert(") . \Runtime\rtl::toStr($var_name) . \Runtime\rtl::toStr(", ") . \Runtime\rtl::toStr($var_name) . \Runtime\rtl::toStr("_childs") . \Runtime\rtl::toStr(", \"element\", {\"name\": ") . \Runtime\rtl::toStr($tag_name) . \Runtime\rtl::toStr(",\"attrs\": ") . \Runtime\rtl::toStr($attrs) . \Runtime\rtl::toStr("}, ") . \Runtime\rtl::toStr($item_pos) . \Runtime\rtl::toStr(");")));
+				}
+				else
+				{
+					$content .= \Runtime\rtl::toStr($t->s($ctx, "[__vnull, " . \Runtime\rtl::toStr($var_name) . \Runtime\rtl::toStr("_childs] = ") . \Runtime\rtl::toStr("RenderDriver.insert(") . \Runtime\rtl::toStr($var_name) . \Runtime\rtl::toStr(", ") . \Runtime\rtl::toStr($var_name) . \Runtime\rtl::toStr("_childs") . \Runtime\rtl::toStr(", \"element\", {\"name\": ") . \Runtime\rtl::toStr($tag_name) . \Runtime\rtl::toStr(",\"attrs\": ") . \Runtime\rtl::toStr($attrs) . \Runtime\rtl::toStr("}, ") . \Runtime\rtl::toStr($item_pos) . \Runtime\rtl::toStr(");")));
+				}
+			}
+			if ($has_childs)
+			{
+				$res = static::OpHtmlChilds($ctx, $t, $op_code->items, $new_var_name);
 				$t = $res[0];
-				$item_value = $res[1];
-				$is_text = true;
+				$content .= \Runtime\rtl::toStr($res[1]);
 			}
-			if ($item_value == "")
-			{
-				continue;
-			}
-			if ($is_text)
-			{
-				$item_value = "Runtime.UI.Drivers.RenderDriver.text(" . \Runtime\rtl::toStr("layout,") . \Runtime\rtl::toStr($item_value) . \Runtime\rtl::toStr(",") . \Runtime\rtl::toStr("control,") . \Runtime\rtl::toStr($i) . \Runtime\rtl::toStr(")");
-			}
-			else if ($is_raw)
-			{
-				$item_value = "Runtime.UI.Drivers.RenderDriver.raw(" . \Runtime\rtl::toStr("layout,") . \Runtime\rtl::toStr($item_value) . \Runtime\rtl::toStr(",") . \Runtime\rtl::toStr("control,") . \Runtime\rtl::toStr($i) . \Runtime\rtl::toStr(")");
-			}
-			$content .= \Runtime\rtl::toStr($t->s($__ctx, $var_name . \Runtime\rtl::toStr(".push(") . \Runtime\rtl::toStr($item_value) . \Runtime\rtl::toStr(");")));
 		}
-		$res = $t->staticMethod("addSaveOpCode")($__ctx, $t, \Runtime\Dict::from(["op_code"=>$op_code,"var_name"=>$var_name,"content"=>$content]));
+		else
+		{
+			$res = $t->expression::Expression($ctx, $t, $op_code);
+			$t = $res[0];
+			$item_value = $res[1];
+			$content .= \Runtime\rtl::toStr($t->s($ctx, "[__vnull, " . \Runtime\rtl::toStr($var_name) . \Runtime\rtl::toStr("_childs] = ") . \Runtime\rtl::toStr("RenderDriver.insert(") . \Runtime\rtl::toStr($var_name) . \Runtime\rtl::toStr(", ") . \Runtime\rtl::toStr($var_name) . \Runtime\rtl::toStr("_childs") . \Runtime\rtl::toStr(", \"text\", {\"content\": ") . \Runtime\rtl::toStr($item_value) . \Runtime\rtl::toStr("}, ") . \Runtime\rtl::toStr($item_pos) . \Runtime\rtl::toStr(");")));
+		}
+		return \Runtime\Collection::from([$t,$content]);
+	}
+	/**
+	 * Translator html items
+	 */
+	static function OpHtmlChilds($ctx, $t, $op_code, $control_name)
+	{
+		if ($op_code == null || $op_code->items->count($ctx) == 0)
+		{
+			return \Runtime\Collection::from([$t,""]);
+		}
+		$content = "";
+		for ($i = 0;$i < $op_code->items->count($ctx);$i++)
+		{
+			$item = $op_code->items->item($ctx, $i);
+			$res = static::OpHtmlTag($ctx, $t, $item, $i, $control_name);
+			$t = $res[0];
+			$content .= \Runtime\rtl::toStr($res[1]);
+		}
+		if ($control_name != "control")
+		{
+			$content .= \Runtime\rtl::toStr($t->s($ctx, "RenderDriver.patch(" . \Runtime\rtl::toStr($control_name) . \Runtime\rtl::toStr(", ") . \Runtime\rtl::toStr($control_name) . \Runtime\rtl::toStr("_childs);")));
+		}
+		return \Runtime\Collection::from([$t,$content]);
+	}
+	/**
+	 * Translator html items
+	 */
+	static function OpHtmlItems($ctx, $t, $op_code)
+	{
+		if ($op_code == null || $op_code->items->count($ctx) == 0)
+		{
+			return \Runtime\Collection::from([$t,""]);
+		}
+		/* Save op codes */
+		$save_t = $t;
+		$save_op_codes = $t->save_op_codes;
+		$save_op_code_inc = $t->save_op_code_inc;
+		$t = $t::clearSaveOpCode($ctx, $t);
+		$content = "";
+		$content .= \Runtime\rtl::toStr("(control) =>");
+		$content .= \Runtime\rtl::toStr($t->s($ctx, "{"));
+		$t = $t->levelInc($ctx);
+		$content .= \Runtime\rtl::toStr($t->s($ctx, "var __vnull = null;"));
+		$content .= \Runtime\rtl::toStr($t->s($ctx, "var control_childs = [];"));
+		$res = static::OpHtmlChilds($ctx, $t, $op_code, "control");
 		$t = $res[0];
-		return \Runtime\Collection::from([$t,$var_name]);
+		$content .= \Runtime\rtl::toStr($res[1]);
+		$content .= \Runtime\rtl::toStr($t->s2($ctx, ""));
+		$content .= \Runtime\rtl::toStr($t->s($ctx, "return control_childs;"));
+		$t = $t->levelDec($ctx);
+		$content .= \Runtime\rtl::toStr($t->s($ctx, "}"));
+		/* Restore save op codes */
+		$t = $t->copy($ctx, ["save_op_codes"=>$save_op_codes]);
+		$t = $t->copy($ctx, ["save_op_code_inc"=>$save_op_code_inc]);
+		return \Runtime\Collection::from([$t,$content]);
 	}
 	/* ======================= Class Init Functions ======================= */
 	function getClassName()
@@ -229,9 +355,9 @@ class TranslatorES6Html
 	{
 		return "";
 	}
-	static function getClassInfo($__ctx)
+	static function getClassInfo($ctx)
 	{
-		return new \Runtime\Annotations\IntrospectionInfo($__ctx, [
+		return new \Runtime\Annotations\IntrospectionInfo($ctx, [
 			"kind"=>\Runtime\Annotations\IntrospectionInfo::ITEM_CLASS,
 			"class_name"=>"Bayrell.Lang.LangES6.TranslatorES6Html",
 			"name"=>"Bayrell.Lang.LangES6.TranslatorES6Html",
@@ -239,22 +365,22 @@ class TranslatorES6Html
 			]),
 		]);
 	}
-	static function getFieldsList($__ctx,$f)
+	static function getFieldsList($ctx,$f)
 	{
 		$a = [];
 		return \Runtime\Collection::from($a);
 	}
-	static function getFieldInfoByName($__ctx,$field_name)
+	static function getFieldInfoByName($ctx,$field_name)
 	{
 		return null;
 	}
-	static function getMethodsList($__ctx)
+	static function getMethodsList($ctx)
 	{
 		$a = [
 		];
 		return \Runtime\Collection::from($a);
 	}
-	static function getMethodInfoByName($__ctx,$field_name)
+	static function getMethodInfoByName($ctx,$field_name)
 	{
 		return null;
 	}

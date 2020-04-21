@@ -2,7 +2,7 @@
 /*!
  *  Bayrell Language
  *
- *  (c) Copyright 2016-2019 "Ildar Bikmamatov" <support@bayrell.org>
+ *  (c) Copyright 2016-2020 "Ildar Bikmamatov" <support@bayrell.org>
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -26,53 +26,53 @@ class TranslatorPHP extends \Bayrell\Lang\CoreTranslator
 	/**
 	 * Reset translator
 	 */
-	static function reset($__ctx, $t)
+	static function reset($ctx, $t)
 	{
-		return $t->copy($__ctx, \Runtime\Dict::from(["value"=>"","current_namespace_name"=>"","modules"=>new \Runtime\Dict($__ctx),"expression"=>new \Bayrell\Lang\LangPHP\TranslatorPHPExpression($__ctx),"html"=>new \Bayrell\Lang\LangPHP\TranslatorPHPHtml($__ctx),"operator"=>new \Bayrell\Lang\LangPHP\TranslatorPHPOperator($__ctx),"program"=>new \Bayrell\Lang\LangPHP\TranslatorPHPProgram($__ctx),"save_vars"=>new \Runtime\Collection($__ctx),"save_op_codes"=>new \Runtime\Collection($__ctx),"save_op_code_inc"=>0,"preprocessor_flags"=>\Runtime\Dict::from(["PHP"=>true])]));
+		return $t->copy($ctx, \Runtime\Dict::from(["value"=>"","current_namespace_name"=>"","modules"=>new \Runtime\Dict($ctx),"expression"=>new \Bayrell\Lang\LangPHP\TranslatorPHPExpression($ctx),"html"=>new \Bayrell\Lang\LangPHP\TranslatorPHPHtml($ctx),"operator"=>new \Bayrell\Lang\LangPHP\TranslatorPHPOperator($ctx),"program"=>new \Bayrell\Lang\LangPHP\TranslatorPHPProgram($ctx),"save_vars"=>new \Runtime\Collection($ctx),"save_op_codes"=>new \Runtime\Collection($ctx),"save_op_code_inc"=>0,"preprocessor_flags"=>\Runtime\Dict::from(["BACKEND"=>true,"PHP"=>true])]));
 	}
 	/**
 	 * Translate BaseOpCode
 	 */
-	static function translate($__ctx, $t, $op_code)
+	static function translate($ctx, $t, $op_code)
 	{
-		$t = static::reset($__ctx, $t);
-		return $t->program->staticMethod("translateProgram")($__ctx, $t, $op_code);
+		$t = static::reset($ctx, $t);
+		return $t->program::translateProgram($ctx, $t, $op_code);
 	}
 	/**
 	 * Inc save op code
 	 */
-	static function nextSaveOpCode($__ctx, $t)
+	static function nextSaveOpCode($ctx, $t)
 	{
 		return "$__v" . \Runtime\rtl::toStr($t->save_op_code_inc);
 	}
 	/**
 	 * Output save op code content
 	 */
-	static function outputSaveOpCode($__ctx, $t, $save_op_code_value=0)
+	static function outputSaveOpCode($ctx, $t, $save_op_code_value=0)
 	{
 		$content = "";
-		for ($i = 0;$i < $t->save_op_codes->count($__ctx);$i++)
+		for ($i = 0;$i < $t->save_op_codes->count($ctx);$i++)
 		{
 			if ($i < $save_op_code_value)
 			{
 				continue;
 			}
-			$save = $t->save_op_codes->item($__ctx, $i);
-			$s = ($save->content == "") ? $t->s($__ctx, $save->var_name . \Runtime\rtl::toStr(" = ") . \Runtime\rtl::toStr($save->var_content) . \Runtime\rtl::toStr(";")) : $save->content;
+			$save = $t->save_op_codes->item($ctx, $i);
+			$s = ($save->content == "") ? $t->s($ctx, $save->var_name . \Runtime\rtl::toStr(" = ") . \Runtime\rtl::toStr($save->var_content) . \Runtime\rtl::toStr(";")) : $save->content;
 			$content .= \Runtime\rtl::toStr($s);
 		}
 		return $content;
 	}
 	/* ======================= Class Init Functions ======================= */
-	function _init($__ctx)
+	function _init($ctx)
 	{
-		parent::_init($__ctx);
+		parent::_init($ctx);
 		$this->__expression = null;
 		$this->__html = null;
 		$this->__operator = null;
 		$this->__program = null;
 	}
-	function assignObject($__ctx,$o)
+	function assignObject($ctx,$o)
 	{
 		if ($o instanceof \Bayrell\Lang\LangPHP\TranslatorPHP)
 		{
@@ -81,23 +81,23 @@ class TranslatorPHP extends \Bayrell\Lang\CoreTranslator
 			$this->__operator = $o->__operator;
 			$this->__program = $o->__program;
 		}
-		parent::assignObject($__ctx,$o);
+		parent::assignObject($ctx,$o);
 	}
-	function assignValue($__ctx,$k,$v)
+	function assignValue($ctx,$k,$v)
 	{
 		if ($k == "expression")$this->__expression = $v;
 		else if ($k == "html")$this->__html = $v;
 		else if ($k == "operator")$this->__operator = $v;
 		else if ($k == "program")$this->__program = $v;
-		else parent::assignValue($__ctx,$k,$v);
+		else parent::assignValue($ctx,$k,$v);
 	}
-	function takeValue($__ctx,$k,$d=null)
+	function takeValue($ctx,$k,$d=null)
 	{
 		if ($k == "expression")return $this->__expression;
 		else if ($k == "html")return $this->__html;
 		else if ($k == "operator")return $this->__operator;
 		else if ($k == "program")return $this->__program;
-		return parent::takeValue($__ctx,$k,$d);
+		return parent::takeValue($ctx,$k,$d);
 	}
 	function getClassName()
 	{
@@ -115,9 +115,9 @@ class TranslatorPHP extends \Bayrell\Lang\CoreTranslator
 	{
 		return "Bayrell.Lang.CoreTranslator";
 	}
-	static function getClassInfo($__ctx)
+	static function getClassInfo($ctx)
 	{
-		return new \Runtime\Annotations\IntrospectionInfo($__ctx, [
+		return new \Runtime\Annotations\IntrospectionInfo($ctx, [
 			"kind"=>\Runtime\Annotations\IntrospectionInfo::ITEM_CLASS,
 			"class_name"=>"Bayrell.Lang.LangPHP.TranslatorPHP",
 			"name"=>"Bayrell.Lang.LangPHP.TranslatorPHP",
@@ -125,7 +125,7 @@ class TranslatorPHP extends \Bayrell\Lang\CoreTranslator
 			]),
 		]);
 	}
-	static function getFieldsList($__ctx,$f)
+	static function getFieldsList($ctx,$f)
 	{
 		$a = [];
 		if (($f|3)==3)
@@ -137,17 +137,45 @@ class TranslatorPHP extends \Bayrell\Lang\CoreTranslator
 		}
 		return \Runtime\Collection::from($a);
 	}
-	static function getFieldInfoByName($__ctx,$field_name)
+	static function getFieldInfoByName($ctx,$field_name)
 	{
+		if ($field_name == "expression") return new \Runtime\Annotations\IntrospectionInfo($ctx, [
+			"kind"=>\Runtime\Annotations\IntrospectionInfo::ITEM_FIELD,
+			"class_name"=>"Bayrell.Lang.LangPHP.TranslatorPHP",
+			"name"=> $field_name,
+			"annotations"=>\Runtime\Collection::from([
+			]),
+		]);
+		if ($field_name == "html") return new \Runtime\Annotations\IntrospectionInfo($ctx, [
+			"kind"=>\Runtime\Annotations\IntrospectionInfo::ITEM_FIELD,
+			"class_name"=>"Bayrell.Lang.LangPHP.TranslatorPHP",
+			"name"=> $field_name,
+			"annotations"=>\Runtime\Collection::from([
+			]),
+		]);
+		if ($field_name == "operator") return new \Runtime\Annotations\IntrospectionInfo($ctx, [
+			"kind"=>\Runtime\Annotations\IntrospectionInfo::ITEM_FIELD,
+			"class_name"=>"Bayrell.Lang.LangPHP.TranslatorPHP",
+			"name"=> $field_name,
+			"annotations"=>\Runtime\Collection::from([
+			]),
+		]);
+		if ($field_name == "program") return new \Runtime\Annotations\IntrospectionInfo($ctx, [
+			"kind"=>\Runtime\Annotations\IntrospectionInfo::ITEM_FIELD,
+			"class_name"=>"Bayrell.Lang.LangPHP.TranslatorPHP",
+			"name"=> $field_name,
+			"annotations"=>\Runtime\Collection::from([
+			]),
+		]);
 		return null;
 	}
-	static function getMethodsList($__ctx)
+	static function getMethodsList($ctx)
 	{
 		$a = [
 		];
 		return \Runtime\Collection::from($a);
 	}
-	static function getMethodInfoByName($__ctx,$field_name)
+	static function getMethodInfoByName($ctx,$field_name)
 	{
 		return null;
 	}

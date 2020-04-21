@@ -2,7 +2,7 @@
 /*!
  *  Bayrell Language
  *
- *  (c) Copyright 2016-2019 "Ildar Bikmamatov" <support@bayrell.org>
+ *  (c) Copyright 2016-2020 "Ildar Bikmamatov" <support@bayrell.org>
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -26,68 +26,68 @@ class TranslatorES6AsyncAwait extends \Runtime\CoreStruct
 	/**
 	 * Returns current pos
 	 */
-	static function currentPos($__ctx, $t)
+	static function currentPos($ctx, $t)
 	{
-		return $t->expression->staticMethod("toString")($__ctx, \Runtime\rs::join($__ctx, ".", $t->async_await->pos));
+		return $t->expression::toString($ctx, \Runtime\rs::join($ctx, ".", $t->async_await->pos));
 	}
 	/**
 	 * Returns current pos
 	 */
-	static function nextPos($__ctx, $t)
+	static function nextPos($ctx, $t)
 	{
 		$pos = $t->async_await->pos;
-		$t = $t->copy($__ctx, ["async_await"=>$t->async_await->copy($__ctx, ["pos"=>$pos->setIm($__ctx, $pos->count($__ctx) - 1, $pos->last($__ctx) + 1)])]);
-		$res = $t->expression->staticMethod("toString")($__ctx, \Runtime\rs::join($__ctx, ".", $t->async_await->pos));
+		$t = $t->copy($ctx, ["async_await"=>$t->async_await->copy($ctx, ["pos"=>$pos->setIm($ctx, $pos->count($ctx) - 1, $pos->last($ctx) + 1)])]);
+		$res = $t->expression::toString($ctx, \Runtime\rs::join($ctx, ".", $t->async_await->pos));
 		return \Runtime\Collection::from([$t,$res]);
 	}
 	/**
 	 * Returns push pos
 	 */
-	static function pushPos($__ctx, $t)
+	static function pushPos($ctx, $t)
 	{
 		$pos = $t->async_await->pos;
-		$t = $t->copy($__ctx, ["async_await"=>$t->async_await->copy($__ctx, ["pos"=>$pos->setIm($__ctx, $pos->count($__ctx) - 1, $pos->last($__ctx) + 1)->pushIm($__ctx, 0)])]);
-		$res = $t->expression->staticMethod("toString")($__ctx, \Runtime\rs::join($__ctx, ".", $t->async_await->pos));
+		$t = $t->copy($ctx, ["async_await"=>$t->async_await->copy($ctx, ["pos"=>$pos->setIm($ctx, $pos->count($ctx) - 1, $pos->last($ctx) + 1)->pushIm($ctx, 0)])]);
+		$res = $t->expression::toString($ctx, \Runtime\rs::join($ctx, ".", $t->async_await->pos));
 		return \Runtime\Collection::from([$t,$res]);
 	}
 	/**
 	 * Returns inc pos
 	 */
-	static function levelIncPos($__ctx, $t)
+	static function levelIncPos($ctx, $t)
 	{
 		$pos = $t->async_await->pos;
-		$t = $t->copy($__ctx, ["async_await"=>$t->async_await->copy($__ctx, ["pos"=>$pos->setIm($__ctx, $pos->count($__ctx) - 1, $pos->last($__ctx))->pushIm($__ctx, 0)])]);
-		$res = $t->expression->staticMethod("toString")($__ctx, \Runtime\rs::join($__ctx, ".", $t->async_await->pos));
+		$t = $t->copy($ctx, ["async_await"=>$t->async_await->copy($ctx, ["pos"=>$pos->setIm($ctx, $pos->count($ctx) - 1, $pos->last($ctx))->pushIm($ctx, 0)])]);
+		$res = $t->expression::toString($ctx, \Runtime\rs::join($ctx, ".", $t->async_await->pos));
 		return \Runtime\Collection::from([$t,$res]);
 	}
 	/**
 	 * Returns pop pos
 	 */
-	static function popPos($__ctx, $t)
+	static function popPos($ctx, $t)
 	{
-		$pos = $t->async_await->pos->removeLastIm($__ctx);
-		$t = $t->copy($__ctx, ["async_await"=>$t->async_await->copy($__ctx, ["pos"=>$pos->setIm($__ctx, $pos->count($__ctx) - 1, $pos->last($__ctx) + 1)])]);
-		$res = $t->expression->staticMethod("toString")($__ctx, \Runtime\rs::join($__ctx, ".", $t->async_await->pos));
+		$pos = $t->async_await->pos->removeLastIm($ctx);
+		$t = $t->copy($ctx, ["async_await"=>$t->async_await->copy($ctx, ["pos"=>$pos->setIm($ctx, $pos->count($ctx) - 1, $pos->last($ctx) + 1)])]);
+		$res = $t->expression::toString($ctx, \Runtime\rs::join($ctx, ".", $t->async_await->pos));
 		return \Runtime\Collection::from([$t,$res]);
 	}
 	/**
 	 * OpCall
 	 */
-	static function OpCall($__ctx, $t, $op_code, $is_expression=true)
+	static function OpCall($ctx, $t, $op_code, $is_expression=true)
 	{
 		$s = "";
 		$flag = false;
 		if ($s == "")
 		{
-			$res = $t->expression->staticMethod("Dynamic")($__ctx, $t, $op_code->obj);
+			$res = $t->expression::Dynamic($ctx, $t, $op_code->obj);
 			$t = $res[0];
 			$s = $res[1];
 			if ($s == "parent")
 			{
-				$s = $t->expression->staticMethod("useModuleName")($__ctx, $t, $t->current_class_extends_name);
+				$s = $t->expression::useModuleName($ctx, $t, $t->current_class_extends_name);
 				if ($t->current_function->name != "constructor")
 				{
-					if ($t->current_function->isStatic($__ctx))
+					if ($t->current_function->isStatic($ctx))
 					{
 						$s .= \Runtime\rtl::toStr("." . \Runtime\rtl::toStr($t->current_function->name));
 					}
@@ -107,49 +107,49 @@ class TranslatorES6AsyncAwait extends \Runtime\CoreStruct
 		$content = $s;
 		if ($t->current_function->is_context && $op_code->is_context)
 		{
-			$content .= \Runtime\rtl::toStr("__ctx");
+			$content .= \Runtime\rtl::toStr("ctx");
 			$flag = true;
 		}
-		for ($i = 0;$i < $op_code->args->count($__ctx);$i++)
+		for ($i = 0;$i < $op_code->args->count($ctx);$i++)
 		{
-			$item = $op_code->args->item($__ctx, $i);
-			$res = $t->expression->staticMethod("Expression")($__ctx, $t, $item);
+			$item = $op_code->args->item($ctx, $i);
+			$res = $t->expression::Expression($ctx, $t, $item);
 			$t = $res[0];
 			$s = $res[1];
 			$content .= \Runtime\rtl::toStr((($flag) ? ", " : "") . \Runtime\rtl::toStr($s));
 			$flag = true;
 		}
 		$content .= \Runtime\rtl::toStr(")");
-		$res = $t->staticMethod("incSaveOpCode")($__ctx, $t);
+		$res = $t::incSaveOpCode($ctx, $t);
 		$t = $res[0];
 		$var_name = $res[1];
-		$res = static::nextPos($__ctx, $t);
+		$res = static::nextPos($ctx, $t);
 		$t = $res[0];
 		$next_pos = $res[1];
 		$async_t = $t->async_await->async_t;
-		$content = $t->s($__ctx, "return " . \Runtime\rtl::toStr($async_t) . \Runtime\rtl::toStr(".jump(") . \Runtime\rtl::toStr($async_t) . \Runtime\rtl::toStr(",") . \Runtime\rtl::toStr($next_pos) . \Runtime\rtl::toStr(")") . \Runtime\rtl::toStr(".call(") . \Runtime\rtl::toStr($async_t) . \Runtime\rtl::toStr(",") . \Runtime\rtl::toStr($content) . \Runtime\rtl::toStr(",") . \Runtime\rtl::toStr($t->expression->staticMethod("toString")($__ctx, $var_name)) . \Runtime\rtl::toStr(");"));
-		$t = $t->levelDec($__ctx);
-		$content .= \Runtime\rtl::toStr($t->s($__ctx, "}"));
-		$content .= \Runtime\rtl::toStr($t->s($__ctx, "else if (" . \Runtime\rtl::toStr($async_t) . \Runtime\rtl::toStr(".pos() == ") . \Runtime\rtl::toStr($next_pos) . \Runtime\rtl::toStr(")")));
-		$content .= \Runtime\rtl::toStr($t->s($__ctx, "{"));
-		$t = $t->levelInc($__ctx);
-		$res = $t->staticMethod("addSaveOpCode")($__ctx, $t, \Runtime\Dict::from(["op_code"=>$op_code,"var_name"=>$var_name,"content"=>$content]));
+		$content = $t->s($ctx, "return " . \Runtime\rtl::toStr($async_t) . \Runtime\rtl::toStr(".jump(ctx, ") . \Runtime\rtl::toStr($next_pos) . \Runtime\rtl::toStr(")") . \Runtime\rtl::toStr(".call(ctx, ") . \Runtime\rtl::toStr($content) . \Runtime\rtl::toStr(",") . \Runtime\rtl::toStr($t->expression::toString($ctx, $var_name)) . \Runtime\rtl::toStr(");"));
+		$t = $t->levelDec($ctx);
+		$content .= \Runtime\rtl::toStr($t->s($ctx, "}"));
+		$content .= \Runtime\rtl::toStr($t->s($ctx, "else if (" . \Runtime\rtl::toStr($async_t) . \Runtime\rtl::toStr(".pos(ctx) == ") . \Runtime\rtl::toStr($next_pos) . \Runtime\rtl::toStr(")")));
+		$content .= \Runtime\rtl::toStr($t->s($ctx, "{"));
+		$t = $t->levelInc($ctx);
+		$res = $t::addSaveOpCode($ctx, $t, \Runtime\Dict::from(["op_code"=>$op_code,"var_name"=>$var_name,"content"=>$content]));
 		$t = $res[0];
 		if ($is_expression)
 		{
-			return \Runtime\Collection::from([$t,$async_t . \Runtime\rtl::toStr(".getVar(") . \Runtime\rtl::toStr($t->expression->staticMethod("toString")($__ctx, $var_name)) . \Runtime\rtl::toStr(")")]);
+			return \Runtime\Collection::from([$t,$async_t . \Runtime\rtl::toStr(".getVar(ctx, ") . \Runtime\rtl::toStr($t->expression::toString($ctx, $var_name)) . \Runtime\rtl::toStr(")")]);
 		}
 		return \Runtime\Collection::from([$t,""]);
 	}
 	/**
 	 * OpPipe
 	 */
-	static function OpPipe($__ctx, $t, $op_code, $is_expression=true)
+	static function OpPipe($ctx, $t, $op_code, $is_expression=true)
 	{
 		$content = "";
 		$var_name = "";
 		$flag = false;
-		$res = $t->expression->staticMethod("Expression")($__ctx, $t, $op_code->obj);
+		$res = $t->expression::Expression($ctx, $t, $op_code->obj);
 		$t = $res[0];
 		$var_name = $res[1];
 		if ($op_code->kind == \Bayrell\Lang\OpCodes\OpPipe::KIND_METHOD)
@@ -158,7 +158,7 @@ class TranslatorES6AsyncAwait extends \Runtime\CoreStruct
 		}
 		else
 		{
-			$res = $t->expression->staticMethod("OpTypeIdentifier")($__ctx, $t, $op_code->class_name);
+			$res = $t->expression::OpTypeIdentifier($ctx, $t, $op_code->class_name);
 			$t = $res[0];
 			$content = $res[1] . \Runtime\rtl::toStr(".") . \Runtime\rtl::toStr($op_code->method_name->value);
 		}
@@ -166,68 +166,69 @@ class TranslatorES6AsyncAwait extends \Runtime\CoreStruct
 		$content .= \Runtime\rtl::toStr("(");
 		if ($t->current_function->is_context && $op_code->is_context)
 		{
-			$content .= \Runtime\rtl::toStr("__ctx");
+			$content .= \Runtime\rtl::toStr("ctx");
 			$flag = true;
 		}
-		for ($i = 0;$i < $op_code->args->count($__ctx);$i++)
+		$content .= \Runtime\rtl::toStr((($flag) ? ", " : "") . \Runtime\rtl::toStr($var_name));
+		$flag = true;
+		for ($i = 0;$i < $op_code->args->count($ctx);$i++)
 		{
-			$item = $op_code->args->item($__ctx, $i);
-			$res = $t->expression->staticMethod("Expression")($__ctx, $t, $item);
+			$item = $op_code->args->item($ctx, $i);
+			$res = $t->expression::Expression($ctx, $t, $item);
 			$t = $res[0];
 			$s1 = $res[1];
 			$content .= \Runtime\rtl::toStr((($flag) ? ", " : "") . \Runtime\rtl::toStr($s1));
 			$flag = true;
 		}
-		$content .= \Runtime\rtl::toStr((($flag) ? ", " : "") . \Runtime\rtl::toStr($var_name));
 		$content .= \Runtime\rtl::toStr(")");
-		$res = $t->staticMethod("incSaveOpCode")($__ctx, $t);
+		$res = $t::incSaveOpCode($ctx, $t);
 		$t = $res[0];
 		$var_name = $res[1];
-		$res = static::nextPos($__ctx, $t);
+		$res = static::nextPos($ctx, $t);
 		$t = $res[0];
 		$next_pos = $res[1];
 		$async_t = $t->async_await->async_t;
-		$content = $t->s($__ctx, "return " . \Runtime\rtl::toStr($async_t) . \Runtime\rtl::toStr(".jump(") . \Runtime\rtl::toStr($async_t) . \Runtime\rtl::toStr(",") . \Runtime\rtl::toStr($next_pos) . \Runtime\rtl::toStr(")") . \Runtime\rtl::toStr(".call(") . \Runtime\rtl::toStr($async_t) . \Runtime\rtl::toStr(",") . \Runtime\rtl::toStr($content) . \Runtime\rtl::toStr(",") . \Runtime\rtl::toStr($t->expression->staticMethod("toString")($__ctx, $var_name)) . \Runtime\rtl::toStr(");"));
-		$t = $t->levelDec($__ctx);
-		$content .= \Runtime\rtl::toStr($t->s($__ctx, "}"));
-		$content .= \Runtime\rtl::toStr($t->s($__ctx, "else if (" . \Runtime\rtl::toStr($async_t) . \Runtime\rtl::toStr(".pos() == ") . \Runtime\rtl::toStr($next_pos) . \Runtime\rtl::toStr(")")));
-		$content .= \Runtime\rtl::toStr($t->s($__ctx, "{"));
-		$t = $t->levelInc($__ctx);
-		$res = $t->staticMethod("addSaveOpCode")($__ctx, $t, \Runtime\Dict::from(["op_code"=>$op_code,"var_name"=>$var_name,"content"=>$content]));
+		$content = $t->s($ctx, "return " . \Runtime\rtl::toStr($async_t) . \Runtime\rtl::toStr(".jump(ctx, ") . \Runtime\rtl::toStr($next_pos) . \Runtime\rtl::toStr(")") . \Runtime\rtl::toStr(".call(ctx, ") . \Runtime\rtl::toStr($content) . \Runtime\rtl::toStr(",") . \Runtime\rtl::toStr($t->expression::toString($ctx, $var_name)) . \Runtime\rtl::toStr(");"));
+		$t = $t->levelDec($ctx);
+		$content .= \Runtime\rtl::toStr($t->s($ctx, "}"));
+		$content .= \Runtime\rtl::toStr($t->s($ctx, "else if (" . \Runtime\rtl::toStr($async_t) . \Runtime\rtl::toStr(".pos(ctx) == ") . \Runtime\rtl::toStr($next_pos) . \Runtime\rtl::toStr(")")));
+		$content .= \Runtime\rtl::toStr($t->s($ctx, "{"));
+		$t = $t->levelInc($ctx);
+		$res = $t::addSaveOpCode($ctx, $t, \Runtime\Dict::from(["op_code"=>$op_code,"var_name"=>$var_name,"content"=>$content]));
 		$t = $res[0];
 		if ($is_expression)
 		{
-			return \Runtime\Collection::from([$t,$async_t . \Runtime\rtl::toStr(".getVar(") . \Runtime\rtl::toStr($t->expression->staticMethod("toString")($__ctx, $var_name)) . \Runtime\rtl::toStr(")")]);
+			return \Runtime\Collection::from([$t,$async_t . \Runtime\rtl::toStr(".getVar(ctx, ") . \Runtime\rtl::toStr($t->expression::toString($ctx, $var_name)) . \Runtime\rtl::toStr(")")]);
 		}
 		return \Runtime\Collection::from([$t,""]);
 	}
 	/**
 	 * OpFor
 	 */
-	static function OpFor($__ctx, $t, $op_code)
+	static function OpFor($ctx, $t, $op_code)
 	{
 		$save_t = null;
 		$async_t = $t->async_await->async_t;
 		$async_var = $t->async_await->async_var;
 		$content = "";
-		$res = static::pushPos($__ctx, $t);
+		$res = static::pushPos($ctx, $t);
 		$t = $res[0];
 		$start_pos = $res[1];
-		$res = static::popPos($__ctx, $t);
+		$res = static::popPos($ctx, $t);
 		$save_t = $res[0];
 		$end_pos = $res[1];
-		$t = $t->copy($__ctx, ["async_await"=>$t->async_await->copy($__ctx, ["async_stack"=>$t->async_await->async_stack->pushIm($__ctx, new \Bayrell\Lang\LangES6\AsyncAwait($__ctx, \Runtime\Dict::from(["start_pos"=>$start_pos,"end_pos"=>$end_pos])))])]);
-		$content .= \Runtime\rtl::toStr($t->s($__ctx, "return " . \Runtime\rtl::toStr($async_t) . \Runtime\rtl::toStr(".jump(") . \Runtime\rtl::toStr($async_t) . \Runtime\rtl::toStr(", ") . \Runtime\rtl::toStr($start_pos) . \Runtime\rtl::toStr(");")));
-		$t = $t->levelDec($__ctx);
-		$content .= \Runtime\rtl::toStr($t->s($__ctx, "}"));
-		$content .= \Runtime\rtl::toStr($t->s($__ctx, "/* Start Loop */"));
-		$content .= \Runtime\rtl::toStr($t->s($__ctx, "else if (" . \Runtime\rtl::toStr($async_t) . \Runtime\rtl::toStr(".pos() == ") . \Runtime\rtl::toStr($start_pos) . \Runtime\rtl::toStr(")")));
-		$content .= \Runtime\rtl::toStr($t->s($__ctx, "{"));
-		$t = $t->levelInc($__ctx);
+		$t = $t->copy($ctx, ["async_await"=>$t->async_await->copy($ctx, ["async_stack"=>$t->async_await->async_stack->pushIm($ctx, new \Bayrell\Lang\LangES6\AsyncAwait($ctx, \Runtime\Dict::from(["start_pos"=>$start_pos,"end_pos"=>$end_pos])))])]);
+		$content .= \Runtime\rtl::toStr($t->s($ctx, "return " . \Runtime\rtl::toStr($async_t) . \Runtime\rtl::toStr(".jump(ctx, ") . \Runtime\rtl::toStr($start_pos) . \Runtime\rtl::toStr(");")));
+		$t = $t->levelDec($ctx);
+		$content .= \Runtime\rtl::toStr($t->s($ctx, "}"));
+		$content .= \Runtime\rtl::toStr($t->s($ctx, "/* Start Loop */"));
+		$content .= \Runtime\rtl::toStr($t->s($ctx, "else if (" . \Runtime\rtl::toStr($async_t) . \Runtime\rtl::toStr(".pos(ctx) == ") . \Runtime\rtl::toStr($start_pos) . \Runtime\rtl::toStr(")")));
+		$content .= \Runtime\rtl::toStr($t->s($ctx, "{"));
+		$t = $t->levelInc($ctx);
 		/* Loop Assign */
 		if ($op_code->expr1 instanceof \Bayrell\Lang\OpCodes\OpAssign)
 		{
-			$res = $t->staticMethod("saveOpCodeCall")($__ctx, $t, $t->operator->staticMethod("OpAssign"), \Runtime\Collection::from([$op_code->expr1]));
+			$res = $t::saveOpCodeCall($ctx, $t, $t->operator->staticMethod("OpAssign"), \Runtime\Collection::from([$op_code->expr1]));
 			$t = $res[0];
 			$save = $res[1];
 			$value = $res[2];
@@ -239,7 +240,7 @@ class TranslatorES6AsyncAwait extends \Runtime\CoreStruct
 		}
 		else
 		{
-			$res = $t->staticMethod("saveOpCodeCall")($__ctx, $t, $t->expression->staticMethod("Expression"), \Runtime\Collection::from([$op_code->expr1]));
+			$res = $t::saveOpCodeCall($ctx, $t, $t->expression->staticMethod("Expression"), \Runtime\Collection::from([$op_code->expr1]));
 			$t = $res[0];
 			$save = $res[1];
 			$value = $res[2];
@@ -250,18 +251,18 @@ class TranslatorES6AsyncAwait extends \Runtime\CoreStruct
 			$content .= \Runtime\rtl::toStr($value);
 		}
 		/* Loop Expression */
-		$res = static::nextPos($__ctx, $t);
+		$res = static::nextPos($ctx, $t);
 		$t = $res[0];
 		$loop_expression = $res[1];
-		$content .= \Runtime\rtl::toStr($t->s($__ctx, "return " . \Runtime\rtl::toStr($async_t) . \Runtime\rtl::toStr(".jump(") . \Runtime\rtl::toStr($async_t) . \Runtime\rtl::toStr(", ") . \Runtime\rtl::toStr($loop_expression) . \Runtime\rtl::toStr(");")));
-		$t = $t->levelDec($__ctx);
-		$content .= \Runtime\rtl::toStr($t->s($__ctx, "}"));
-		$content .= \Runtime\rtl::toStr($t->s($__ctx, "/* Loop Expression */"));
-		$content .= \Runtime\rtl::toStr($t->s($__ctx, "else if (" . \Runtime\rtl::toStr($async_t) . \Runtime\rtl::toStr(".pos() == ") . \Runtime\rtl::toStr($loop_expression) . \Runtime\rtl::toStr(")")));
-		$content .= \Runtime\rtl::toStr($t->s($__ctx, "{"));
-		$t = $t->levelInc($__ctx);
+		$content .= \Runtime\rtl::toStr($t->s($ctx, "return " . \Runtime\rtl::toStr($async_t) . \Runtime\rtl::toStr(".jump(ctx, ") . \Runtime\rtl::toStr($loop_expression) . \Runtime\rtl::toStr(");")));
+		$t = $t->levelDec($ctx);
+		$content .= \Runtime\rtl::toStr($t->s($ctx, "}"));
+		$content .= \Runtime\rtl::toStr($t->s($ctx, "/* Loop Expression */"));
+		$content .= \Runtime\rtl::toStr($t->s($ctx, "else if (" . \Runtime\rtl::toStr($async_t) . \Runtime\rtl::toStr(".pos(ctx) == ") . \Runtime\rtl::toStr($loop_expression) . \Runtime\rtl::toStr(")")));
+		$content .= \Runtime\rtl::toStr($t->s($ctx, "{"));
+		$t = $t->levelInc($ctx);
 		/* Call condition expression */
-		$res = $t->staticMethod("saveOpCodeCall")($__ctx, $t, $t->expression->staticMethod("Expression"), \Runtime\Collection::from([$op_code->expr2]));
+		$res = $t::saveOpCodeCall($ctx, $t, $t->expression->staticMethod("Expression"), \Runtime\Collection::from([$op_code->expr2]));
 		$t = $res[0];
 		$save = $res[1];
 		$value = $res[2];
@@ -270,52 +271,52 @@ class TranslatorES6AsyncAwait extends \Runtime\CoreStruct
 			$content .= \Runtime\rtl::toStr($save);
 		}
 		/* Loop condition */
-		$content .= \Runtime\rtl::toStr($t->s($__ctx, "var " . \Runtime\rtl::toStr($async_var) . \Runtime\rtl::toStr(" = ") . \Runtime\rtl::toStr($value) . \Runtime\rtl::toStr(";")));
-		$res = static::nextPos($__ctx, $t);
+		$content .= \Runtime\rtl::toStr($t->s($ctx, "var " . \Runtime\rtl::toStr($async_var) . \Runtime\rtl::toStr(" = ") . \Runtime\rtl::toStr($value) . \Runtime\rtl::toStr(";")));
+		$res = static::nextPos($ctx, $t);
 		$t = $res[0];
 		$start_loop = $res[1];
-		$content .= \Runtime\rtl::toStr($t->s($__ctx, "if (async_var)"));
-		$content .= \Runtime\rtl::toStr($t->s($__ctx, "{"));
-		$t = $t->levelInc($__ctx);
-		$content .= \Runtime\rtl::toStr($t->s($__ctx, "return " . \Runtime\rtl::toStr($async_t) . \Runtime\rtl::toStr(".jump(") . \Runtime\rtl::toStr($async_t) . \Runtime\rtl::toStr(", ") . \Runtime\rtl::toStr($start_loop) . \Runtime\rtl::toStr(");")));
-		$t = $t->levelDec($__ctx);
-		$content .= \Runtime\rtl::toStr($t->s($__ctx, "}"));
-		$content .= \Runtime\rtl::toStr($t->s($__ctx, "return " . \Runtime\rtl::toStr($async_t) . \Runtime\rtl::toStr(".jump(") . \Runtime\rtl::toStr($async_t) . \Runtime\rtl::toStr(", ") . \Runtime\rtl::toStr($end_pos) . \Runtime\rtl::toStr(");")));
+		$content .= \Runtime\rtl::toStr($t->s($ctx, "if (" . \Runtime\rtl::toStr($async_var) . \Runtime\rtl::toStr(")")));
+		$content .= \Runtime\rtl::toStr($t->s($ctx, "{"));
+		$t = $t->levelInc($ctx);
+		$content .= \Runtime\rtl::toStr($t->s($ctx, "return " . \Runtime\rtl::toStr($async_t) . \Runtime\rtl::toStr(".jump(ctx, ") . \Runtime\rtl::toStr($start_loop) . \Runtime\rtl::toStr(");")));
+		$t = $t->levelDec($ctx);
+		$content .= \Runtime\rtl::toStr($t->s($ctx, "}"));
+		$content .= \Runtime\rtl::toStr($t->s($ctx, "return " . \Runtime\rtl::toStr($async_t) . \Runtime\rtl::toStr(".jump(ctx, ") . \Runtime\rtl::toStr($end_pos) . \Runtime\rtl::toStr(");")));
 		/* Start Loop */
-		$t = $t->levelDec($__ctx);
-		$content .= \Runtime\rtl::toStr($t->s($__ctx, "}"));
-		$content .= \Runtime\rtl::toStr($t->s($__ctx, "/* Loop */"));
-		$content .= \Runtime\rtl::toStr($t->s($__ctx, "else if (" . \Runtime\rtl::toStr($async_t) . \Runtime\rtl::toStr(".pos() == ") . \Runtime\rtl::toStr($start_loop) . \Runtime\rtl::toStr(")")));
-		$content .= \Runtime\rtl::toStr($t->s($__ctx, "{"));
-		$t = $t->levelInc($__ctx);
-		$res = $t->expression->staticMethod("Expression")($__ctx, $t, $op_code->expr3);
+		$t = $t->levelDec($ctx);
+		$content .= \Runtime\rtl::toStr($t->s($ctx, "}"));
+		$content .= \Runtime\rtl::toStr($t->s($ctx, "/* Loop */"));
+		$content .= \Runtime\rtl::toStr($t->s($ctx, "else if (" . \Runtime\rtl::toStr($async_t) . \Runtime\rtl::toStr(".pos(ctx) == ") . \Runtime\rtl::toStr($start_loop) . \Runtime\rtl::toStr(")")));
+		$content .= \Runtime\rtl::toStr($t->s($ctx, "{"));
+		$t = $t->levelInc($ctx);
+		$res = $t->expression::Expression($ctx, $t, $op_code->expr3);
 		$t = $res[0];
-		$content .= \Runtime\rtl::toStr($t->s($__ctx, $res[1] . \Runtime\rtl::toStr(";")));
-		$res = $t->operator->staticMethod("Operators")($__ctx, $t, $op_code->value);
+		$content .= \Runtime\rtl::toStr($t->s($ctx, $res[1] . \Runtime\rtl::toStr(";")));
+		$res = $t->operator::Operators($ctx, $t, $op_code->value);
 		$t = $res[0];
 		$content .= \Runtime\rtl::toStr($res[1]);
 		/* End Loop */
-		$content .= \Runtime\rtl::toStr($t->s($__ctx, "return " . \Runtime\rtl::toStr($async_t) . \Runtime\rtl::toStr(".jump(") . \Runtime\rtl::toStr($async_t) . \Runtime\rtl::toStr(", ") . \Runtime\rtl::toStr($loop_expression) . \Runtime\rtl::toStr(");")));
-		$t = $t->levelDec($__ctx);
-		$content .= \Runtime\rtl::toStr($t->s($__ctx, "}"));
-		$content .= \Runtime\rtl::toStr($t->s($__ctx, "/* End Loop */"));
-		$content .= \Runtime\rtl::toStr($t->s($__ctx, "else if (" . \Runtime\rtl::toStr($async_t) . \Runtime\rtl::toStr(".pos() == ") . \Runtime\rtl::toStr($end_pos) . \Runtime\rtl::toStr(")")));
-		$content .= \Runtime\rtl::toStr($t->s($__ctx, "{"));
-		$t = $t->levelInc($__ctx);
-		$t = $t->copy($__ctx, ["async_await"=>$t->async_await->copy($__ctx, ["async_stack"=>$t->async_await->async_stack->removeLastIm($__ctx)])]);
-		$t = $t->copy($__ctx, ["async_await"=>$t->async_await->copy($__ctx, ["pos"=>$save_t->async_await->pos])]);
+		$content .= \Runtime\rtl::toStr($t->s($ctx, "return " . \Runtime\rtl::toStr($async_t) . \Runtime\rtl::toStr(".jump(ctx, ") . \Runtime\rtl::toStr($loop_expression) . \Runtime\rtl::toStr(");")));
+		$t = $t->levelDec($ctx);
+		$content .= \Runtime\rtl::toStr($t->s($ctx, "}"));
+		$content .= \Runtime\rtl::toStr($t->s($ctx, "/* End Loop */"));
+		$content .= \Runtime\rtl::toStr($t->s($ctx, "else if (" . \Runtime\rtl::toStr($async_t) . \Runtime\rtl::toStr(".pos(ctx) == ") . \Runtime\rtl::toStr($end_pos) . \Runtime\rtl::toStr(")")));
+		$content .= \Runtime\rtl::toStr($t->s($ctx, "{"));
+		$t = $t->levelInc($ctx);
+		$t = $t->copy($ctx, ["async_await"=>$t->async_await->copy($ctx, ["async_stack"=>$t->async_await->async_stack->removeLastIm($ctx)])]);
+		$t = $t->copy($ctx, ["async_await"=>$t->async_await->copy($ctx, ["pos"=>$save_t->async_await->pos])]);
 		return \Runtime\Collection::from([$t,$content]);
 	}
 	/**
 	 * OpIfBlock
 	 */
-	static function OpIfBlock($__ctx, $t, $condition, $op_code, $end_pos)
+	static function OpIfBlock($ctx, $t, $condition, $op_code, $end_pos)
 	{
 		$content = "";
 		$async_t = $t->async_await->async_t;
 		$async_var = $t->async_await->async_var;
 		/* Call condition expression */
-		$res = $t->staticMethod("saveOpCodeCall")($__ctx, $t, $t->expression->staticMethod("Expression"), \Runtime\Collection::from([$condition]));
+		$res = $t::saveOpCodeCall($ctx, $t, $t->expression->staticMethod("Expression"), \Runtime\Collection::from([$condition]));
 		$t = $res[0];
 		$save = $res[1];
 		$value = $res[2];
@@ -323,45 +324,45 @@ class TranslatorES6AsyncAwait extends \Runtime\CoreStruct
 		{
 			$content .= \Runtime\rtl::toStr($save);
 		}
-		$res = static::nextPos($__ctx, $t);
+		$res = static::nextPos($ctx, $t);
 		$t = $res[0];
 		$start_if = $res[1];
-		$res = static::nextPos($__ctx, $t);
+		$res = static::nextPos($ctx, $t);
 		$t = $res[0];
 		$next_if = $res[1];
 		/* If condition */
-		$content .= \Runtime\rtl::toStr($t->s($__ctx, "var " . \Runtime\rtl::toStr($async_var) . \Runtime\rtl::toStr(" = ") . \Runtime\rtl::toStr($value) . \Runtime\rtl::toStr(";")));
-		$content .= \Runtime\rtl::toStr($t->s($__ctx, "if (async_var)"));
-		$content .= \Runtime\rtl::toStr($t->s($__ctx, "{"));
-		$t = $t->levelInc($__ctx);
-		$content .= \Runtime\rtl::toStr($t->s($__ctx, "return " . \Runtime\rtl::toStr($async_t) . \Runtime\rtl::toStr(".jump(") . \Runtime\rtl::toStr($async_t) . \Runtime\rtl::toStr(", ") . \Runtime\rtl::toStr($start_if) . \Runtime\rtl::toStr(");")));
-		$t = $t->levelDec($__ctx);
-		$content .= \Runtime\rtl::toStr($t->s($__ctx, "}"));
-		$content .= \Runtime\rtl::toStr($t->s($__ctx, "return " . \Runtime\rtl::toStr($async_t) . \Runtime\rtl::toStr(".jump(") . \Runtime\rtl::toStr($async_t) . \Runtime\rtl::toStr(", ") . \Runtime\rtl::toStr($next_if) . \Runtime\rtl::toStr(");")));
+		$content .= \Runtime\rtl::toStr($t->s($ctx, "var " . \Runtime\rtl::toStr($async_var) . \Runtime\rtl::toStr(" = ") . \Runtime\rtl::toStr($value) . \Runtime\rtl::toStr(";")));
+		$content .= \Runtime\rtl::toStr($t->s($ctx, "if (" . \Runtime\rtl::toStr($async_var) . \Runtime\rtl::toStr(")")));
+		$content .= \Runtime\rtl::toStr($t->s($ctx, "{"));
+		$t = $t->levelInc($ctx);
+		$content .= \Runtime\rtl::toStr($t->s($ctx, "return " . \Runtime\rtl::toStr($async_t) . \Runtime\rtl::toStr(".jump(ctx, ") . \Runtime\rtl::toStr($start_if) . \Runtime\rtl::toStr(");")));
+		$t = $t->levelDec($ctx);
+		$content .= \Runtime\rtl::toStr($t->s($ctx, "}"));
+		$content .= \Runtime\rtl::toStr($t->s($ctx, "return " . \Runtime\rtl::toStr($async_t) . \Runtime\rtl::toStr(".jump(ctx, ") . \Runtime\rtl::toStr($next_if) . \Runtime\rtl::toStr(");")));
 		/* Start Loop */
-		$t = $t->levelDec($__ctx);
-		$content .= \Runtime\rtl::toStr($t->s($__ctx, "}"));
-		$content .= \Runtime\rtl::toStr($t->s($__ctx, "/* If true */"));
-		$content .= \Runtime\rtl::toStr($t->s($__ctx, "else if (" . \Runtime\rtl::toStr($async_t) . \Runtime\rtl::toStr(".pos() == ") . \Runtime\rtl::toStr($start_if) . \Runtime\rtl::toStr(")")));
-		$content .= \Runtime\rtl::toStr($t->s($__ctx, "{"));
-		$t = $t->levelInc($__ctx);
-		$res = $t->operator->staticMethod("Operators")($__ctx, $t, $op_code);
+		$t = $t->levelDec($ctx);
+		$content .= \Runtime\rtl::toStr($t->s($ctx, "}"));
+		$content .= \Runtime\rtl::toStr($t->s($ctx, "/* If true */"));
+		$content .= \Runtime\rtl::toStr($t->s($ctx, "else if (" . \Runtime\rtl::toStr($async_t) . \Runtime\rtl::toStr(".pos(ctx) == ") . \Runtime\rtl::toStr($start_if) . \Runtime\rtl::toStr(")")));
+		$content .= \Runtime\rtl::toStr($t->s($ctx, "{"));
+		$t = $t->levelInc($ctx);
+		$res = $t->operator::Operators($ctx, $t, $op_code);
 		$t = $res[0];
 		$content .= \Runtime\rtl::toStr($res[1]);
 		/* End if */
-		$content .= \Runtime\rtl::toStr($t->s($__ctx, "return " . \Runtime\rtl::toStr($async_t) . \Runtime\rtl::toStr(".jump(") . \Runtime\rtl::toStr($async_t) . \Runtime\rtl::toStr(", ") . \Runtime\rtl::toStr($end_pos) . \Runtime\rtl::toStr(");")));
-		$t = $t->levelDec($__ctx);
-		$content .= \Runtime\rtl::toStr($t->s($__ctx, "}"));
-		$content .= \Runtime\rtl::toStr($t->s($__ctx, "/* Next If */"));
-		$content .= \Runtime\rtl::toStr($t->s($__ctx, "else if (" . \Runtime\rtl::toStr($async_t) . \Runtime\rtl::toStr(".pos() == ") . \Runtime\rtl::toStr($next_if) . \Runtime\rtl::toStr(")")));
-		$content .= \Runtime\rtl::toStr($t->s($__ctx, "{"));
-		$t = $t->levelInc($__ctx);
+		$content .= \Runtime\rtl::toStr($t->s($ctx, "return " . \Runtime\rtl::toStr($async_t) . \Runtime\rtl::toStr(".jump(ctx, ") . \Runtime\rtl::toStr($end_pos) . \Runtime\rtl::toStr(");")));
+		$t = $t->levelDec($ctx);
+		$content .= \Runtime\rtl::toStr($t->s($ctx, "}"));
+		$content .= \Runtime\rtl::toStr($t->s($ctx, "/* Next If */"));
+		$content .= \Runtime\rtl::toStr($t->s($ctx, "else if (" . \Runtime\rtl::toStr($async_t) . \Runtime\rtl::toStr(".pos(ctx) == ") . \Runtime\rtl::toStr($next_if) . \Runtime\rtl::toStr(")")));
+		$content .= \Runtime\rtl::toStr($t->s($ctx, "{"));
+		$t = $t->levelInc($ctx);
 		return \Runtime\Collection::from([$t,$content]);
 	}
 	/**
 	 * OpIf
 	 */
-	static function OpIf($__ctx, $t, $op_code)
+	static function OpIf($ctx, $t, $op_code)
 	{
 		$save_t = null;
 		$async_t = $t->async_await->async_t;
@@ -369,60 +370,60 @@ class TranslatorES6AsyncAwait extends \Runtime\CoreStruct
 		$content = "";
 		$if_true_pos = "";
 		$if_false_pos = "";
-		$res = static::pushPos($__ctx, $t);
+		$res = static::pushPos($ctx, $t);
 		$t = $res[0];
 		$start_pos = $res[1];
-		$res = static::popPos($__ctx, $t);
+		$res = static::popPos($ctx, $t);
 		$save_t = $res[0];
 		$end_pos = $res[1];
-		$content .= \Runtime\rtl::toStr($t->s($__ctx, "return " . \Runtime\rtl::toStr($async_t) . \Runtime\rtl::toStr(".jump(") . \Runtime\rtl::toStr($async_t) . \Runtime\rtl::toStr(", ") . \Runtime\rtl::toStr($start_pos) . \Runtime\rtl::toStr(");")));
-		$t = $t->levelDec($__ctx);
-		$content .= \Runtime\rtl::toStr($t->s($__ctx, "}"));
-		$content .= \Runtime\rtl::toStr($t->s($__ctx, "/* Start if */"));
-		$content .= \Runtime\rtl::toStr($t->s($__ctx, "else if (" . \Runtime\rtl::toStr($async_t) . \Runtime\rtl::toStr(".pos() == ") . \Runtime\rtl::toStr($start_pos) . \Runtime\rtl::toStr(")")));
-		$content .= \Runtime\rtl::toStr($t->s($__ctx, "{"));
-		$t = $t->levelInc($__ctx);
+		$content .= \Runtime\rtl::toStr($t->s($ctx, "return " . \Runtime\rtl::toStr($async_t) . \Runtime\rtl::toStr(".jump(ctx, ") . \Runtime\rtl::toStr($start_pos) . \Runtime\rtl::toStr(");")));
+		$t = $t->levelDec($ctx);
+		$content .= \Runtime\rtl::toStr($t->s($ctx, "}"));
+		$content .= \Runtime\rtl::toStr($t->s($ctx, "/* Start if */"));
+		$content .= \Runtime\rtl::toStr($t->s($ctx, "else if (" . \Runtime\rtl::toStr($async_t) . \Runtime\rtl::toStr(".pos(ctx) == ") . \Runtime\rtl::toStr($start_pos) . \Runtime\rtl::toStr(")")));
+		$content .= \Runtime\rtl::toStr($t->s($ctx, "{"));
+		$t = $t->levelInc($ctx);
 		/* If true */
-		$res = static::OpIfBlock($__ctx, $t, $op_code->condition, $op_code->if_true, $end_pos);
+		$res = static::OpIfBlock($ctx, $t, $op_code->condition, $op_code->if_true, $end_pos);
 		$t = $res[0];
 		$content .= \Runtime\rtl::toStr($res[1]);
 		/* If else */
-		for ($i = 0;$i < $op_code->if_else->count($__ctx);$i++)
+		for ($i = 0;$i < $op_code->if_else->count($ctx);$i++)
 		{
-			$if_else = $op_code->if_else->item($__ctx, $i);
-			$res = static::OpIfBlock($__ctx, $t, $if_else->condition, $if_else->if_true, $end_pos);
+			$if_else = $op_code->if_else->item($ctx, $i);
+			$res = static::OpIfBlock($ctx, $t, $if_else->condition, $if_else->if_true, $end_pos);
 			$t = $res[0];
 			$content .= \Runtime\rtl::toStr($res[1]);
 		}
 		/* Else */
 		if ($op_code->if_false)
 		{
-			$content .= \Runtime\rtl::toStr($t->s($__ctx, "/* If false */"));
-			$res = $t->operator->staticMethod("Operators")($__ctx, $t, $op_code->if_false);
+			$content .= \Runtime\rtl::toStr($t->s($ctx, "/* If false */"));
+			$res = $t->operator::Operators($ctx, $t, $op_code->if_false);
 			$t = $res[0];
 			$content .= \Runtime\rtl::toStr($res[1]);
 		}
 		/* End if */
-		$content .= \Runtime\rtl::toStr($t->s($__ctx, "return " . \Runtime\rtl::toStr($async_t) . \Runtime\rtl::toStr(".jump(") . \Runtime\rtl::toStr($async_t) . \Runtime\rtl::toStr(", ") . \Runtime\rtl::toStr($end_pos) . \Runtime\rtl::toStr(");")));
-		$t = $t->levelDec($__ctx);
-		$content .= \Runtime\rtl::toStr($t->s($__ctx, "}"));
-		$content .= \Runtime\rtl::toStr($t->s($__ctx, "/* End if */"));
-		$content .= \Runtime\rtl::toStr($t->s($__ctx, "else if (" . \Runtime\rtl::toStr($async_t) . \Runtime\rtl::toStr(".pos() == ") . \Runtime\rtl::toStr($end_pos) . \Runtime\rtl::toStr(")")));
-		$content .= \Runtime\rtl::toStr($t->s($__ctx, "{"));
-		$t = $t->levelInc($__ctx);
-		$t = $t->copy($__ctx, ["async_await"=>$t->async_await->copy($__ctx, ["pos"=>$save_t->async_await->pos])]);
+		$content .= \Runtime\rtl::toStr($t->s($ctx, "return " . \Runtime\rtl::toStr($async_t) . \Runtime\rtl::toStr(".jump(ctx, ") . \Runtime\rtl::toStr($end_pos) . \Runtime\rtl::toStr(");")));
+		$t = $t->levelDec($ctx);
+		$content .= \Runtime\rtl::toStr($t->s($ctx, "}"));
+		$content .= \Runtime\rtl::toStr($t->s($ctx, "/* End if */"));
+		$content .= \Runtime\rtl::toStr($t->s($ctx, "else if (" . \Runtime\rtl::toStr($async_t) . \Runtime\rtl::toStr(".pos(ctx) == ") . \Runtime\rtl::toStr($end_pos) . \Runtime\rtl::toStr(")")));
+		$content .= \Runtime\rtl::toStr($t->s($ctx, "{"));
+		$t = $t->levelInc($ctx);
+		$t = $t->copy($ctx, ["async_await"=>$t->async_await->copy($ctx, ["pos"=>$save_t->async_await->pos])]);
 		return \Runtime\Collection::from([$t,$content]);
 	}
 	/**
 	 * OpReturn
 	 */
-	static function OpReturn($__ctx, $t, $op_code)
+	static function OpReturn($ctx, $t, $op_code)
 	{
 		$content = "";
 		$s1 = "";
 		if ($op_code->expression)
 		{
-			$res = $t->expression->staticMethod("Expression")($__ctx, $t, $op_code->expression);
+			$res = $t->expression::Expression($ctx, $t, $op_code->expression);
 			$t = $res[0];
 			$s1 = $res[1];
 		}
@@ -431,54 +432,54 @@ class TranslatorES6AsyncAwait extends \Runtime\CoreStruct
 			$s1 = "null";
 		}
 		$async_t = $t->async_await->async_t;
-		$content = $t->s($__ctx, "return " . \Runtime\rtl::toStr($async_t) . \Runtime\rtl::toStr(".ret(") . \Runtime\rtl::toStr($async_t) . \Runtime\rtl::toStr(", ") . \Runtime\rtl::toStr($s1) . \Runtime\rtl::toStr(");"));
+		$content = $t->s($ctx, "return " . \Runtime\rtl::toStr($async_t) . \Runtime\rtl::toStr(".ret(ctx, ") . \Runtime\rtl::toStr($s1) . \Runtime\rtl::toStr(");"));
 		return \Runtime\Collection::from([$t,$content]);
 	}
 	/**
 	 * OpTryCatch
 	 */
-	static function OpTryCatch($__ctx, $t, $op_code)
+	static function OpTryCatch($ctx, $t, $op_code)
 	{
 		$save_t = null;
 		$content = "";
 		$async_t = $t->async_await->async_t;
 		$async_var = $t->async_await->async_var;
-		$res = static::nextPos($__ctx, $t);
+		$res = static::nextPos($ctx, $t);
 		$t = $res[0];
 		$start_pos = $res[1];
-		$res = static::nextPos($__ctx, $t);
+		$res = static::nextPos($ctx, $t);
 		$save_t = $res[0];
 		$end_pos = $res[1];
-		$t = $t->copy($__ctx, ["async_await"=>$t->async_await->copy($__ctx, ["async_stack"=>$t->async_await->async_stack->pushIm($__ctx, new \Bayrell\Lang\LangES6\AsyncAwait($__ctx, \Runtime\Dict::from(["start_pos"=>$start_pos,"end_pos"=>$end_pos])))])]);
+		$t = $t->copy($ctx, ["async_await"=>$t->async_await->copy($ctx, ["async_stack"=>$t->async_await->async_stack->pushIm($ctx, new \Bayrell\Lang\LangES6\AsyncAwait($ctx, \Runtime\Dict::from(["start_pos"=>$start_pos,"end_pos"=>$end_pos])))])]);
 		/* Start Try Catch */
-		$content .= \Runtime\rtl::toStr($t->s($__ctx, "return " . \Runtime\rtl::toStr($async_t) . \Runtime\rtl::toStr(".jump(") . \Runtime\rtl::toStr($async_t) . \Runtime\rtl::toStr(", ") . \Runtime\rtl::toStr($start_pos) . \Runtime\rtl::toStr(");")));
-		$t = $t->levelDec($__ctx);
-		$content .= \Runtime\rtl::toStr($t->s($__ctx, "}"));
-		$content .= \Runtime\rtl::toStr($t->s($__ctx, "/* Start Try */"));
-		$content .= \Runtime\rtl::toStr($t->s($__ctx, "else if (" . \Runtime\rtl::toStr($async_t) . \Runtime\rtl::toStr(".pos() == ") . \Runtime\rtl::toStr($start_pos) . \Runtime\rtl::toStr(")")));
-		$content .= \Runtime\rtl::toStr($t->s($__ctx, "{"));
-		$t = $t->levelInc($__ctx);
-		$res = static::levelIncPos($__ctx, $t);
+		$content .= \Runtime\rtl::toStr($t->s($ctx, "return " . \Runtime\rtl::toStr($async_t) . \Runtime\rtl::toStr(".jump(ctx, ") . \Runtime\rtl::toStr($start_pos) . \Runtime\rtl::toStr(");")));
+		$t = $t->levelDec($ctx);
+		$content .= \Runtime\rtl::toStr($t->s($ctx, "}"));
+		$content .= \Runtime\rtl::toStr($t->s($ctx, "/* Start Try */"));
+		$content .= \Runtime\rtl::toStr($t->s($ctx, "else if (" . \Runtime\rtl::toStr($async_t) . \Runtime\rtl::toStr(".pos(ctx) == ") . \Runtime\rtl::toStr($start_pos) . \Runtime\rtl::toStr(")")));
+		$content .= \Runtime\rtl::toStr($t->s($ctx, "{"));
+		$t = $t->levelInc($ctx);
+		$res = static::levelIncPos($ctx, $t);
 		$t = $res[0];
 		$start_catch = $res[1];
-		$content .= \Runtime\rtl::toStr($t->s($__ctx, $async_t . \Runtime\rtl::toStr(" = ") . \Runtime\rtl::toStr($async_t) . \Runtime\rtl::toStr(".catch_push(") . \Runtime\rtl::toStr($start_catch) . \Runtime\rtl::toStr(");")));
-		$res = $t->operator->staticMethod("Operators")($__ctx, $t, $op_code->op_try);
+		$content .= \Runtime\rtl::toStr($t->s($ctx, $async_t . \Runtime\rtl::toStr(" = ") . \Runtime\rtl::toStr($async_t) . \Runtime\rtl::toStr(".catch_push(") . \Runtime\rtl::toStr($start_catch) . \Runtime\rtl::toStr(");")));
+		$res = $t->operator::Operators($ctx, $t, $op_code->op_try);
 		$t = $res[0];
 		$content .= \Runtime\rtl::toStr($res[1]);
 		/* Start Catch */
-		$content .= \Runtime\rtl::toStr($t->s($__ctx, "return " . \Runtime\rtl::toStr($async_t) . \Runtime\rtl::toStr(".catch_pop().jump(") . \Runtime\rtl::toStr($async_t) . \Runtime\rtl::toStr(", ") . \Runtime\rtl::toStr($end_pos) . \Runtime\rtl::toStr(");")));
-		$t = $t->levelDec($__ctx);
-		$content .= \Runtime\rtl::toStr($t->s($__ctx, "}"));
-		$content .= \Runtime\rtl::toStr($t->s($__ctx, "/* Start Catch */"));
-		$content .= \Runtime\rtl::toStr($t->s($__ctx, "else if (" . \Runtime\rtl::toStr($async_t) . \Runtime\rtl::toStr(".pos() == ") . \Runtime\rtl::toStr($start_catch) . \Runtime\rtl::toStr(")")));
-		$content .= \Runtime\rtl::toStr($t->s($__ctx, "{"));
-		$t = $t->levelInc($__ctx);
-		for ($i = 0;$i < $op_code->items->count($__ctx);$i++)
+		$content .= \Runtime\rtl::toStr($t->s($ctx, "return " . \Runtime\rtl::toStr($async_t) . \Runtime\rtl::toStr(".catch_pop().jump(ctx, ") . \Runtime\rtl::toStr($end_pos) . \Runtime\rtl::toStr(");")));
+		$t = $t->levelDec($ctx);
+		$content .= \Runtime\rtl::toStr($t->s($ctx, "}"));
+		$content .= \Runtime\rtl::toStr($t->s($ctx, "/* Start Catch */"));
+		$content .= \Runtime\rtl::toStr($t->s($ctx, "else if (" . \Runtime\rtl::toStr($async_t) . \Runtime\rtl::toStr(".pos(ctx) == ") . \Runtime\rtl::toStr($start_catch) . \Runtime\rtl::toStr(")")));
+		$content .= \Runtime\rtl::toStr($t->s($ctx, "{"));
+		$t = $t->levelInc($ctx);
+		for ($i = 0;$i < $op_code->items->count($ctx);$i++)
 		{
 			$s = "";
 			$pattern = "";
-			$item = $op_code->items->item($__ctx, $i);
-			$res = $t->expression->staticMethod("OpTypeIdentifier")($__ctx, $t, $item->pattern);
+			$item = $op_code->items->item($ctx, $i);
+			$res = $t->expression::OpTypeIdentifier($ctx, $t, $item->pattern);
 			$t = $res[0];
 			$pattern .= \Runtime\rtl::toStr($res[1]);
 			if ($pattern != "var")
@@ -489,63 +490,63 @@ class TranslatorES6AsyncAwait extends \Runtime\CoreStruct
 			{
 				$s = "if (true)";
 			}
-			$s .= \Runtime\rtl::toStr($t->s($__ctx, "{"));
-			$t = $t->levelInc($__ctx);
-			$s .= \Runtime\rtl::toStr(($s != "") ? $t->s($__ctx, "var " . \Runtime\rtl::toStr($item->name) . \Runtime\rtl::toStr(" = _ex;")) : "var " . \Runtime\rtl::toStr($item->name) . \Runtime\rtl::toStr(" = _ex;"));
-			$res = $t->operator->staticMethod("Operators")($__ctx, $t, $item->value);
+			$s .= \Runtime\rtl::toStr($t->s($ctx, "{"));
+			$t = $t->levelInc($ctx);
+			$s .= \Runtime\rtl::toStr(($s != "") ? $t->s($ctx, "var " . \Runtime\rtl::toStr($item->name) . \Runtime\rtl::toStr(" = _ex;")) : "var " . \Runtime\rtl::toStr($item->name) . \Runtime\rtl::toStr(" = _ex;"));
+			$res = $t->operator::Operators($ctx, $t, $item->value);
 			$t = $res[0];
-			$s .= \Runtime\rtl::toStr($t->s($__ctx, $res[1]));
-			$t = $t->levelDec($__ctx);
-			$s .= \Runtime\rtl::toStr($t->s($__ctx, "}"));
+			$s .= \Runtime\rtl::toStr($t->s($ctx, $res[1]));
+			$t = $t->levelDec($ctx);
+			$s .= \Runtime\rtl::toStr($t->s($ctx, "}"));
 			if ($i != 0)
 			{
 				$s = "else " . \Runtime\rtl::toStr($s);
 			}
-			$content .= \Runtime\rtl::toStr($t->s($__ctx, $s));
+			$content .= \Runtime\rtl::toStr($t->s($ctx, $s));
 		}
-		$content .= \Runtime\rtl::toStr($t->s($__ctx, "else"));
-		$content .= \Runtime\rtl::toStr($t->s($__ctx, "{"));
-		$t = $t->levelInc($__ctx);
-		$content .= \Runtime\rtl::toStr($t->s($__ctx, "throw _ex;"));
-		$t = $t->levelDec($__ctx);
-		$content .= \Runtime\rtl::toStr($t->s($__ctx, "}"));
+		$content .= \Runtime\rtl::toStr($t->s($ctx, "else"));
+		$content .= \Runtime\rtl::toStr($t->s($ctx, "{"));
+		$t = $t->levelInc($ctx);
+		$content .= \Runtime\rtl::toStr($t->s($ctx, "throw _ex;"));
+		$t = $t->levelDec($ctx);
+		$content .= \Runtime\rtl::toStr($t->s($ctx, "}"));
 		/* End Try Catch */
-		$content .= \Runtime\rtl::toStr($t->s($__ctx, "return " . \Runtime\rtl::toStr($async_t) . \Runtime\rtl::toStr(".jump(") . \Runtime\rtl::toStr($async_t) . \Runtime\rtl::toStr(", ") . \Runtime\rtl::toStr($end_pos) . \Runtime\rtl::toStr(");")));
-		$t = $t->levelDec($__ctx);
-		$content .= \Runtime\rtl::toStr($t->s($__ctx, "}"));
-		$content .= \Runtime\rtl::toStr($t->s($__ctx, "/* End Catch */"));
-		$content .= \Runtime\rtl::toStr($t->s($__ctx, "else if (" . \Runtime\rtl::toStr($async_t) . \Runtime\rtl::toStr(".pos() == ") . \Runtime\rtl::toStr($end_pos) . \Runtime\rtl::toStr(")")));
-		$content .= \Runtime\rtl::toStr($t->s($__ctx, "{"));
-		$t = $t->levelInc($__ctx);
-		$t = $t->copy($__ctx, ["async_await"=>$t->async_await->copy($__ctx, ["async_stack"=>$t->async_await->async_stack->removeLastIm($__ctx)])]);
-		$t = $t->copy($__ctx, ["async_await"=>$t->async_await->copy($__ctx, ["pos"=>$save_t->async_await->pos])]);
+		$content .= \Runtime\rtl::toStr($t->s($ctx, "return " . \Runtime\rtl::toStr($async_t) . \Runtime\rtl::toStr(".jump(ctx, ") . \Runtime\rtl::toStr($end_pos) . \Runtime\rtl::toStr(");")));
+		$t = $t->levelDec($ctx);
+		$content .= \Runtime\rtl::toStr($t->s($ctx, "}"));
+		$content .= \Runtime\rtl::toStr($t->s($ctx, "/* End Catch */"));
+		$content .= \Runtime\rtl::toStr($t->s($ctx, "else if (" . \Runtime\rtl::toStr($async_t) . \Runtime\rtl::toStr(".pos(ctx) == ") . \Runtime\rtl::toStr($end_pos) . \Runtime\rtl::toStr(")")));
+		$content .= \Runtime\rtl::toStr($t->s($ctx, "{"));
+		$t = $t->levelInc($ctx);
+		$t = $t->copy($ctx, ["async_await"=>$t->async_await->copy($ctx, ["async_stack"=>$t->async_await->async_stack->removeLastIm($ctx)])]);
+		$t = $t->copy($ctx, ["async_await"=>$t->async_await->copy($ctx, ["pos"=>$save_t->async_await->pos])]);
 		return \Runtime\Collection::from([$t,$content]);
 	}
 	/**
 	 * OpWhile
 	 */
-	static function OpWhile($__ctx, $t, $op_code)
+	static function OpWhile($ctx, $t, $op_code)
 	{
 		$save_t = null;
 		$async_t = $t->async_await->async_t;
 		$async_var = $t->async_await->async_var;
 		$content = "";
-		$res = static::pushPos($__ctx, $t);
+		$res = static::pushPos($ctx, $t);
 		$t = $res[0];
 		$start_pos = $res[1];
-		$res = static::popPos($__ctx, $t);
+		$res = static::popPos($ctx, $t);
 		$save_t = $res[0];
 		$end_pos = $res[1];
-		$t = $t->copy($__ctx, ["async_await"=>$t->async_await->copy($__ctx, ["async_stack"=>$t->async_await->async_stack->pushIm($__ctx, new \Bayrell\Lang\LangES6\AsyncAwait($__ctx, \Runtime\Dict::from(["start_pos"=>$start_pos,"end_pos"=>$end_pos])))])]);
-		$content .= \Runtime\rtl::toStr($t->s($__ctx, "return " . \Runtime\rtl::toStr($async_t) . \Runtime\rtl::toStr(".jump(") . \Runtime\rtl::toStr($async_t) . \Runtime\rtl::toStr(", ") . \Runtime\rtl::toStr($start_pos) . \Runtime\rtl::toStr(");")));
-		$t = $t->levelDec($__ctx);
-		$content .= \Runtime\rtl::toStr($t->s($__ctx, "}"));
-		$content .= \Runtime\rtl::toStr($t->s($__ctx, "/* Start while */"));
-		$content .= \Runtime\rtl::toStr($t->s($__ctx, "else if (" . \Runtime\rtl::toStr($async_t) . \Runtime\rtl::toStr(".pos() == ") . \Runtime\rtl::toStr($start_pos) . \Runtime\rtl::toStr(")")));
-		$content .= \Runtime\rtl::toStr($t->s($__ctx, "{"));
-		$t = $t->levelInc($__ctx);
+		$t = $t->copy($ctx, ["async_await"=>$t->async_await->copy($ctx, ["async_stack"=>$t->async_await->async_stack->pushIm($ctx, new \Bayrell\Lang\LangES6\AsyncAwait($ctx, \Runtime\Dict::from(["start_pos"=>$start_pos,"end_pos"=>$end_pos])))])]);
+		$content .= \Runtime\rtl::toStr($t->s($ctx, "return " . \Runtime\rtl::toStr($async_t) . \Runtime\rtl::toStr(".jump(ctx, ") . \Runtime\rtl::toStr($start_pos) . \Runtime\rtl::toStr(");")));
+		$t = $t->levelDec($ctx);
+		$content .= \Runtime\rtl::toStr($t->s($ctx, "}"));
+		$content .= \Runtime\rtl::toStr($t->s($ctx, "/* Start while */"));
+		$content .= \Runtime\rtl::toStr($t->s($ctx, "else if (" . \Runtime\rtl::toStr($async_t) . \Runtime\rtl::toStr(".pos(ctx) == ") . \Runtime\rtl::toStr($start_pos) . \Runtime\rtl::toStr(")")));
+		$content .= \Runtime\rtl::toStr($t->s($ctx, "{"));
+		$t = $t->levelInc($ctx);
 		/* Call condition expression */
-		$res = $t->staticMethod("saveOpCodeCall")($__ctx, $t, $t->expression->staticMethod("Expression"), \Runtime\Collection::from([$op_code->condition]));
+		$res = $t::saveOpCodeCall($ctx, $t, $t->expression->staticMethod("Expression"), \Runtime\Collection::from([$op_code->condition]));
 		$t = $res[0];
 		$save = $res[1];
 		$value = $res[2];
@@ -554,104 +555,104 @@ class TranslatorES6AsyncAwait extends \Runtime\CoreStruct
 			$content .= \Runtime\rtl::toStr($save);
 		}
 		/* Loop condition */
-		$content .= \Runtime\rtl::toStr($t->s($__ctx, "var " . \Runtime\rtl::toStr($async_var) . \Runtime\rtl::toStr(" = ") . \Runtime\rtl::toStr($value) . \Runtime\rtl::toStr(";")));
-		$res = static::nextPos($__ctx, $t);
+		$content .= \Runtime\rtl::toStr($t->s($ctx, "var " . \Runtime\rtl::toStr($async_var) . \Runtime\rtl::toStr(" = ") . \Runtime\rtl::toStr($value) . \Runtime\rtl::toStr(";")));
+		$res = static::nextPos($ctx, $t);
 		$t = $res[0];
 		$start_loop = $res[1];
-		$content .= \Runtime\rtl::toStr($t->s($__ctx, "if (async_var)"));
-		$content .= \Runtime\rtl::toStr($t->s($__ctx, "{"));
-		$t = $t->levelInc($__ctx);
-		$content .= \Runtime\rtl::toStr($t->s($__ctx, "return " . \Runtime\rtl::toStr($async_t) . \Runtime\rtl::toStr(".jump(") . \Runtime\rtl::toStr($async_t) . \Runtime\rtl::toStr(", ") . \Runtime\rtl::toStr($start_loop) . \Runtime\rtl::toStr(");")));
-		$t = $t->levelDec($__ctx);
-		$content .= \Runtime\rtl::toStr($t->s($__ctx, "}"));
-		$content .= \Runtime\rtl::toStr($t->s($__ctx, "return " . \Runtime\rtl::toStr($async_t) . \Runtime\rtl::toStr(".jump(") . \Runtime\rtl::toStr($async_t) . \Runtime\rtl::toStr(", ") . \Runtime\rtl::toStr($end_pos) . \Runtime\rtl::toStr(");")));
+		$content .= \Runtime\rtl::toStr($t->s($ctx, "if (" . \Runtime\rtl::toStr($async_var) . \Runtime\rtl::toStr(")")));
+		$content .= \Runtime\rtl::toStr($t->s($ctx, "{"));
+		$t = $t->levelInc($ctx);
+		$content .= \Runtime\rtl::toStr($t->s($ctx, "return " . \Runtime\rtl::toStr($async_t) . \Runtime\rtl::toStr(".jump(ctx, ") . \Runtime\rtl::toStr($start_loop) . \Runtime\rtl::toStr(");")));
+		$t = $t->levelDec($ctx);
+		$content .= \Runtime\rtl::toStr($t->s($ctx, "}"));
+		$content .= \Runtime\rtl::toStr($t->s($ctx, "return " . \Runtime\rtl::toStr($async_t) . \Runtime\rtl::toStr(".jump(ctx, ") . \Runtime\rtl::toStr($end_pos) . \Runtime\rtl::toStr(");")));
 		/* Start Loop */
-		$t = $t->levelDec($__ctx);
-		$content .= \Runtime\rtl::toStr($t->s($__ctx, "}"));
-		$content .= \Runtime\rtl::toStr($t->s($__ctx, "/* Loop while */"));
-		$content .= \Runtime\rtl::toStr($t->s($__ctx, "else if (" . \Runtime\rtl::toStr($async_t) . \Runtime\rtl::toStr(".pos() == ") . \Runtime\rtl::toStr($start_loop) . \Runtime\rtl::toStr(")")));
-		$content .= \Runtime\rtl::toStr($t->s($__ctx, "{"));
-		$t = $t->levelInc($__ctx);
-		$res = $t->operator->staticMethod("Operators")($__ctx, $t, $op_code->value);
+		$t = $t->levelDec($ctx);
+		$content .= \Runtime\rtl::toStr($t->s($ctx, "}"));
+		$content .= \Runtime\rtl::toStr($t->s($ctx, "/* Loop while */"));
+		$content .= \Runtime\rtl::toStr($t->s($ctx, "else if (" . \Runtime\rtl::toStr($async_t) . \Runtime\rtl::toStr(".pos(ctx) == ") . \Runtime\rtl::toStr($start_loop) . \Runtime\rtl::toStr(")")));
+		$content .= \Runtime\rtl::toStr($t->s($ctx, "{"));
+		$t = $t->levelInc($ctx);
+		$res = $t->operator::Operators($ctx, $t, $op_code->value);
 		$t = $res[0];
 		$content .= \Runtime\rtl::toStr($res[1]);
 		/* End Loop */
-		$content .= \Runtime\rtl::toStr($t->s($__ctx, "return " . \Runtime\rtl::toStr($async_t) . \Runtime\rtl::toStr(".jump(") . \Runtime\rtl::toStr($async_t) . \Runtime\rtl::toStr(", ") . \Runtime\rtl::toStr($start_pos) . \Runtime\rtl::toStr(");")));
-		$t = $t->levelDec($__ctx);
-		$content .= \Runtime\rtl::toStr($t->s($__ctx, "}"));
-		$content .= \Runtime\rtl::toStr($t->s($__ctx, "/* End while */"));
-		$content .= \Runtime\rtl::toStr($t->s($__ctx, "else if (" . \Runtime\rtl::toStr($async_t) . \Runtime\rtl::toStr(".pos() == ") . \Runtime\rtl::toStr($end_pos) . \Runtime\rtl::toStr(")")));
-		$content .= \Runtime\rtl::toStr($t->s($__ctx, "{"));
-		$t = $t->levelInc($__ctx);
-		$t = $t->copy($__ctx, ["async_await"=>$t->async_await->copy($__ctx, ["async_stack"=>$t->async_await->async_stack->removeLastIm($__ctx)])]);
-		$t = $t->copy($__ctx, ["async_await"=>$t->async_await->copy($__ctx, ["pos"=>$save_t->async_await->pos])]);
+		$content .= \Runtime\rtl::toStr($t->s($ctx, "return " . \Runtime\rtl::toStr($async_t) . \Runtime\rtl::toStr(".jump(ctx, ") . \Runtime\rtl::toStr($start_pos) . \Runtime\rtl::toStr(");")));
+		$t = $t->levelDec($ctx);
+		$content .= \Runtime\rtl::toStr($t->s($ctx, "}"));
+		$content .= \Runtime\rtl::toStr($t->s($ctx, "/* End while */"));
+		$content .= \Runtime\rtl::toStr($t->s($ctx, "else if (" . \Runtime\rtl::toStr($async_t) . \Runtime\rtl::toStr(".pos(ctx) == ") . \Runtime\rtl::toStr($end_pos) . \Runtime\rtl::toStr(")")));
+		$content .= \Runtime\rtl::toStr($t->s($ctx, "{"));
+		$t = $t->levelInc($ctx);
+		$t = $t->copy($ctx, ["async_await"=>$t->async_await->copy($ctx, ["async_stack"=>$t->async_await->async_stack->removeLastIm($ctx)])]);
+		$t = $t->copy($ctx, ["async_await"=>$t->async_await->copy($ctx, ["pos"=>$save_t->async_await->pos])]);
 		return \Runtime\Collection::from([$t,$content]);
 	}
 	/**
 	 * OpDeclareFunction Body
 	 */
-	static function OpDeclareFunctionBody($__ctx, $t, $f)
+	static function OpDeclareFunctionBody($ctx, $t, $f)
 	{
 		$save_t = $t;
 		/* Save op codes */
 		$save_vars = $t->save_vars;
 		$save_op_codes = $t->save_op_codes;
 		$save_op_code_inc = $t->save_op_code_inc;
-		$t = $t->staticMethod("clearSaveOpCode")($__ctx, $t);
+		$t = $t::clearSaveOpCode($ctx, $t);
 		$async_t = $t->async_await->async_t;
-		$t = $t->levelInc($__ctx);
-		$s1 = $t->s($__ctx, "return (" . \Runtime\rtl::toStr($async_t) . \Runtime\rtl::toStr(") =>"));
-		$s1 .= \Runtime\rtl::toStr($t->s($__ctx, "{"));
-		$t = $t->levelInc($__ctx);
-		$s1 .= \Runtime\rtl::toStr($t->s($__ctx, "if (" . \Runtime\rtl::toStr($async_t) . \Runtime\rtl::toStr(".pos() == ") . \Runtime\rtl::toStr(static::currentPos($__ctx, $t)) . \Runtime\rtl::toStr(")")));
-		$s1 .= \Runtime\rtl::toStr($t->s($__ctx, "{"));
-		$t = $t->levelInc($__ctx);
+		$t = $t->levelInc($ctx);
+		$s1 = $t->s($ctx, "return (" . \Runtime\rtl::toStr($async_t) . \Runtime\rtl::toStr(") =>"));
+		$s1 .= \Runtime\rtl::toStr($t->s($ctx, "{"));
+		$t = $t->levelInc($ctx);
+		$s1 .= \Runtime\rtl::toStr($t->s($ctx, "if (" . \Runtime\rtl::toStr($async_t) . \Runtime\rtl::toStr(".pos(ctx) == ") . \Runtime\rtl::toStr(static::currentPos($ctx, $t)) . \Runtime\rtl::toStr(")")));
+		$s1 .= \Runtime\rtl::toStr($t->s($ctx, "{"));
+		$t = $t->levelInc($ctx);
 		if ($f->value)
 		{
-			$res = $t->operator->staticMethod("Operators")($__ctx, $t, $f->value);
+			$res = $t->operator::Operators($ctx, $t, $f->value);
 			$t = $res[0];
 			$s1 .= \Runtime\rtl::toStr($res[1]);
 		}
 		else if ($f->expression)
 		{
-			$res = $t->expression->staticMethod("Expression")($__ctx, $t, $f->expression);
+			$res = $t->expression::Expression($ctx, $t, $f->expression);
 			$t = $res[0];
 			$expr = $res[1];
-			$s1 .= \Runtime\rtl::toStr($t->s($__ctx, "return " . \Runtime\rtl::toStr($async_t) . \Runtime\rtl::toStr(".ret(") . \Runtime\rtl::toStr($async_t) . \Runtime\rtl::toStr(", ") . \Runtime\rtl::toStr($expr) . \Runtime\rtl::toStr(");")));
+			$s1 .= \Runtime\rtl::toStr($t->s($ctx, "return " . \Runtime\rtl::toStr($async_t) . \Runtime\rtl::toStr(".ret(ctx, ") . \Runtime\rtl::toStr($expr) . \Runtime\rtl::toStr(");")));
 		}
-		$t = $t->levelDec($__ctx);
-		$s1 .= \Runtime\rtl::toStr($t->s($__ctx, "}"));
-		$s1 .= \Runtime\rtl::toStr($t->s($__ctx, "return " . \Runtime\rtl::toStr($async_t) . \Runtime\rtl::toStr(".ret_void();")));
-		$t = $t->levelDec($__ctx);
-		$s1 .= \Runtime\rtl::toStr($t->s($__ctx, "};"));
-		$t = $t->levelDec($__ctx);
+		$t = $t->levelDec($ctx);
+		$s1 .= \Runtime\rtl::toStr($t->s($ctx, "}"));
+		$s1 .= \Runtime\rtl::toStr($t->s($ctx, "return " . \Runtime\rtl::toStr($async_t) . \Runtime\rtl::toStr(".ret_void(ctx);")));
+		$t = $t->levelDec($ctx);
+		$s1 .= \Runtime\rtl::toStr($t->s($ctx, "};"));
+		$t = $t->levelDec($ctx);
 		/* Content */
 		$content = "";
-		$content = $t->s($__ctx, "{");
-		$t = $t->levelInc($__ctx);
-		if ($t->save_vars->count($__ctx) > 0)
+		$content = $t->s($ctx, "{");
+		$t = $t->levelInc($ctx);
+		if ($t->save_vars->count($ctx) > 0)
 		{
-			$content .= \Runtime\rtl::toStr($t->s($__ctx, "var " . \Runtime\rtl::toStr(\Runtime\rs::join($__ctx, ",", $t->save_vars)) . \Runtime\rtl::toStr(";")));
+			$content .= \Runtime\rtl::toStr($t->s($ctx, "var " . \Runtime\rtl::toStr(\Runtime\rs::join($ctx, ",", $t->save_vars)) . \Runtime\rtl::toStr(";")));
 		}
 		$content .= \Runtime\rtl::toStr($s1);
-		$t = $t->levelDec($__ctx);
-		$content .= \Runtime\rtl::toStr($t->s($__ctx, "}"));
+		$t = $t->levelDec($ctx);
+		$content .= \Runtime\rtl::toStr($t->s($ctx, "}"));
 		/* Restore save op codes */
-		$t = $t->copy($__ctx, ["save_vars"=>$save_vars]);
-		$t = $t->copy($__ctx, ["save_op_codes"=>$save_op_codes]);
-		$t = $t->copy($__ctx, ["save_op_code_inc"=>$save_op_code_inc]);
+		$t = $t->copy($ctx, ["save_vars"=>$save_vars]);
+		$t = $t->copy($ctx, ["save_op_codes"=>$save_op_codes]);
+		$t = $t->copy($ctx, ["save_op_code_inc"=>$save_op_code_inc]);
 		return \Runtime\Collection::from([$save_t,$content]);
 	}
 	/* ======================= Class Init Functions ======================= */
-	function _init($__ctx)
+	function _init($ctx)
 	{
-		parent::_init($__ctx);
-		$this->__async_stack = new \Runtime\Collection($__ctx);
+		parent::_init($ctx);
+		$this->__async_stack = new \Runtime\Collection($ctx);
 		$this->__pos = \Runtime\Collection::from([0]);
 		$this->__async_t = "__async_t";
 		$this->__async_var = "__async_var";
 	}
-	function assignObject($__ctx,$o)
+	function assignObject($ctx,$o)
 	{
 		if ($o instanceof \Bayrell\Lang\LangES6\TranslatorES6AsyncAwait)
 		{
@@ -660,23 +661,23 @@ class TranslatorES6AsyncAwait extends \Runtime\CoreStruct
 			$this->__async_t = $o->__async_t;
 			$this->__async_var = $o->__async_var;
 		}
-		parent::assignObject($__ctx,$o);
+		parent::assignObject($ctx,$o);
 	}
-	function assignValue($__ctx,$k,$v)
+	function assignValue($ctx,$k,$v)
 	{
 		if ($k == "async_stack")$this->__async_stack = $v;
 		else if ($k == "pos")$this->__pos = $v;
 		else if ($k == "async_t")$this->__async_t = $v;
 		else if ($k == "async_var")$this->__async_var = $v;
-		else parent::assignValue($__ctx,$k,$v);
+		else parent::assignValue($ctx,$k,$v);
 	}
-	function takeValue($__ctx,$k,$d=null)
+	function takeValue($ctx,$k,$d=null)
 	{
 		if ($k == "async_stack")return $this->__async_stack;
 		else if ($k == "pos")return $this->__pos;
 		else if ($k == "async_t")return $this->__async_t;
 		else if ($k == "async_var")return $this->__async_var;
-		return parent::takeValue($__ctx,$k,$d);
+		return parent::takeValue($ctx,$k,$d);
 	}
 	function getClassName()
 	{
@@ -694,9 +695,9 @@ class TranslatorES6AsyncAwait extends \Runtime\CoreStruct
 	{
 		return "Runtime.CoreStruct";
 	}
-	static function getClassInfo($__ctx)
+	static function getClassInfo($ctx)
 	{
-		return new \Runtime\Annotations\IntrospectionInfo($__ctx, [
+		return new \Runtime\Annotations\IntrospectionInfo($ctx, [
 			"kind"=>\Runtime\Annotations\IntrospectionInfo::ITEM_CLASS,
 			"class_name"=>"Bayrell.Lang.LangES6.TranslatorES6AsyncAwait",
 			"name"=>"Bayrell.Lang.LangES6.TranslatorES6AsyncAwait",
@@ -704,7 +705,7 @@ class TranslatorES6AsyncAwait extends \Runtime\CoreStruct
 			]),
 		]);
 	}
-	static function getFieldsList($__ctx,$f)
+	static function getFieldsList($ctx,$f)
 	{
 		$a = [];
 		if (($f|3)==3)
@@ -716,17 +717,45 @@ class TranslatorES6AsyncAwait extends \Runtime\CoreStruct
 		}
 		return \Runtime\Collection::from($a);
 	}
-	static function getFieldInfoByName($__ctx,$field_name)
+	static function getFieldInfoByName($ctx,$field_name)
 	{
+		if ($field_name == "async_stack") return new \Runtime\Annotations\IntrospectionInfo($ctx, [
+			"kind"=>\Runtime\Annotations\IntrospectionInfo::ITEM_FIELD,
+			"class_name"=>"Bayrell.Lang.LangES6.TranslatorES6AsyncAwait",
+			"name"=> $field_name,
+			"annotations"=>\Runtime\Collection::from([
+			]),
+		]);
+		if ($field_name == "pos") return new \Runtime\Annotations\IntrospectionInfo($ctx, [
+			"kind"=>\Runtime\Annotations\IntrospectionInfo::ITEM_FIELD,
+			"class_name"=>"Bayrell.Lang.LangES6.TranslatorES6AsyncAwait",
+			"name"=> $field_name,
+			"annotations"=>\Runtime\Collection::from([
+			]),
+		]);
+		if ($field_name == "async_t") return new \Runtime\Annotations\IntrospectionInfo($ctx, [
+			"kind"=>\Runtime\Annotations\IntrospectionInfo::ITEM_FIELD,
+			"class_name"=>"Bayrell.Lang.LangES6.TranslatorES6AsyncAwait",
+			"name"=> $field_name,
+			"annotations"=>\Runtime\Collection::from([
+			]),
+		]);
+		if ($field_name == "async_var") return new \Runtime\Annotations\IntrospectionInfo($ctx, [
+			"kind"=>\Runtime\Annotations\IntrospectionInfo::ITEM_FIELD,
+			"class_name"=>"Bayrell.Lang.LangES6.TranslatorES6AsyncAwait",
+			"name"=> $field_name,
+			"annotations"=>\Runtime\Collection::from([
+			]),
+		]);
 		return null;
 	}
-	static function getMethodsList($__ctx)
+	static function getMethodsList($ctx)
 	{
 		$a = [
 		];
 		return \Runtime\Collection::from($a);
 	}
-	static function getMethodInfoByName($__ctx,$field_name)
+	static function getMethodInfoByName($ctx,$field_name)
 	{
 		return null;
 	}

@@ -2,7 +2,7 @@
 /*!
  *  Bayrell Language
  *
- *  (c) Copyright 2016-2019 "Ildar Bikmamatov" <support@bayrell.org>
+ *  (c) Copyright 2016-2020 "Ildar Bikmamatov" <support@bayrell.org>
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
  *  limitations under the License.
  */
 namespace Bayrell\Lang;
-class CoreParser extends \Runtime\FakeStruct
+class CoreParser extends \Runtime\CoreStruct
 {
 	public $tab_size;
 	public $file_name;
@@ -28,41 +28,41 @@ class CoreParser extends \Runtime\FakeStruct
 	/**
 	 * Returns true if eof
 	 */
-	function isEof($__ctx)
+	function isEof($ctx)
 	{
 		return $this->caret->pos >= $this->content_sz;
 	}
 	/**
 	 * Reset parser
 	 */
-	static function reset($__ctx, $parser)
+	static function reset($ctx, $parser)
 	{
-		return $parser->copy($__ctx, \Runtime\Dict::from(["caret"=>new \Bayrell\Lang\Caret($__ctx, \Runtime\Dict::from([])),"token"=>null]));
+		return $parser->copy($ctx, \Runtime\Dict::from(["caret"=>new \Bayrell\Lang\Caret($ctx, \Runtime\Dict::from([])),"token"=>null]));
 	}
 	/**
 	 * Set content
 	 */
-	static function setContent($__ctx, $parser, $content)
+	static function setContent($ctx, $parser, $content)
 	{
-		return $parser->copy($__ctx, \Runtime\Dict::from(["content"=>new \Runtime\Reference($__ctx, $content),"content_sz"=>\Runtime\rs::strlen($__ctx, $content)]));
+		return $parser->copy($ctx, \Runtime\Dict::from(["content"=>new \Runtime\Reference($ctx, $content),"content_sz"=>\Runtime\rs::strlen($ctx, $content)]));
 	}
 	/**
 	 * Parse file and convert to BaseOpCode
 	 */
-	static function parse($__ctx, $parser, $content)
+	static function parse($ctx, $parser, $content)
 	{
-		$parser = static::reset($__ctx, $parser);
-		$parser = static::setContent($__ctx, $parser, $content);
+		$parser = static::reset($ctx, $parser);
+		$parser = static::setContent($ctx, $parser, $content);
 		while ($parser->caret->pos < $parser->content_sz)
 		{
-			$parser = $parser->staticMethod("nextToken")($__ctx, $parser);
+			$parser = $parser::nextToken($ctx, $parser);
 		}
 		return $parser;
 	}
 	/* ======================= Class Init Functions ======================= */
-	function _init($__ctx)
+	function _init($ctx)
 	{
-		parent::_init($__ctx);
+		parent::_init($ctx);
 		$this->tab_size = 4;
 		$this->file_name = "";
 		$this->content = null;
@@ -84,11 +84,11 @@ class CoreParser extends \Runtime\FakeStruct
 	}
 	static function getParentClassName()
 	{
-		return "Runtime.FakeStruct";
+		return "Runtime.CoreStruct";
 	}
-	static function getClassInfo($__ctx)
+	static function getClassInfo($ctx)
 	{
-		return new \Runtime\Annotations\IntrospectionInfo($__ctx, [
+		return new \Runtime\Annotations\IntrospectionInfo($ctx, [
 			"kind"=>\Runtime\Annotations\IntrospectionInfo::ITEM_CLASS,
 			"class_name"=>"Bayrell.Lang.CoreParser",
 			"name"=>"Bayrell.Lang.CoreParser",
@@ -96,22 +96,64 @@ class CoreParser extends \Runtime\FakeStruct
 			]),
 		]);
 	}
-	static function getFieldsList($__ctx,$f)
+	static function getFieldsList($ctx,$f)
 	{
 		$a = [];
 		return \Runtime\Collection::from($a);
 	}
-	static function getFieldInfoByName($__ctx,$field_name)
+	static function getFieldInfoByName($ctx,$field_name)
 	{
+		if ($field_name == "tab_size") return new \Runtime\Annotations\IntrospectionInfo($ctx, [
+			"kind"=>\Runtime\Annotations\IntrospectionInfo::ITEM_FIELD,
+			"class_name"=>"Bayrell.Lang.CoreParser",
+			"name"=> $field_name,
+			"annotations"=>\Runtime\Collection::from([
+			]),
+		]);
+		if ($field_name == "file_name") return new \Runtime\Annotations\IntrospectionInfo($ctx, [
+			"kind"=>\Runtime\Annotations\IntrospectionInfo::ITEM_FIELD,
+			"class_name"=>"Bayrell.Lang.CoreParser",
+			"name"=> $field_name,
+			"annotations"=>\Runtime\Collection::from([
+			]),
+		]);
+		if ($field_name == "content") return new \Runtime\Annotations\IntrospectionInfo($ctx, [
+			"kind"=>\Runtime\Annotations\IntrospectionInfo::ITEM_FIELD,
+			"class_name"=>"Bayrell.Lang.CoreParser",
+			"name"=> $field_name,
+			"annotations"=>\Runtime\Collection::from([
+			]),
+		]);
+		if ($field_name == "content_sz") return new \Runtime\Annotations\IntrospectionInfo($ctx, [
+			"kind"=>\Runtime\Annotations\IntrospectionInfo::ITEM_FIELD,
+			"class_name"=>"Bayrell.Lang.CoreParser",
+			"name"=> $field_name,
+			"annotations"=>\Runtime\Collection::from([
+			]),
+		]);
+		if ($field_name == "caret") return new \Runtime\Annotations\IntrospectionInfo($ctx, [
+			"kind"=>\Runtime\Annotations\IntrospectionInfo::ITEM_FIELD,
+			"class_name"=>"Bayrell.Lang.CoreParser",
+			"name"=> $field_name,
+			"annotations"=>\Runtime\Collection::from([
+			]),
+		]);
+		if ($field_name == "find_ident") return new \Runtime\Annotations\IntrospectionInfo($ctx, [
+			"kind"=>\Runtime\Annotations\IntrospectionInfo::ITEM_FIELD,
+			"class_name"=>"Bayrell.Lang.CoreParser",
+			"name"=> $field_name,
+			"annotations"=>\Runtime\Collection::from([
+			]),
+		]);
 		return null;
 	}
-	static function getMethodsList($__ctx)
+	static function getMethodsList($ctx)
 	{
 		$a = [
 		];
 		return \Runtime\Collection::from($a);
 	}
-	static function getMethodInfoByName($__ctx,$field_name)
+	static function getMethodInfoByName($ctx,$field_name)
 	{
 		return null;
 	}

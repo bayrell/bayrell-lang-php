@@ -2,7 +2,7 @@
 /*!
  *  Bayrell Language
  *
- *  (c) Copyright 2016-2019 "Ildar Bikmamatov" <support@bayrell.org>
+ *  (c) Copyright 2016-2020 "Ildar Bikmamatov" <support@bayrell.org>
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ class CoreTranslator extends \Runtime\CoreStruct
 	public $__current_class_name;
 	public $__current_class_full_name;
 	public $__current_class_extends_name;
+	public $__current_class;
 	public $__current_function;
 	public $__modules;
 	public $__vars;
@@ -40,28 +41,28 @@ class CoreTranslator extends \Runtime\CoreStruct
 	/**
 	 * Find save op code
 	 */
-	function findSaveOpCode($__ctx, $op_code)
+	function findSaveOpCode($ctx, $op_code)
 	{
-		return $this->save_op_codes->findItem($__ctx, \Runtime\lib::equalAttr($__ctx, "op_code", $op_code));
+		return $this->save_op_codes->findItem($ctx, \Runtime\lib::equalAttr($ctx, "op_code", $op_code));
 	}
 	/**
 	 * Increment indent level
 	 */
-	function levelInc($__ctx)
+	function levelInc($ctx)
 	{
-		return $this->copy($__ctx, \Runtime\Dict::from(["indent_level"=>$this->indent_level + 1]));
+		return $this->copy($ctx, \Runtime\Dict::from(["indent_level"=>$this->indent_level + 1]));
 	}
 	/**
 	 * Decrease indent level
 	 */
-	function levelDec($__ctx)
+	function levelDec($ctx)
 	{
-		return $this->copy($__ctx, \Runtime\Dict::from(["indent_level"=>$this->indent_level - 1]));
+		return $this->copy($ctx, \Runtime\Dict::from(["indent_level"=>$this->indent_level - 1]));
 	}
 	/**
 	 * Output content with indent
 	 */
-	function s($__ctx, $s, $content=null)
+	function s($ctx, $s, $content=null)
 	{
 		if ($s == "")
 		{
@@ -71,12 +72,19 @@ class CoreTranslator extends \Runtime\CoreStruct
 		{
 			return $s;
 		}
-		return $this->crlf . \Runtime\rtl::toStr(\Runtime\rs::str_repeat($__ctx, $this->indent, $this->indent_level)) . \Runtime\rtl::toStr($s);
+		return $this->crlf . \Runtime\rtl::toStr(\Runtime\rs::str_repeat($ctx, $this->indent, $this->indent_level)) . \Runtime\rtl::toStr($s);
+	}
+	/**
+	 * Output content with indent
+	 */
+	function s2($ctx, $s)
+	{
+		return $this->crlf . \Runtime\rtl::toStr(\Runtime\rs::str_repeat($ctx, $this->indent, $this->indent_level)) . \Runtime\rtl::toStr($s);
 	}
 	/**
 	 * Output content with opcode level
 	 */
-	function o($__ctx, $s, $opcode_level_in, $opcode_level_out)
+	function o($ctx, $s, $opcode_level_in, $opcode_level_out)
 	{
 		if ($opcode_level_in < $opcode_level_out)
 		{
@@ -87,69 +95,69 @@ class CoreTranslator extends \Runtime\CoreStruct
 	/**
 	 * Translate BaseOpCode
 	 */
-	static function translate($__ctx, $t, $op_code)
+	static function translate($ctx, $t, $op_code)
 	{
 		return "";
 	}
 	/**
 	 * Inc save op code
 	 */
-	static function nextSaveOpCode($__ctx, $t)
+	static function nextSaveOpCode($ctx, $t)
 	{
 		return "__v" . \Runtime\rtl::toStr($t->save_op_code_inc);
 	}
 	/**
 	 * Inc save op code
 	 */
-	static function incSaveOpCode($__ctx, $t)
+	static function incSaveOpCode($ctx, $t)
 	{
-		$var_name = static::nextSaveOpCode($__ctx, $t);
+		$var_name = static::nextSaveOpCode($ctx, $t);
 		$save_op_code_inc = $t->save_op_code_inc + 1;
-		$t = $t->copy($__ctx, \Runtime\Dict::from(["save_op_code_inc"=>$save_op_code_inc]));
+		$t = $t->copy($ctx, \Runtime\Dict::from(["save_op_code_inc"=>$save_op_code_inc]));
 		return \Runtime\Collection::from([$t,$var_name]);
 	}
 	/**
 	 * Add save op code
 	 */
-	static function addSaveOpCode($__ctx, $t, $data)
+	static function addSaveOpCode($ctx, $t, $data)
 	{
-		$var_name = $data->get($__ctx, "var_name", "");
-		$content = $data->get($__ctx, "content", "");
-		$var_content = $data->get($__ctx, "var_content", "");
+		$var_name = $data->get($ctx, "var_name", "");
+		$content = $data->get($ctx, "content", "");
+		$var_content = $data->get($ctx, "var_content", "");
 		$save_op_code_inc = $t->save_op_code_inc;
-		if ($var_name == "")
+		if ($var_name == "" && $content == "")
 		{
-			$var_name = static::nextSaveOpCode($__ctx, $t);
+			$var_name = static::nextSaveOpCode($ctx, $t);
+			$data = $data->setIm($ctx, "var_name", $var_name);
 			$save_op_code_inc += 1;
 		}
-		$data = $data->setIm($__ctx, "var_name", $var_name);
-		$s = new \Bayrell\Lang\SaveOpCode($__ctx, $data);
-		$t = $t->copy($__ctx, \Runtime\Dict::from(["save_op_codes"=>$t->save_op_codes->pushIm($__ctx, $s),"save_op_code_inc"=>$save_op_code_inc]));
+		$s = new \Bayrell\Lang\SaveOpCode($ctx, $data);
+		$t = $t->copy($ctx, \Runtime\Dict::from(["save_op_codes"=>$t->save_op_codes->pushIm($ctx, $s),"save_op_code_inc"=>$save_op_code_inc]));
 		return \Runtime\Collection::from([$t,$var_name]);
 	}
 	/**
 	 * Clear save op code
 	 */
-	static function clearSaveOpCode($__ctx, $t)
+	static function clearSaveOpCode($ctx, $t)
 	{
-		$t = $t->copy($__ctx, ["save_op_codes"=>new \Runtime\Collection($__ctx)]);
-		$t = $t->copy($__ctx, ["save_op_code_inc"=>0]);
+		$t = $t->copy($ctx, ["save_op_codes"=>new \Runtime\Collection($ctx)]);
+		$t = $t->copy($ctx, ["save_op_code_inc"=>0]);
 		return $t;
 	}
 	/**
 	 * Output save op code content
 	 */
-	static function outputSaveOpCode($__ctx, $t, $save_op_code_value=0)
+	static function outputSaveOpCode($ctx, $t, $save_op_code_value=0)
 	{
 		$content = "";
-		for ($i = 0;$i < $t->save_op_codes->count($__ctx);$i++)
+		for ($i = 0;$i < $t->save_op_codes->count($ctx);$i++)
 		{
 			if ($i < $save_op_code_value)
 			{
 				continue;
 			}
-			$save = $t->save_op_codes->item($__ctx, $i);
-			$s = ($save->content == "") ? $t->s($__ctx, "var " . \Runtime\rtl::toStr($save->var_name) . \Runtime\rtl::toStr(" = ") . \Runtime\rtl::toStr($save->var_content) . \Runtime\rtl::toStr(";")) : $save->content;
+			$save = $t->save_op_codes->item($ctx, $i);
+			$s = ($save->content == "") ? $t->s($ctx, "var " . \Runtime\rtl::toStr($save->var_name) . \Runtime\rtl::toStr(" = ") . \Runtime\rtl::toStr($save->var_content) . \Runtime\rtl::toStr(";")) : $save->content;
 			$content .= \Runtime\rtl::toStr($s);
 		}
 		return $content;
@@ -157,29 +165,30 @@ class CoreTranslator extends \Runtime\CoreStruct
 	/**
 	 * Call f and return result with save op codes
 	 */
-	static function saveOpCodeCall($__ctx, $t, $f, $args)
+	static function saveOpCodeCall($ctx, $t, $f, $args)
 	{
 		/* Clear save op codes */
 		$save_op_codes = $t->save_op_codes;
 		$save_op_code_inc = $t->save_op_code_inc;
-		$res = \Runtime\rtl::apply($__ctx, $f, $args->unshiftIm($__ctx, $t));
+		$res = \Runtime\rtl::apply($ctx, $f, $args->unshiftIm($ctx, $t));
 		$t = $res[0];
 		$value = $res[1];
 		/* Output save op code */
-		$save = $t->staticMethod("outputSaveOpCode")($__ctx, $t, $save_op_codes->count($__ctx));
+		$save = $t::outputSaveOpCode($ctx, $t, $save_op_codes->count($ctx));
 		/* Restore save op codes */
-		$t = $t->copy($__ctx, ["save_op_codes"=>$save_op_codes]);
-		$t = $t->copy($__ctx, ["save_op_code_inc"=>$save_op_code_inc]);
+		$t = $t->copy($ctx, ["save_op_codes"=>$save_op_codes]);
+		$t = $t->copy($ctx, ["save_op_code_inc"=>$save_op_code_inc]);
 		return \Runtime\Collection::from([$t,$save,$value]);
 	}
 	/* ======================= Class Init Functions ======================= */
-	function _init($__ctx)
+	function _init($ctx)
 	{
-		parent::_init($__ctx);
+		parent::_init($ctx);
 		$this->__current_namespace_name = "";
 		$this->__current_class_name = "";
 		$this->__current_class_full_name = "";
 		$this->__current_class_extends_name = "";
+		$this->__current_class = null;
 		$this->__current_function = null;
 		$this->__modules = null;
 		$this->__vars = null;
@@ -195,7 +204,7 @@ class CoreTranslator extends \Runtime\CoreStruct
 		$this->__flag_struct_check_types = false;
 		$this->__preprocessor_flags = null;
 	}
-	function assignObject($__ctx,$o)
+	function assignObject($ctx,$o)
 	{
 		if ($o instanceof \Bayrell\Lang\CoreTranslator)
 		{
@@ -203,6 +212,7 @@ class CoreTranslator extends \Runtime\CoreStruct
 			$this->__current_class_name = $o->__current_class_name;
 			$this->__current_class_full_name = $o->__current_class_full_name;
 			$this->__current_class_extends_name = $o->__current_class_extends_name;
+			$this->__current_class = $o->__current_class;
 			$this->__current_function = $o->__current_function;
 			$this->__modules = $o->__modules;
 			$this->__vars = $o->__vars;
@@ -218,14 +228,15 @@ class CoreTranslator extends \Runtime\CoreStruct
 			$this->__flag_struct_check_types = $o->__flag_struct_check_types;
 			$this->__preprocessor_flags = $o->__preprocessor_flags;
 		}
-		parent::assignObject($__ctx,$o);
+		parent::assignObject($ctx,$o);
 	}
-	function assignValue($__ctx,$k,$v)
+	function assignValue($ctx,$k,$v)
 	{
 		if ($k == "current_namespace_name")$this->__current_namespace_name = $v;
 		else if ($k == "current_class_name")$this->__current_class_name = $v;
 		else if ($k == "current_class_full_name")$this->__current_class_full_name = $v;
 		else if ($k == "current_class_extends_name")$this->__current_class_extends_name = $v;
+		else if ($k == "current_class")$this->__current_class = $v;
 		else if ($k == "current_function")$this->__current_function = $v;
 		else if ($k == "modules")$this->__modules = $v;
 		else if ($k == "vars")$this->__vars = $v;
@@ -240,14 +251,15 @@ class CoreTranslator extends \Runtime\CoreStruct
 		else if ($k == "crlf")$this->__crlf = $v;
 		else if ($k == "flag_struct_check_types")$this->__flag_struct_check_types = $v;
 		else if ($k == "preprocessor_flags")$this->__preprocessor_flags = $v;
-		else parent::assignValue($__ctx,$k,$v);
+		else parent::assignValue($ctx,$k,$v);
 	}
-	function takeValue($__ctx,$k,$d=null)
+	function takeValue($ctx,$k,$d=null)
 	{
 		if ($k == "current_namespace_name")return $this->__current_namespace_name;
 		else if ($k == "current_class_name")return $this->__current_class_name;
 		else if ($k == "current_class_full_name")return $this->__current_class_full_name;
 		else if ($k == "current_class_extends_name")return $this->__current_class_extends_name;
+		else if ($k == "current_class")return $this->__current_class;
 		else if ($k == "current_function")return $this->__current_function;
 		else if ($k == "modules")return $this->__modules;
 		else if ($k == "vars")return $this->__vars;
@@ -262,7 +274,7 @@ class CoreTranslator extends \Runtime\CoreStruct
 		else if ($k == "crlf")return $this->__crlf;
 		else if ($k == "flag_struct_check_types")return $this->__flag_struct_check_types;
 		else if ($k == "preprocessor_flags")return $this->__preprocessor_flags;
-		return parent::takeValue($__ctx,$k,$d);
+		return parent::takeValue($ctx,$k,$d);
 	}
 	function getClassName()
 	{
@@ -280,9 +292,9 @@ class CoreTranslator extends \Runtime\CoreStruct
 	{
 		return "Runtime.CoreStruct";
 	}
-	static function getClassInfo($__ctx)
+	static function getClassInfo($ctx)
 	{
-		return new \Runtime\Annotations\IntrospectionInfo($__ctx, [
+		return new \Runtime\Annotations\IntrospectionInfo($ctx, [
 			"kind"=>\Runtime\Annotations\IntrospectionInfo::ITEM_CLASS,
 			"class_name"=>"Bayrell.Lang.CoreTranslator",
 			"name"=>"Bayrell.Lang.CoreTranslator",
@@ -290,7 +302,7 @@ class CoreTranslator extends \Runtime\CoreStruct
 			]),
 		]);
 	}
-	static function getFieldsList($__ctx,$f)
+	static function getFieldsList($ctx,$f)
 	{
 		$a = [];
 		if (($f|3)==3)
@@ -299,6 +311,7 @@ class CoreTranslator extends \Runtime\CoreStruct
 			$a[] = "current_class_name";
 			$a[] = "current_class_full_name";
 			$a[] = "current_class_extends_name";
+			$a[] = "current_class";
 			$a[] = "current_function";
 			$a[] = "modules";
 			$a[] = "vars";
@@ -316,17 +329,150 @@ class CoreTranslator extends \Runtime\CoreStruct
 		}
 		return \Runtime\Collection::from($a);
 	}
-	static function getFieldInfoByName($__ctx,$field_name)
+	static function getFieldInfoByName($ctx,$field_name)
 	{
+		if ($field_name == "current_namespace_name") return new \Runtime\Annotations\IntrospectionInfo($ctx, [
+			"kind"=>\Runtime\Annotations\IntrospectionInfo::ITEM_FIELD,
+			"class_name"=>"Bayrell.Lang.CoreTranslator",
+			"name"=> $field_name,
+			"annotations"=>\Runtime\Collection::from([
+			]),
+		]);
+		if ($field_name == "current_class_name") return new \Runtime\Annotations\IntrospectionInfo($ctx, [
+			"kind"=>\Runtime\Annotations\IntrospectionInfo::ITEM_FIELD,
+			"class_name"=>"Bayrell.Lang.CoreTranslator",
+			"name"=> $field_name,
+			"annotations"=>\Runtime\Collection::from([
+			]),
+		]);
+		if ($field_name == "current_class_full_name") return new \Runtime\Annotations\IntrospectionInfo($ctx, [
+			"kind"=>\Runtime\Annotations\IntrospectionInfo::ITEM_FIELD,
+			"class_name"=>"Bayrell.Lang.CoreTranslator",
+			"name"=> $field_name,
+			"annotations"=>\Runtime\Collection::from([
+			]),
+		]);
+		if ($field_name == "current_class_extends_name") return new \Runtime\Annotations\IntrospectionInfo($ctx, [
+			"kind"=>\Runtime\Annotations\IntrospectionInfo::ITEM_FIELD,
+			"class_name"=>"Bayrell.Lang.CoreTranslator",
+			"name"=> $field_name,
+			"annotations"=>\Runtime\Collection::from([
+			]),
+		]);
+		if ($field_name == "current_class") return new \Runtime\Annotations\IntrospectionInfo($ctx, [
+			"kind"=>\Runtime\Annotations\IntrospectionInfo::ITEM_FIELD,
+			"class_name"=>"Bayrell.Lang.CoreTranslator",
+			"name"=> $field_name,
+			"annotations"=>\Runtime\Collection::from([
+			]),
+		]);
+		if ($field_name == "current_function") return new \Runtime\Annotations\IntrospectionInfo($ctx, [
+			"kind"=>\Runtime\Annotations\IntrospectionInfo::ITEM_FIELD,
+			"class_name"=>"Bayrell.Lang.CoreTranslator",
+			"name"=> $field_name,
+			"annotations"=>\Runtime\Collection::from([
+			]),
+		]);
+		if ($field_name == "modules") return new \Runtime\Annotations\IntrospectionInfo($ctx, [
+			"kind"=>\Runtime\Annotations\IntrospectionInfo::ITEM_FIELD,
+			"class_name"=>"Bayrell.Lang.CoreTranslator",
+			"name"=> $field_name,
+			"annotations"=>\Runtime\Collection::from([
+			]),
+		]);
+		if ($field_name == "vars") return new \Runtime\Annotations\IntrospectionInfo($ctx, [
+			"kind"=>\Runtime\Annotations\IntrospectionInfo::ITEM_FIELD,
+			"class_name"=>"Bayrell.Lang.CoreTranslator",
+			"name"=> $field_name,
+			"annotations"=>\Runtime\Collection::from([
+			]),
+		]);
+		if ($field_name == "save_vars") return new \Runtime\Annotations\IntrospectionInfo($ctx, [
+			"kind"=>\Runtime\Annotations\IntrospectionInfo::ITEM_FIELD,
+			"class_name"=>"Bayrell.Lang.CoreTranslator",
+			"name"=> $field_name,
+			"annotations"=>\Runtime\Collection::from([
+			]),
+		]);
+		if ($field_name == "save_op_codes") return new \Runtime\Annotations\IntrospectionInfo($ctx, [
+			"kind"=>\Runtime\Annotations\IntrospectionInfo::ITEM_FIELD,
+			"class_name"=>"Bayrell.Lang.CoreTranslator",
+			"name"=> $field_name,
+			"annotations"=>\Runtime\Collection::from([
+			]),
+		]);
+		if ($field_name == "save_op_code_inc") return new \Runtime\Annotations\IntrospectionInfo($ctx, [
+			"kind"=>\Runtime\Annotations\IntrospectionInfo::ITEM_FIELD,
+			"class_name"=>"Bayrell.Lang.CoreTranslator",
+			"name"=> $field_name,
+			"annotations"=>\Runtime\Collection::from([
+			]),
+		]);
+		if ($field_name == "is_static_function") return new \Runtime\Annotations\IntrospectionInfo($ctx, [
+			"kind"=>\Runtime\Annotations\IntrospectionInfo::ITEM_FIELD,
+			"class_name"=>"Bayrell.Lang.CoreTranslator",
+			"name"=> $field_name,
+			"annotations"=>\Runtime\Collection::from([
+			]),
+		]);
+		if ($field_name == "is_operation") return new \Runtime\Annotations\IntrospectionInfo($ctx, [
+			"kind"=>\Runtime\Annotations\IntrospectionInfo::ITEM_FIELD,
+			"class_name"=>"Bayrell.Lang.CoreTranslator",
+			"name"=> $field_name,
+			"annotations"=>\Runtime\Collection::from([
+			]),
+		]);
+		if ($field_name == "opcode_level") return new \Runtime\Annotations\IntrospectionInfo($ctx, [
+			"kind"=>\Runtime\Annotations\IntrospectionInfo::ITEM_FIELD,
+			"class_name"=>"Bayrell.Lang.CoreTranslator",
+			"name"=> $field_name,
+			"annotations"=>\Runtime\Collection::from([
+			]),
+		]);
+		if ($field_name == "indent_level") return new \Runtime\Annotations\IntrospectionInfo($ctx, [
+			"kind"=>\Runtime\Annotations\IntrospectionInfo::ITEM_FIELD,
+			"class_name"=>"Bayrell.Lang.CoreTranslator",
+			"name"=> $field_name,
+			"annotations"=>\Runtime\Collection::from([
+			]),
+		]);
+		if ($field_name == "indent") return new \Runtime\Annotations\IntrospectionInfo($ctx, [
+			"kind"=>\Runtime\Annotations\IntrospectionInfo::ITEM_FIELD,
+			"class_name"=>"Bayrell.Lang.CoreTranslator",
+			"name"=> $field_name,
+			"annotations"=>\Runtime\Collection::from([
+			]),
+		]);
+		if ($field_name == "crlf") return new \Runtime\Annotations\IntrospectionInfo($ctx, [
+			"kind"=>\Runtime\Annotations\IntrospectionInfo::ITEM_FIELD,
+			"class_name"=>"Bayrell.Lang.CoreTranslator",
+			"name"=> $field_name,
+			"annotations"=>\Runtime\Collection::from([
+			]),
+		]);
+		if ($field_name == "flag_struct_check_types") return new \Runtime\Annotations\IntrospectionInfo($ctx, [
+			"kind"=>\Runtime\Annotations\IntrospectionInfo::ITEM_FIELD,
+			"class_name"=>"Bayrell.Lang.CoreTranslator",
+			"name"=> $field_name,
+			"annotations"=>\Runtime\Collection::from([
+			]),
+		]);
+		if ($field_name == "preprocessor_flags") return new \Runtime\Annotations\IntrospectionInfo($ctx, [
+			"kind"=>\Runtime\Annotations\IntrospectionInfo::ITEM_FIELD,
+			"class_name"=>"Bayrell.Lang.CoreTranslator",
+			"name"=> $field_name,
+			"annotations"=>\Runtime\Collection::from([
+			]),
+		]);
 		return null;
 	}
-	static function getMethodsList($__ctx)
+	static function getMethodsList($ctx)
 	{
 		$a = [
 		];
 		return \Runtime\Collection::from($a);
 	}
-	static function getMethodInfoByName($__ctx,$field_name)
+	static function getMethodInfoByName($ctx,$field_name)
 	{
 		return null;
 	}

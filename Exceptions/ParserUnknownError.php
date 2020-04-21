@@ -19,13 +19,13 @@
 namespace Bayrell\Lang\Exceptions;
 class ParserUnknownError extends \Runtime\Exceptions\RuntimeException
 {
-	function __construct($__ctx, $s, $code, $context, $prev=null)
+	function __construct($ctx, $s, $code, $context, $prev=null)
 	{
 		if ($code == -1)
 		{
 			$code = \Bayrell\Lang\LangConstant::ERROR_PARSER;
 		}
-		parent::__construct($__ctx, $s, $code, $context, $prev);
+		parent::__construct($ctx, $s, $code, $context, $prev);
 	}
 	/* ======================= Class Init Functions ======================= */
 	function getClassName()
@@ -44,9 +44,9 @@ class ParserUnknownError extends \Runtime\Exceptions\RuntimeException
 	{
 		return "Runtime.Exceptions.RuntimeException";
 	}
-	static function getClassInfo($__ctx)
+	static function getClassInfo($ctx)
 	{
-		return new \Runtime\Annotations\IntrospectionInfo($__ctx, [
+		return new \Runtime\Annotations\IntrospectionInfo($ctx, [
 			"kind"=>\Runtime\Annotations\IntrospectionInfo::ITEM_CLASS,
 			"class_name"=>"Bayrell.Lang.Exceptions.ParserUnknownError",
 			"name"=>"Bayrell.Lang.Exceptions.ParserUnknownError",
@@ -54,22 +54,22 @@ class ParserUnknownError extends \Runtime\Exceptions\RuntimeException
 			]),
 		]);
 	}
-	static function getFieldsList($__ctx,$f)
+	static function getFieldsList($ctx,$f)
 	{
 		$a = [];
 		return \Runtime\Collection::from($a);
 	}
-	static function getFieldInfoByName($__ctx,$field_name)
+	static function getFieldInfoByName($ctx,$field_name)
 	{
 		return null;
 	}
-	static function getMethodsList($__ctx)
+	static function getMethodsList($ctx)
 	{
 		$a = [
 		];
 		return \Runtime\Collection::from($a);
 	}
-	static function getMethodInfoByName($__ctx,$field_name)
+	static function getMethodInfoByName($ctx,$field_name)
 	{
 		return null;
 	}
